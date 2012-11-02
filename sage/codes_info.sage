@@ -88,8 +88,8 @@ print("Total number of (M_p)-s:  {0}".format(nilindex))
 print("Total number of different non-zero radical powers: {0}".format(nilindex - 1))
 print("\n")
 
-print("m*(pi-1) = {0:.<10} m*(pi-1) - 1 = {1:.<10}".format( numofMs - 1,  numofMs - 2))
-print("l*(p-1) =  {0:.<10} l*(p-1) - 1 =  {1:.<10}".format(nilindex - 1, nilindex - 2))
+print("m*(pi-1) = {0:<10} m*(pi-1) - 1 = {1:<}".format( numofMs - 1,  numofMs - 2))
+print("l*(p-1) =  {0:<10} l*(p-1) - 1 =  {1:<}".format(nilindex - 1, nilindex - 2))
 
 print("\n")
 print("Total number of Ms is {0}:".format(numofMs))
