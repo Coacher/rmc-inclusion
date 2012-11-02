@@ -82,22 +82,24 @@ print("Info for graph with parameters: " \
         + "p = {0}, l = {1}, lambda = {2}.".format(p, l ,lamb))
 print("q = {0}, pi = {1}, m = {2}". format(q, pi, m))
 print("\n")
-print("Total number of (M_pi)-s: {0}".format(numofMs))
-print("Total number of (M_p)-s: {0}".format(nilindex))
+
+print("Total number of (M_pi)-s: {0}".format( numofMs))
+print("Total number of (M_p)-s:  {0}".format(nilindex))
 print("Total number of different non-zero radical powers: {0}".format(nilindex - 1))
 print("\n")
-print("m*(pi-1) = {0} \t m*(pi-1) - 1 = {1}".format(numofMs - 1, numofMs - 2))
-print("l*(p-1) = {0} \t l*(p-1) - 1 = {1}".format(nilindex - 1, nilindex - 2))
+
+print("m*(pi-1) = {0:.<10} m*(pi-1) - 1 = {1:.<10}".format( numofMs - 1,  numofMs - 2))
+print("l*(p-1) =  {0:.<10} l*(p-1) - 1 =  {1:.<10}".format(nilindex - 1, nilindex - 2))
 
 print("\n")
 print("Total number of Ms is {0}:".format(numofMs))
 for i in range(0, numofMs):
-    print("M_{pi}({m},{k}):\tdim = {dim}". format(pi = pi, m = m, k = i, dim = m_k(i, pi, m)))
+    print("M_{pi}({m},{k}):\t\tdim = {dim}". format(pi = pi, m = m, k = i, dim = m_k(i, pi, m)))
 
 print("\n")
 print("Total number of Radical powers is {0}:".format(nilindex))
 for i in range(0, nilindex):
-    print( "Rad^{s} == M_{p}({l}, {j}):\tdim = {dim}". format(s = l*(p - 1) - i, \
+    print( "Rad^{s} = M_{p}({l},{j}):\tdim = {dim}". format(s = l*(p - 1) - i, \
             p = p, l = l, j = i, dim = m_k(i, p, l)))
 
 Ms = [M_k(0)]
