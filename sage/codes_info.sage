@@ -102,9 +102,9 @@ for i in range(0, nilindex):
     print( "Rad^{s} = M_{p}({l},{j}):\tdim = {dim}". format(s = l*(p - 1) - i, \
             p = p, l = l, j = i, dim = m_k(i, p, l)))
 
-Ms = [M_k(0)]
+Ms = [M_k(0, pi, m)]
 for i in range(1, numofMs):
-    Ms.append(M_k(i, Ms[i-1]))
+    Ms.append(M_k(i, pi, m, Ms[i-1]))
 
 RMs = [ gap.ProductSpace(Rad, M) for M in Ms ]
 

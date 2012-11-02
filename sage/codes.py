@@ -75,7 +75,7 @@ def R_s(s, prev = None):
         Ret += gap.Ideal(S, [u_s(i) for i in range(1,s)])
     return Ret
 
-def M_k(k, prev = None):
+def M_k(k, pi, m, prev = None):
     '''Return M_pi(m,k).
 
     You should use prev paramater to support M_(k-1)
