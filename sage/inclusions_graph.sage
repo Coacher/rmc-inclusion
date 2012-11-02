@@ -77,9 +77,9 @@ Sbasis = S.CanonicalBasis().AsSortedList()
 V = VectorSpace(Zmod(p), l)
 
 print("\nComputing M-s...")
-Ms = [M_k(0)]
+Ms = [M_k(0, pi, m)]
 for i in range(1, numofMs):
-    Ms.append(M_k(i, Ms[i-1]))
+    Ms.append(M_k(i, pi, m, Ms[i-1]))
 
 print("\nGenerating elements mapping...")
 
