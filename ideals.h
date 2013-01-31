@@ -29,13 +29,17 @@ typedef struct IDEAL_t {
     unsigned long m;
     unsigned long k;
     /* string with 'coordinates' of a given ideal in a basis of Qu_i's */
-    char* u_s;
+    unsigned char* u_s;
 } IDEAL;
 
-IDEAL* ideal_init(unsigned long q, unsigned long pi, unsigned long m, unsigned long k);
+IDEAL* ideal_create(unsigned long q);
+int ideal_init(IDEAL* M, unsigned long pi, unsigned long m, unsigned long k);
+int ideal_init_from_prev(IDEAL* M, IDEAL* prev);
 void ideal_free(IDEAL* M);
 
-/* returns non-zero when x is a subset of y */
+/* returns non-zero when M is equal to N */
+int ideal_isequal(IDEAL* M, IDEAL* N);
+/* returns non-zero when M is a subset of N */
 int ideal_issubset(IDEAL* M, IDEAL* N);
 /* sets res to M * N */
 int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p);

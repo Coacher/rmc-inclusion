@@ -1,38 +1,73 @@
 /* code for M_pi(m,k) ideals and related functions */
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "ideals.h"
 
-IDEAL* ideal_init(unsigned long q, unsigned long pi, unsigned long m, unsigned long k) {
-    unsigned long i;
+IDEAL* ideal_create(unsigned long q) {
     IDEAL* M;
 
     M = (IDEAL*) malloc(sizeof(IDEAL));
-    if (!M) {
-        fprintf(stderr, "Unable to allocate memory for ideal\n");
+    if (M == NULL) {
+        fprintf(stderr, "Unable to allocate memory for ideal.\n");
         return NULL;
     }
 
     M->q = q;
+
+    M->u_s = (unsigned char*) calloc(q, sizeof(char));
+    if (M->u_s == NULL) {
+        fprintf(stderr, "Unable to allocate memory for u_s.\n");
+        return NULL;
+    }
+
+    return M;
+}
+
+int ideal_init(IDEAL* M, unsigned long pi, unsigned long m, unsigned long k) {
+    unsigned long i;
+
+    if (M == NULL)
+        return 1;
+
     M->pi = pi;
     M->m = m;
     M->k = k;
 
-    M->u_s = (char*) calloc(q, sizeof(char));
-    if (!M->u_s) {
-        fprintf(stderr, "Unable to allocate memory for u_s\n");
-        return NULL;
-    }
-
-    for (i = 0; i < q; ++i) {
+    for (i = 0; i < M->q; ++i) {
         if (weight(i, pi) <= k) {
             M->u_s[i] = 1;
         }
     }
 
-    return M;
+    return 0;
 }
+
+int ideal_init_from_prev(IDEAL* M, IDEAL* prev) {
+    unsigned long i;
+
+    if (M == NULL || prev == NULL)
+        return 1;
+
+    if (M->q != prev->q)
+        return -1;
+
+    M->pi = prev->pi;
+    M->m = prev->m;
+    M->k = prev->k + 1;
+
+    memcpy(M->u_s, prev->u_s, M->q);
+
+    for (i = 0; i < M->q; ++i) {
+        if (weight(i, M->pi) == prev->k + 1) {
+            M->u_s[i] = 1;
+        }
+    }
+
+    return 0;
+}
+
 
 void ideal_free(IDEAL* M) {
     if (M) {
@@ -41,6 +76,21 @@ void ideal_free(IDEAL* M) {
         }
         free(M);
     }
+}
+
+int ideal_isequal(IDEAL* M, IDEAL* N) {
+    unsigned long i;
+
+    if (M->q != N->q)
+        return 0;
+
+    for (i = 0; i < M->q; ++i) {
+        if (M->u_s[i] != N->u_s[i]) {
+            return 0;
+        }
+    }
+
+    return 1;
 }
 
 int ideal_issubset(IDEAL* M, IDEAL* N) {
@@ -63,11 +113,11 @@ int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
     unsigned long q;
     unsigned long div1, div2, digit1, digit2;
 
-    if ((M == NULL) || (N == NULL) || (res == NULL))
+    if (M == NULL || N == NULL || res == NULL)
         return -1;
 
-    if ((M->q != N->q) || (M->q != res->q))
-        return -1;
+    if (M->q != N->q || M->q != res->q)
+        return -2;
 
     q = M->q;
     for (i = 0; i < q; ++i) {
@@ -112,11 +162,11 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long j, unsigned long p) {
     unsigned long q;
     unsigned long div1, div2, digit1, digit2;
 
-    if ((M == NULL) || (res == NULL))
+    if (M == NULL || res == NULL)
         return -1;
 
     if (M->q != res->q)
-        return -1;
+        return -2;
 
     q = M->q;
     for (i = 0; i < q; ++i) {
