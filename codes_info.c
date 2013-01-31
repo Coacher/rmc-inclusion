@@ -117,10 +117,11 @@ int main(int argc, char **argv) {
     }
 
 #ifdef WITH_RMS
-    dbg_msg("Computing Ms...\n");
+    dbg_msg("Computing RMs...\n");
     for (i = 0; i < numofMs; ++i) {
         pp = ideal_create(q);
-        ideal_product(&RMs[i], &Ms[i], &Rads[nilindex - 2], p);
+        ideal_product(pp, &Ms[i], &Rads[nilindex - 2], p);
+        RMs[i] = *pp;
     }
 #endif
 
@@ -159,7 +160,7 @@ int main(int argc, char **argv) {
 
 #ifdef WITH_RMS
     fprintf(out, "\n");
-    fprintf(out, "Detected Rad*M-s <-> M-s equalities:\n");
+    fprintf(out, "Detected Rad*M-s  <-> M-s equalities:\n");
     for (i = 0; i <= numofMs; ++i) {
         for (j = 0; j <= numofMs; ++j) {
             if (ideal_isequal(Ms + i, RMs + j)) {
@@ -203,7 +204,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     const char *opts_help[] = {
         "Specifies characteristic of Q, must be a prime.",
         "Specifies size of Q as an exponent of p.",
-        "Specifies the series of ideals, must be a factor of l.",
+        "Specifies the series of ideals, must be a factor of l, except for 1.",
         "Write output to stdout.",
         "Increase debugging level.",
         "Print version information.",
@@ -266,6 +267,11 @@ static int handle_cmdline(int *argc, char ***argv) {
 
     if (p == 0 || l == 0 || lambda == 0) {
         fprintf(stderr, "You must specify at least p, l and L options. See --help.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (l % lambda) {
+        fprintf(stderr, "lambda must be a factor of l, except for 1. See --help.\n");
         exit(EXIT_FAILURE);
     }
 
