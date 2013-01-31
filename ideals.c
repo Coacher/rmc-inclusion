@@ -106,16 +106,18 @@ int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
                     } else {
                         digit1 = i % p;
                         digit2 = delta % p;
+                        div1 = i;
+                        div2 = delta;
 
                         do {
                             if (digit2 > digit1)
                                 break;
 
-                            div1 = i / p;
-                            digit1 = i % p;
+                            div1 = div1 / p;
+                            digit1 = div1 % p;
 
-                            div2 = delta / p;
-                            digit2 = delta % p;
+                            div2 = div2 / p;
+                            digit2 = div2 % p;
                         } while (div2);
 
                         res->u_s[delta] = (digit2 > digit1) ? 1: 0;
@@ -153,16 +155,18 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long
                 } else {
                     digit1 = i % p;
                     digit2 = delta % p;
+                    div1 = i;
+                    div2 = delta;
 
                     do {
                         if (digit2 > digit1)
                             break;
 
-                        div1 = i / p;
-                        digit1 = i % p;
+                        div1 = div1 / p;
+                        digit1 = div1 % p;
 
-                        div2 = delta / p;
-                        digit2 = delta % p;
+                        div2 = div2 / p;
+                        digit2 = div2 % p;
                     } while (div2);
 
                     res->u_s[delta] = (digit2 > digit1) ? 1: 0;
