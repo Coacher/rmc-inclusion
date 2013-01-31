@@ -11,7 +11,7 @@ unsigned long long pow_ul(unsigned long base, unsigned long power);
 unsigned long weight(unsigned long long x, unsigned long pi);
 
 /* binomial coefficient \binom{n}{m} */
-void bin_coeff(mpz_t rop, long n, long m);
+void bin_coeff(mpz_t rop, long long n, long long m);
 
 /* Q-dimension of M_pi(m,k) */
 void m_k(mpz_t rop, unsigned long pi, unsigned long m, unsigned long k);

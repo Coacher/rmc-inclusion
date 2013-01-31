@@ -1,5 +1,4 @@
 /* a number of small useful functions */
-#include <gmp.h>
 
 #include "common.h"
 
@@ -18,18 +17,20 @@ unsigned long long pow_ul(unsigned long p, unsigned long l) {
 }
 
 unsigned long weight(unsigned long long x, unsigned long pi) {
-    unsigned long long weight = 0;
+    unsigned long weight = 0;
 
     while (x) {
         weight += x % pi;
         x /= pi;
     }
 
-    return (unsigned long) weight;
+    return weight;
 }
 
 /* calculates \binom{n}{m} using gmp */
-void bin_coeff(mpz_t rop, long n, long m) {
+void bin_coeff(mpz_t rop, long long n, long long m) {
+    char sign = 1;
+
     if (m < 0) {
         mpz_set_ui(rop, 0);
         return;
@@ -37,10 +38,11 @@ void bin_coeff(mpz_t rop, long n, long m) {
 
     if (n < 0) {
         n = m - n - 1;
-        (m & 1) ? mpz_set_si(rop, -1) : mpz_set_ui(rop, 1);
+        sign = (m & 1) ? -1 : 1;
     }
 
     mpz_bin_uiui(rop, n, m);
+    mpz_mul_si(rop, rop, sign);
 }
 
 void m_k(mpz_t rop, unsigned long pi, unsigned long m, unsigned long k) {

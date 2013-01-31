@@ -5,7 +5,7 @@
 
 #include "ideals.h"
 
-IDEAL* ideal_create(unsigned long q) {
+IDEAL* ideal_create(unsigned long long q) {
     IDEAL* M;
 
     M = (IDEAL*) malloc(sizeof(IDEAL));
@@ -26,7 +26,7 @@ IDEAL* ideal_create(unsigned long q) {
 }
 
 int ideal_init(IDEAL* M, unsigned long pi, unsigned long m, unsigned long k) {
-    unsigned long i;
+    unsigned long long i;
 
     if (M == NULL)
         return 1;
@@ -44,31 +44,6 @@ int ideal_init(IDEAL* M, unsigned long pi, unsigned long m, unsigned long k) {
     return 0;
 }
 
-int ideal_init_from_prev(IDEAL* M, IDEAL* prev) {
-    unsigned long i;
-
-    if (M == NULL || prev == NULL)
-        return 1;
-
-    if (M->q != prev->q)
-        return -1;
-
-    M->pi = prev->pi;
-    M->m = prev->m;
-    M->k = prev->k + 1;
-
-    memcpy(M->u_s, prev->u_s, M->q);
-
-    for (i = 0; i < M->q; ++i) {
-        if (weight(i, M->pi) == prev->k + 1) {
-            M->u_s[i] = 1;
-        }
-    }
-
-    return 0;
-}
-
-
 void ideal_free(IDEAL* M) {
     if (M) {
         if (M->u_s) {
@@ -79,7 +54,7 @@ void ideal_free(IDEAL* M) {
 }
 
 int ideal_isequal(IDEAL* M, IDEAL* N) {
-    unsigned long i;
+    unsigned long long i;
 
     if (M->q != N->q)
         return 0;
@@ -94,7 +69,7 @@ int ideal_isequal(IDEAL* M, IDEAL* N) {
 }
 
 int ideal_issubset(IDEAL* M, IDEAL* N) {
-    unsigned long i;
+    unsigned long long i;
 
     if (M->q != N->q)
         return 0;
@@ -109,9 +84,9 @@ int ideal_issubset(IDEAL* M, IDEAL* N) {
 }
 
 int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
-    unsigned long i, j, delta;
-    unsigned long q;
-    unsigned long div1, div2, digit1, digit2;
+    unsigned long long q, i, j, delta;
+    unsigned long long div1, div2;
+    unsigned long digit1, digit2;
 
     if (M == NULL || N == NULL || res == NULL)
         return -1;
@@ -123,8 +98,7 @@ int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
     for (i = 0; i < q; ++i) {
         for (j = 0; j < q; ++j) {
             if (M->u_s[i] && N->u_s[j]) {
-
-                if ((i + j > q - 2) && (i + j < 2*(q - 1))) {
+                if ( (i + j > q - 2) && (i + j < 2*(q - 1)) ) {
                     delta = i + j - (q - 1);
 
                     if (res->u_s[delta]) {
@@ -142,7 +116,7 @@ int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
 
                             div2 = delta / p;
                             digit2 = delta % p;
-                        } while (div1 || div2);
+                        } while (div2);
 
                         res->u_s[delta] = (digit2 > digit1) ? 1: 0;
                     }
@@ -157,10 +131,10 @@ int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
     return 0;
 }
 
-int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long j, unsigned long p) {
-    unsigned long i, delta;
-    unsigned long q;
-    unsigned long div1, div2, digit1, digit2;
+int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long p) {
+    unsigned long long q, i, delta;
+    unsigned long long div1, div2;
+    unsigned long digit1, digit2;
 
     if (M == NULL || res == NULL)
         return -1;
@@ -171,8 +145,7 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long j, unsigned long p) {
     q = M->q;
     for (i = 0; i < q; ++i) {
         if (M->u_s[i]) {
-
-            if ((i + j > q - 2) && (i + j < 2*(q - 1))) {
+            if ( (i + j > q - 2) && (i + j < 2*(q - 1)) ) {
                 delta = i + j - (q - 1);
 
                 if (res->u_s[delta]) {
@@ -190,7 +163,7 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long j, unsigned long p) {
 
                         div2 = delta / p;
                         digit2 = delta % p;
-                    } while (div1 || div2);
+                    } while (div2);
 
                     res->u_s[delta] = (digit2 > digit1) ? 1: 0;
                 }

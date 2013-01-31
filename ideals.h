@@ -24,7 +24,7 @@
  */
 typedef struct IDEAL_t {
     /* parameters of ideal */
-    unsigned long q;
+    unsigned long long q;
     unsigned long pi;
     unsigned long m;
     unsigned long k;
@@ -32,9 +32,8 @@ typedef struct IDEAL_t {
     unsigned char* u_s;
 } IDEAL;
 
-IDEAL* ideal_create(unsigned long q);
+IDEAL* ideal_create(unsigned long long q);
 int ideal_init(IDEAL* M, unsigned long pi, unsigned long m, unsigned long k);
-int ideal_init_from_prev(IDEAL* M, IDEAL* prev);
 void ideal_free(IDEAL* M);
 
 /* returns non-zero when M is equal to N */
@@ -43,6 +42,6 @@ int ideal_isequal(IDEAL* M, IDEAL* N);
 int ideal_issubset(IDEAL* M, IDEAL* N);
 /* sets res to M * N */
 int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p);
-/* sets res to M * (Qu_i) */
-int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long i, unsigned long p);
+/* sets res to M * (Qu_t) */
+int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long t, unsigned long p);
 #endif
