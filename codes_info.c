@@ -5,6 +5,8 @@
 #include <string.h>
 #include <getopt.h>
 
+#define WITH_RMS
+
 #ifdef WITH_MPI
 #include <mpi.h>
 
@@ -38,6 +40,9 @@ int main(int argc, char **argv) {
     FILE *out;
     IDEAL* Ms;
     IDEAL* Rads;
+#ifdef WITH_RMS
+    IDEAL* RMs;
+#endif
     IDEAL* pp;
 
     unsigned long long q;
@@ -72,8 +77,15 @@ int main(int argc, char **argv) {
 
     Ms   = (IDEAL*) malloc(numofMs*sizeof(IDEAL));
     Rads = (IDEAL*) malloc(nilindex*sizeof(IDEAL));
+#ifdef WITH_RMS
+    RMs   = (IDEAL*) malloc(numofMs*sizeof(IDEAL));
+#endif
 
+#ifdef WITH_RMS
+    if (Ms == NULL || Rads == NULL || RMs == NULL) {
+#else
     if (Ms == NULL || Rads == NULL) {
+#endif
         fprintf(stderr, "Unable to allocate memory for ideals' arrays.\n");
         exit(EXIT_FAILURE);
     }
@@ -104,6 +116,14 @@ int main(int argc, char **argv) {
         Rads[i] = *pp;
     }
 
+#ifdef WITH_RMS
+    dbg_msg("Computing Ms...\n");
+    for (i = 0; i < numofMs; ++i) {
+        pp = ideal_create(q);
+        ideal_product(&RMs[i], &Ms[i], &Rads[nilindex - 2], p);
+    }
+#endif
+
     /* hardest part of the work is done, spit out results */
     fprintf(out, "Input parameters:      p = %-10lu l  = %-10lu lambda = %-lu\n", p, l, lambda);
     fprintf(out, "Additional parameters: q = %-10llu pi = %-10lu m = %-lu\n\n", q, pi, m);
@@ -121,13 +141,12 @@ int main(int argc, char **argv) {
     }
     fprintf(out, "\n");
 
-    fprintf(out, "Ras dimensions:\n");
+    fprintf(out, "Rads dimensions:\n");
     for (i = 0; i < nilindex; ++i) {
-        m_k(res, pi, m, i);
+        m_k(res, p, l, i);
         gmp_fprintf(out, "Rad^%lu = M_%lu(%lu,%lu):\tdim = %Zd\n", l*(p - 1) - i, p, l, i, res);
     }
     fprintf(out, "\n");
-
 
     fprintf(out, "Detected (M_pi)-s <-> Rads equalities:\n");
     for (i = 0; i <= numofMs; ++i) {
@@ -138,11 +157,26 @@ int main(int argc, char **argv) {
         }
     }
 
+#ifdef WITH_RMS
+    fprintf(out, "\n");
+    fprintf(out, "Detected Rad*M-s <-> M-s equalities:\n");
+    for (i = 0; i <= numofMs; ++i) {
+        for (j = 0; j <= numofMs; ++j) {
+            if (ideal_isequal(Ms + i, RMs + j)) {
+                fprintf(out, "Rad*M_%lu(%lu,%lu) == M_%lu(%lu,%lu)\n", pi, m, j, pi, m, i);
+            }
+        }
+    }
+#endif
+
     /* do cleanup */
     /* not the best cleanup as we leak memory allocated per each ideal in Ms and Rads */
     fclose(out);
     free(Ms);
     free(Rads);
+#ifdef WITH_RMS
+    free(RMs);
+#endif
     mpz_clear(res);
 
 #ifdef WITH_MPI
