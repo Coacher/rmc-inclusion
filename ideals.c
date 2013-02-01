@@ -16,9 +16,10 @@ IDEAL* ideal_create(unsigned long long q) {
 
     M->q = q;
 
-    M->u_s = (unsigned char*) calloc(q, sizeof(char));
+    M->u_s = (unsigned char*) calloc(q, sizeof(unsigned char));
     if (M->u_s == NULL) {
         fprintf(stderr, "Unable to allocate memory for u_s.\n");
+        free(M);
         return NULL;
     }
 
@@ -83,56 +84,6 @@ int ideal_issubset(IDEAL* M, IDEAL* N) {
     return 1;
 }
 
-int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
-    unsigned long long q, i, j, delta;
-    unsigned long long div1, div2;
-    unsigned long digit1, digit2;
-
-    if (M == NULL || N == NULL || res == NULL)
-        return -1;
-
-    if (M->q != N->q || M->q != res->q)
-        return -2;
-
-    q = M->q;
-    for (i = 0; i < q; ++i) {
-        for (j = 0; j < q; ++j) {
-            if (M->u_s[i] && N->u_s[j]) {
-                if ( (i + j > q - 2) && (i + j < 2*(q - 1)) ) {
-                    delta = i + j - (q - 1);
-
-                    if (res->u_s[delta]) {
-                        continue;
-                    } else {
-                        digit1 = i % p;
-                        digit2 = delta % p;
-                        div1 = i;
-                        div2 = delta;
-
-                        do {
-                            if (digit2 > digit1)
-                                break;
-
-                            div1 = div1 / p;
-                            digit1 = div1 % p;
-
-                            div2 = div2 / p;
-                            digit2 = div2 % p;
-                        } while (div2);
-
-                        res->u_s[delta] = (digit2 > digit1) ? 1: 0;
-                    }
-                } else if ((i + j) == 2*(q - 1)) {
-                    res->u_s[0] = 1;
-                    res->u_s[q-1] = 1;
-                }
-            }
-        }
-    }
-
-    return 0;
-}
-
 int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long p) {
     unsigned long long q, i, delta;
     unsigned long long div1, div2;
@@ -162,14 +113,14 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long
                         if (digit2 > digit1)
                             break;
 
-                        div1 = div1 / p;
+                        div1 /= p;
                         digit1 = div1 % p;
 
-                        div2 = div2 / p;
+                        div2 /= p;
                         digit2 = div2 % p;
                     } while (div2);
 
-                    res->u_s[delta] = (digit2 > digit1) ? 1: 0;
+                    res->u_s[delta] = (digit2 < digit1);
                 }
             } else if ((i + j) == 2*(q - 1)) {
                 res->u_s[0] = 1;
@@ -180,3 +131,25 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long
 
     return 0;
 }
+
+int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
+    unsigned long long q, j;
+    int ret;
+
+    if (M == NULL || N == NULL || res == NULL)
+        return -1;
+
+    if (M->q != N->q || M->q != res->q)
+        return -2;
+
+    q = N->q;
+    for (j = 0; j < q; ++j) {
+        if (N->u_s[j]) {
+            if (ret = ideal_multiplyby_u(res, M, j, p))
+                return ret;
+        }
+    }
+
+    return 0;
+}
+
