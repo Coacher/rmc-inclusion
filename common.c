@@ -37,12 +37,15 @@ void bin_coeff(mpz_t rop, long long n, long long m) {
     }
 
     if (n < 0) {
+        /* \binom{n}{k} = (-1)^k*\binom{m-n-1}{m}, when n < 0 <= m */
         n = m - n - 1;
         sign = (m & 1) ? -1 : 1;
     }
 
     mpz_bin_uiui(rop, n, m);
-    mpz_mul_si(rop, rop, sign);
+
+    if (sign < 0)
+        mpz_mul_si(rop, rop, sign);
 }
 
 void m_k(mpz_t rop, unsigned long pi, unsigned long m, unsigned long k) {
@@ -58,7 +61,9 @@ void m_k(mpz_t rop, unsigned long pi, unsigned long m, unsigned long k) {
         bin_coeff(tmp1, m, j);
         bin_coeff(tmp2, m + k - pi*j, k - pi*j);
         mpz_mul(tmp1, tmp1, tmp2);
-        mpz_mul_si(tmp1, tmp1, (j & 1) ? -1 : 1);
+        if (j & 1)
+            mpz_mul_si(tmp1, tmp1, -1);
+
         mpz_add(rop, rop, tmp1);
     }
 
