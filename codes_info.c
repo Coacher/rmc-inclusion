@@ -5,8 +5,6 @@
 #include <string.h>
 #include <getopt.h>
 
-#define WITH_RMS
-
 #ifdef WITH_MPI
 #include <mpi.h>
 
@@ -40,9 +38,7 @@ int main(int argc, char **argv) {
     FILE *out;
     IDEAL** Ms;
     IDEAL** Rads;
-#ifdef WITH_RMS
     IDEAL** RMs;
-#endif
     IDEAL* pp;
 
     unsigned long long q;
@@ -77,15 +73,9 @@ int main(int argc, char **argv) {
 
     Ms   = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
     Rads = (IDEAL**) malloc(nilindex*sizeof(IDEAL*));
-#ifdef WITH_RMS
     RMs  = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
-#endif
 
-#ifdef WITH_RMS
     if (Ms == NULL || Rads == NULL || RMs == NULL) {
-#else
-    if (Ms == NULL || Rads == NULL) {
-#endif
         fprintf(stderr, "Unable to allocate memory for ideals' arrays.\n");
         exit(EXIT_FAILURE);
     }
@@ -116,14 +106,12 @@ int main(int argc, char **argv) {
         Rads[i] = pp;
     }
 
-#ifdef WITH_RMS
     dbg_msg("Computing RMs...\n");
     for (i = 0; i < numofMs; ++i) {
         pp = ideal_create(q);
         ideal_product(pp, Rads[1], Ms[i], p);
         RMs[i] = pp;
     }
-#endif
 
     /* hardest part of the work is done, spit out results */
     fprintf(out, "Input parameters:      p = %-10lu l  = %-10lu lambda = %-lu\n", p, l, lambda);
@@ -158,7 +146,6 @@ int main(int argc, char **argv) {
         }
     }
 
-#ifdef WITH_RMS
     fprintf(out, "\n");
     fprintf(out, "Detected Ms <-> RMs equalities:\n");
     for (i = 0; i < numofMs; ++i) {
@@ -168,7 +155,6 @@ int main(int argc, char **argv) {
             }
         }
     }
-#endif
 
     /* do cleanup */
     fclose(out);
@@ -182,17 +168,13 @@ int main(int argc, char **argv) {
         ideal_free(Rads[i]);
     }
 
-#ifdef WITH_RMS
     dbg_msg_l(5, "Freeing RMs...\n");
     for (i = 0; i < numofMs; ++i) {
         ideal_free(RMs[i]);
     }
-#endif
     free(Ms);
     free(Rads);
-#ifdef WITH_RMS
     free(RMs);
-#endif
     mpz_clear(dim);
 
 #ifdef WITH_MPI
