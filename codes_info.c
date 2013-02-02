@@ -23,7 +23,7 @@ char* package = "MPI Reed-Muller codes calculator";
 #else
 char* package = "Reed-Muller codes calculator";
 #endif
-char* version = "0.1.0";
+char* version = "0.2.0";
 char* progname = NULL;
 char use_stdout = 0;
 unsigned long p, l, lambda;
@@ -114,23 +114,23 @@ int main(int argc, char **argv) {
     }
 
     /* hardest part of the work is done, spit out results */
-    fprintf(out, "Input parameters:      p = %-10lu l  = %-10lu lambda = %-lu\n", p, l, lambda);
-    fprintf(out, "Additional parameters: q = %-10llu pi = %-10lu m = %-lu\n\n", q, pi, m);
+    fprintf(out, "Input parameters:       p = %-10lu l  = %-10lu lambda = %-lu\n", p, l, lambda);
+    fprintf(out, "Additional parameters:  q = %-10llu pi = %-10lu m = %-lu\n\n", q, pi, m);
 
-    fprintf(out, "Total number of (M_pi)-s: %-llu\n", numofMs);
-    fprintf(out, "Total number of (M_p)-s:  %-lu\n", nilindex);
+    fprintf(out, "Extra info:  m*(pi - 1) = %-10llu m*(pi - 1) - 1 = %-llu\n",  numofMs - 1,  numofMs - 2);
+    fprintf(out, "             l*(p - 1)  = %-10lu l*(p - 1) - 1  = %-lu\n\n", nilindex - 1, nilindex - 2);
 
-    fprintf(out, "m*(pi - 1) = %-10llu m*(pi - 1) - 1 = %-llu\n",  numofMs - 1,  numofMs - 2);
-    fprintf(out, "l*(p - 1)  = %-10lu l*(p - 1) - 1  = %-lu\n\n", nilindex - 1, nilindex - 2);
+    fprintf(out, "Total number of M_pi's: %-llu\n", numofMs);
+    fprintf(out, "Total number of M_p's:  %-lu\n\n", nilindex);
 
-    fprintf(out, "Ms dimensions:\n");
+    fprintf(out, "M_pi's dimensions:\n");
     for (i = 0; i < numofMs; ++i) {
         m_k(dim, pi, m, i);
         gmp_fprintf(out, "M_%lu(%lu,%lu):\t\tdim = %Zd\n", pi, m, i, dim);
     }
     fprintf(out, "\n");
 
-    fprintf(out, "Rads dimensions:\n");
+    fprintf(out, "M_p's dimensions:\n");
     for (i = 0; i < nilindex; ++i) {
         m_k(dim, p, l, i);
         gmp_fprintf(out, "Rad^%lu = M_%lu(%lu,%lu):\tdim = %Zd\n", l*(p - 1) - i, p, l, i, dim);
