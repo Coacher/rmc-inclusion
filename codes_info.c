@@ -25,7 +25,7 @@ char* package = "MPI Reed-Muller codes calculator";
 #else
 char* package = "Reed-Muller codes calculator";
 #endif
-char* version = "0.0.2";
+char* version = "0.0.5";
 char* progname = NULL;
 char use_stdout = 0;
 unsigned long p, l, lambda;
@@ -38,18 +38,18 @@ static int handle_cmdline(int *argc, char ***argv);
 int main(int argc, char **argv) {
     unsigned long long i, j;
     FILE *out;
-    IDEAL* Ms;
-    IDEAL* Rads;
+    IDEAL** Ms;
+    IDEAL** Rads;
 #ifdef WITH_RMS
-    IDEAL* RMs;
+    IDEAL** RMs;
 #endif
     IDEAL* pp;
 
     unsigned long long q;
-    unsigned long m, pi;
+    unsigned long long numofMs;
     unsigned long nilindex;
-    unsigned long numofMs;
-    mpz_t res;
+    unsigned long m, pi;
+    mpz_t dim;
 
     char outname[MAX_FILENAME_LEN];
 
@@ -73,12 +73,12 @@ int main(int argc, char **argv) {
     m  = l / lambda;
     nilindex = l*(p-1) + 1;
     numofMs = m*(pi-1) + 1;
-    mpz_init(res);
+    mpz_init(dim);
 
-    Ms   = (IDEAL*) malloc(numofMs*sizeof(IDEAL));
-    Rads = (IDEAL*) malloc(nilindex*sizeof(IDEAL));
+    Ms   = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
+    Rads = (IDEAL**) malloc(nilindex*sizeof(IDEAL*));
 #ifdef WITH_RMS
-    RMs   = (IDEAL*) malloc(numofMs*sizeof(IDEAL));
+    RMs  = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
 #endif
 
 #ifdef WITH_RMS
@@ -106,22 +106,22 @@ int main(int argc, char **argv) {
     for (i = 0; i < numofMs; ++i) {
         pp = ideal_create(q);
         ideal_init(pp, pi, m, i);
-        Ms[i] = *pp;
+        Ms[i] = pp;
     }
 
     dbg_msg("Computing Rads...\n");
     for (i = 0; i < nilindex; ++i) {
         pp = ideal_create(q);
         ideal_init(pp, p, l, l*(p - 1) - i);
-        Rads[i] = *pp;
+        Rads[i] = pp;
     }
 
 #ifdef WITH_RMS
     dbg_msg("Computing RMs...\n");
     for (i = 0; i < numofMs; ++i) {
         pp = ideal_create(q);
-        ideal_product(pp, &Ms[i], &Rads[nilindex - 2], p);
-        RMs[i] = *pp;
+        ideal_product(pp, Ms[i], Rads[1], p);
+        RMs[i] = pp;
     }
 #endif
 
@@ -129,56 +129,71 @@ int main(int argc, char **argv) {
     fprintf(out, "Input parameters:      p = %-10lu l  = %-10lu lambda = %-lu\n", p, l, lambda);
     fprintf(out, "Additional parameters: q = %-10llu pi = %-10lu m = %-lu\n\n", q, pi, m);
 
-    fprintf(out, "Total number of (M_pi)-s: %-lu\n", numofMs);
+    fprintf(out, "Total number of (M_pi)-s: %-llu\n", numofMs);
     fprintf(out, "Total number of (M_p)-s:  %-lu\n", nilindex);
 
-    fprintf(out, "m*(pi - 1) = %-10lu m*(pi - 1) - 1 = %-lu\n",    numofMs - 1,  numofMs - 2);
-    fprintf(out, " l*(p - 1) = %-10lu  l*(p - 1) - 1 = %-lu\n\n", nilindex - 1, nilindex - 2);
+    fprintf(out, "m*(pi - 1) = %-10llu m*(pi - 1) - 1 = %-llu\n",  numofMs - 1,  numofMs - 2);
+    fprintf(out, "l*(p - 1)  = %-10lu l*(p - 1) - 1  = %-lu\n\n", nilindex - 1, nilindex - 2);
 
     fprintf(out, "Ms dimensions:\n");
     for (i = 0; i < numofMs; ++i) {
-        m_k(res, pi, m, i);
-        gmp_fprintf(out, "M_%lu(%lu,%lu):\t\tdim = %Zd\n", pi, m, i, res);
+        m_k(dim, pi, m, i);
+        gmp_fprintf(out, "M_%lu(%lu,%lu):\t\tdim = %Zd\n", pi, m, i, dim);
     }
     fprintf(out, "\n");
 
     fprintf(out, "Rads dimensions:\n");
     for (i = 0; i < nilindex; ++i) {
-        m_k(res, p, l, i);
-        gmp_fprintf(out, "Rad^%lu = M_%lu(%lu,%lu):\tdim = %Zd\n", l*(p - 1) - i, p, l, i, res);
+        m_k(dim, p, l, i);
+        gmp_fprintf(out, "Rad^%lu = M_%lu(%lu,%lu):\tdim = %Zd\n", l*(p - 1) - i, p, l, i, dim);
     }
     fprintf(out, "\n");
 
-    fprintf(out, "Detected (M_pi)-s <-> Rads equalities:\n");
-    for (i = 0; i <= numofMs; ++i) {
-        for (j = 0; j <= nilindex; ++j) {
-            if (ideal_isequal(Ms + i, Rads + j)) {
-                fprintf(out, "Rad^%lu == M_%lu(%lu,%lu)\n", j, pi, m, i);
+    fprintf(out, "Detected Ms <-> Rads equalities:\n");
+    for (i = 0; i < numofMs; ++i) {
+        for (j = 0; j < nilindex; ++j) {
+            if (ideal_isequal(Ms[i], Rads[j])) {
+                fprintf(out, "Rad^%lu == M_%lu(%lu,%llu)\n", (unsigned long) j, pi, m, i);
             }
         }
     }
 
 #ifdef WITH_RMS
     fprintf(out, "\n");
-    fprintf(out, "Detected Rad*M-s  <-> M-s equalities:\n");
-    for (i = 0; i <= numofMs; ++i) {
-        for (j = 0; j <= numofMs; ++j) {
-            if (ideal_isequal(Ms + i, RMs + j)) {
-                fprintf(out, "Rad*M_%lu(%lu,%lu) == M_%lu(%lu,%lu)\n", pi, m, j, pi, m, i);
+    fprintf(out, "Detected Ms <-> RMs equalities:\n");
+    for (i = 0; i < numofMs; ++i) {
+        for (j = 0; j < numofMs; ++j) {
+            if (ideal_isequal(Ms[i], RMs[j])) {
+                fprintf(out, "Rad*M_%lu(%lu,%llu) == M_%lu(%lu,%llu)\n", pi, m, j, pi, m, i);
             }
         }
     }
 #endif
 
     /* do cleanup */
-    /* not the best cleanup as we leak memory allocated per each ideal in Ms and Rads */
     fclose(out);
+    dbg_msg_l(5, "Freeing Ms...\n");
+    for (i = 0; i < numofMs; ++i) {
+        ideal_free(Ms[i]);
+    }
+
+    dbg_msg_l(5, "Freeing Rads...\n");
+    for (i = 0; i < nilindex; ++i) {
+        ideal_free(Rads[i]);
+    }
+
+#ifdef WITH_RMS
+    dbg_msg_l(5, "Freeing RMs...\n");
+    for (i = 0; i < numofMs; ++i) {
+        ideal_free(RMs[i]);
+    }
+#endif
     free(Ms);
     free(Rads);
 #ifdef WITH_RMS
     free(RMs);
 #endif
-    mpz_clear(res);
+    mpz_clear(dim);
 
 #ifdef WITH_MPI
     MPI_Finalize();
@@ -202,9 +217,9 @@ static int handle_cmdline(int *argc, char ***argv) {
         {NULL, 0, 0, 0},
     };
     const char *opts_help[] = {
-        "Specifies characteristic of Q, must be a prime.",
-        "Specifies size of Q as an exponent of p.",
-        "Specifies the series of ideals, must be a factor of l, except for 1.",
+        "Specifies characteristic of field, must be a prime.",
+        "Specifies size of field as an exponent of characteristic.",
+        "Specifies series of ideals, can be any factor of exponent, except for 1.",
         "Write output to stdout.",
         "Increase debugging level.",
         "Print version information.",
@@ -271,7 +286,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     }
 
     if (l % lambda) {
-        fprintf(stderr, "lambda must be a factor of l, except for 1. See --help.\n");
+        fprintf(stderr, "(L)ambda must be a factor of l, except for 1. See --help.\n");
         exit(EXIT_FAILURE);
     }
 
