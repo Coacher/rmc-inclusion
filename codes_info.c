@@ -25,7 +25,7 @@ char* package = "MPI Reed-Muller codes calculator";
 #else
 char* package = "Reed-Muller codes calculator";
 #endif
-char* version = "0.0.5";
+char* version = "0.1.0";
 char* progname = NULL;
 char use_stdout = 0;
 unsigned long p, l, lambda;
@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
     dbg_msg("Computing RMs...\n");
     for (i = 0; i < numofMs; ++i) {
         pp = ideal_create(q);
-        ideal_product(pp, Ms[i], Rads[1], p);
+        ideal_product(pp, Rads[1], Ms[i], p);
         RMs[i] = pp;
     }
 #endif

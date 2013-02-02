@@ -101,25 +101,27 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long
                 delta = i + j - (q - 1);
 
                 if (res->u_s[delta]) {
+                    /* Qu_delta already in res so don't bother */
                     continue;
                 } else {
+                    /* u_i * u_j is non-zero first when i + j > q - 2
+                     * and second when \binom{i}{delta} != 0 mod p
+                     * we use Lucas theorem to avoid computing of \binom here
+                     * and comparing only p-digits of i and delta */
                     digit1 = i % p;
                     digit2 = delta % p;
                     div1 = i;
                     div2 = delta;
 
-                    do {
-                        if (digit2 > digit1)
-                            break;
-
+                    while ((digit1 >= digit2) && div2) {
                         div1 /= p;
                         digit1 = div1 % p;
 
                         div2 /= p;
                         digit2 = div2 % p;
-                    } while (div2);
+                    };
 
-                    res->u_s[delta] = (digit2 < digit1);
+                    res->u_s[delta] = (digit1 >= digit2);
                 }
             } else if ((i + j) == 2*(q - 1)) {
                 res->u_s[0] = 1;
