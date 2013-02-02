@@ -13,7 +13,6 @@ int mpi_me, mpi_total;
 
 #include "common.h"
 #include "ideals.h"
-#include "list.h"
 #include "log.h"
 
 #define MAX_FILENAME_LEN 128

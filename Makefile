@@ -13,11 +13,8 @@ all: codes_info
 safe: CC= gcc $(SAFE_CFLAGS)
 safe: all
 
-codes_info: list.o log.o common.o ideals.o codes_info.o
-	$(CC) -o codes_info common.o ideals.o log.o list.o codes_info.o -lgmp
-
-list.o: list.c list.h
-	$(CC) -c list.c
+codes_info: log.o common.o ideals.o codes_info.o
+	$(CC) -o codes_info common.o ideals.o log.o codes_info.o -lgmp
 
 log.o: log.c log.h
 	$(CC) -c log.c
@@ -25,10 +22,10 @@ log.o: log.c log.h
 common.o: common.c common.h
 	$(CC) -c common.c
 
-ideals.o: ideals.c ideals.h common.h list.h
+ideals.o: ideals.c ideals.h common.h
 	$(CC) -c ideals.c
 
-codes_info.o: codes_info.c common.h ideals.h list.h log.h
+codes_info.o: codes_info.c common.h ideals.h log.h
 	$(CC) -c codes_info.c
 
 clean:
