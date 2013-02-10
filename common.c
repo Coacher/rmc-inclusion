@@ -16,6 +16,14 @@ unsigned long long pow_ul(unsigned long p, unsigned long l) {
     return ret;
 }
 
+void init_constants(unsigned long p, unsigned long l, unsigned long lambda) {
+    q  = pow_ul(p, l);
+    pi = pow_ul(p, lambda);
+    m  = l / lambda;
+    numofMs  = m*(pi-1) + 1;
+    nilindex = l*(p-1)  + 1;
+}
+
 unsigned long weight(unsigned long long x, unsigned long pi) {
     unsigned long weight = 0;
 
@@ -48,7 +56,7 @@ void bin_coeff(mpz_t rop, long long n, long long m) {
         mpz_mul_si(rop, rop, sign);
 }
 
-void m_k(mpz_t rop, unsigned long pi, unsigned long m, unsigned long k) {
+void m_k(mpz_t rop, unsigned long long pi, unsigned long m, unsigned long k) {
     unsigned long j;
     mpz_t tmp1, tmp2;
 

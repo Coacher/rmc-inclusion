@@ -8,13 +8,13 @@ else
 CC= gcc $(CFLAGS)
 endif
 
-all: codes_info
+all: rmc
 
 safe: CC= gcc $(SAFE_CFLAGS)
 safe: all
 
-codes_info: log.o common.o ideals.o codes_info.o
-	$(CC) -o codes_info common.o ideals.o log.o codes_info.o -lgmp
+rmc: log.o common.o ideals.o info.o graph.o rmc.o
+	$(CC) -o rmc log.o common.o ideals.o info.o graph.o rmc.o -lgmp
 
 log.o: log.c log.h
 	$(CC) -c log.c
@@ -25,8 +25,14 @@ common.o: common.c common.h
 ideals.o: ideals.c ideals.h common.h
 	$(CC) -c ideals.c
 
-codes_info.o: codes_info.c common.h ideals.h log.h
-	$(CC) -c codes_info.c
+info.o: info.c info.h ideals.h common.h
+	$(CC) -c info.c
+
+graph.o: graph.c graph.h ideals.h common.h
+	$(CC) -c graph.c
+
+rmc.o: rmc.c graph.h info.h ideals.h common.h log.h
+	$(CC) -c rmc.c
 
 clean:
-	rm -f *.o codes_info *\~
+	rm -f *.o rmc *\~

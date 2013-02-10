@@ -1,4 +1,5 @@
-/* This program will gather and print out all needed info about M_pi's and Rad's structure */
+/* This program will gather and print all needed info about M_pi's, Rads and Rad*M_pi's structure
+ * It is also able to construct and print inclusion graph in dot format */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -11,21 +12,27 @@
 int mpi_me, mpi_total;
 #endif
 
+#include "log.h"
 #include "common.h"
 #include "ideals.h"
-#include "log.h"
+#include "info.h"
+#include "graph.h"
 
 #define MAX_FILENAME_LEN 128
+
+#define WITH_INFO       1
+#define WITH_GRAPH      (1 << 1)
+#define WITH_RM_GRAPH   (1 << 2)
 
 #ifdef WITH_MPI
 char* package = "MPI Reed-Muller codes calculator";
 #else
 char* package = "Reed-Muller codes calculator";
 #endif
-char* version = "0.2.0";
+char* version = "0.3.0";
 char* progname = NULL;
-char use_stdout = 0;
-unsigned long p, l, lambda;
+unsigned char use_stdout = 0;
+unsigned char output_control = 0;
 
 /* global debug level */
 int debug = 0;
@@ -33,20 +40,17 @@ int debug = 0;
 static int handle_cmdline(int *argc, char ***argv);
 
 int main(int argc, char **argv) {
-    unsigned long long i, j;
-    FILE *out;
+    unsigned long long i;
+    FILE *info_out, *graph_out, *rm_graph_out;
+
+    IDEAL* pp;
     IDEAL** Ms;
     IDEAL** Rads;
     IDEAL** RMs;
-    IDEAL* pp;
 
-    unsigned long long q;
-    unsigned long long numofMs;
-    unsigned long nilindex;
-    unsigned long m, pi;
-    mpz_t dim;
-
-    char outname[MAX_FILENAME_LEN];
+    char     info_outname[MAX_FILENAME_LEN];
+    char    graph_outname[MAX_FILENAME_LEN];
+    char rm_graph_outname[MAX_FILENAME_LEN];
 
 #ifdef WITH_MPI
     MPI_Init(&argc, &argv);
@@ -62,13 +66,50 @@ int main(int argc, char **argv) {
     /* handle cmdline */
     handle_cmdline(&argc, &argv);
 
+    /* prepare output files */
+    if (!use_stdout) {
+        if (output_control & WITH_INFO) {
+            sprintf(info_outname, "codes_info_%lu-%lu-%lu.txt", p, l, lambda);
+            info_out = fopen(info_outname, "w");
+
+            if (!info_out) {
+                fprintf(stderr, "Error opening \"%s\" file\n", info_outname);
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        if (output_control & WITH_GRAPH) {
+            sprintf(graph_outname, "inclusion_tree_%lu-%lu-%lu.gv", p, l, lambda);
+            graph_out = fopen(graph_outname, "w");
+
+            if (!graph_out) {
+                fprintf(stderr, "Error opening \"%s\" file\n", graph_outname);
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        if (output_control & WITH_RM_GRAPH) {
+            sprintf(rm_graph_outname, "rm_inclusion_tree_%lu-%lu-%lu.gv", p, l, lambda);
+            rm_graph_out = fopen(rm_graph_outname, "w");
+
+            if (!rm_graph_out) {
+                fprintf(stderr, "Error opening \"%s\" file\n", rm_graph_outname);
+                exit(EXIT_FAILURE);
+            }
+        }
+    } else {
+        if (weight(output_control, 2) != 1) {
+            fprintf(stderr, "You must specify exactly one of the available outputs in conjuction with stdout option.\n");
+            exit(EXIT_FAILURE);
+        }
+
+        info_out = stdout;
+        graph_out = stdout;
+        rm_graph_out = stdout;
+    }
+
     /* initializing needed things */
-    q  = pow_ul(p, l);
-    pi = (unsigned long) pow_ul(p, lambda);
-    m  = l / lambda;
-    nilindex = l*(p-1) + 1;
-    numofMs = m*(pi-1) + 1;
-    mpz_init(dim);
+    init_constants(p, l, lambda);
 
     Ms   = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
     Rads = (IDEAL**) malloc(nilindex*sizeof(IDEAL*));
@@ -80,17 +121,6 @@ int main(int argc, char **argv) {
     }
 
     /* do the job */
-    if (!use_stdout) {
-        sprintf(outname, "codes_info_%lu-%lu-%lu.txt", p, l, lambda);
-        out = fopen(outname, "w");
-        if (!out) {
-            fprintf(stderr, "Error opening \"%s\" file\n", outname);
-            exit(EXIT_FAILURE);
-        }
-    } else {
-        out = stdout;
-    }
-
     dbg_msg("Computing Ms...\n");
     for (i = 0; i < numofMs; ++i) {
         pp = ideal_create(q);
@@ -112,69 +142,45 @@ int main(int argc, char **argv) {
         RMs[i] = pp;
     }
 
-    /* hardest part of the work is done, spit out results */
-    fprintf(out, "Input parameters:       p = %-10lu l  = %-10lu lambda = %-lu\n", p, l, lambda);
-    fprintf(out, "Additional parameters:  q = %-10llu pi = %-10lu m = %-lu\n\n", q, pi, m);
-
-    fprintf(out, "Extra info:  m*(pi - 1) = %-10llu m*(pi - 1) - 1 = %-llu\n",  numofMs - 1,  numofMs - 2);
-    fprintf(out, "             l*(p - 1)  = %-10lu l*(p - 1) - 1  = %-lu\n\n", nilindex - 1, nilindex - 2);
-
-    fprintf(out, "Total number of M_pi's: %-llu\n", numofMs);
-    fprintf(out, "Total number of M_p's:  %-lu\n\n", nilindex);
-
-    fprintf(out, "M_pi's dimensions:\n");
-    for (i = 0; i < numofMs; ++i) {
-        m_k(dim, pi, m, i);
-        gmp_fprintf(out, "M_%lu(%lu,%lu):\t\tdim = %Zd\n", pi, m, i, dim);
-    }
-    fprintf(out, "\n");
-
-    fprintf(out, "M_p's dimensions:\n");
-    for (i = 0; i < nilindex; ++i) {
-        m_k(dim, p, l, i);
-        gmp_fprintf(out, "Rad^%lu = M_%lu(%lu,%lu):\tdim = %Zd\n", l*(p - 1) - i, p, l, i, dim);
-    }
-    fprintf(out, "\n");
-
-    fprintf(out, "Detected Ms <-> Rads equalities:\n");
-    for (i = 0; i < numofMs; ++i) {
-        for (j = 0; j < nilindex; ++j) {
-            if (ideal_isequal(Ms[i], Rads[j])) {
-                fprintf(out, "Rad^%lu == M_%lu(%lu,%llu)\n", (unsigned long) j, pi, m, i);
-            }
-        }
+    /* print out info */
+    if (output_control & WITH_INFO) {
+        dbg_msg("Printing out info...\n");
+        print_info(info_out, Ms, Rads, RMs);
+        fclose(info_out);
     }
 
-    fprintf(out, "\n");
-    fprintf(out, "Detected Ms <-> RMs equalities:\n");
-    for (i = 0; i < numofMs; ++i) {
-        for (j = 0; j < numofMs; ++j) {
-            if (ideal_isequal(Ms[i], RMs[j])) {
-                fprintf(out, "Rad*M_%lu(%lu,%llu) == M_%lu(%lu,%llu)\n", pi, m, j, pi, m, i);
-            }
-        }
+    /* print out graph */
+    if (output_control & WITH_GRAPH) {
+        dbg_msg("Printing out graph...\n");
+        print_graph(graph_out, Ms, Rads);
+        fclose(graph_out);
+    }
+
+    /* print out rm_graph */
+    if (output_control & WITH_RM_GRAPH) {
+        dbg_msg("Printing out rm_graph...\n");
+//        print_rm_graph(rm_graph_out, RMs, Rads);
+        fclose(rm_graph_out);
     }
 
     /* do cleanup */
-    fclose(out);
     dbg_msg_l(5, "Freeing Ms...\n");
     for (i = 0; i < numofMs; ++i) {
         ideal_free(Ms[i]);
     }
+    free(Ms);
 
     dbg_msg_l(5, "Freeing Rads...\n");
     for (i = 0; i < nilindex; ++i) {
         ideal_free(Rads[i]);
     }
+    free(Rads);
 
     dbg_msg_l(5, "Freeing RMs...\n");
     for (i = 0; i < numofMs; ++i) {
         ideal_free(RMs[i]);
     }
-    free(Ms);
-    free(Rads);
     free(RMs);
-    mpz_clear(dim);
 
 #ifdef WITH_MPI
     MPI_Finalize();
@@ -192,6 +198,9 @@ static int handle_cmdline(int *argc, char ***argv) {
         {"exp", 1, 0, 'l'},
         {"lambda", 1, 0, 'L'},
         {"stdout", 0, 0, 'c'},
+        {"with_info", 0, 0, 'I'},
+        {"with_graph", 0, 0, 'G'},
+        {"with_rm_graph", 0, 0, 'R'},
         {"debug", 0, 0, 'D'},
         {"version", 0, 0, 'v'},
         {"help", 0, 0, 'h'},
@@ -202,6 +211,9 @@ static int handle_cmdline(int *argc, char ***argv) {
         "Specifies size of field as an exponent of characteristic.",
         "Specifies series of ideals, can be any factor of exponent, except for 1.",
         "Write output to stdout.",
+        "Enable info output.",
+        "Enable graph output.",
+        "Enable rm_graph output.",
         "Increase debugging level.",
         "Print version information.",
         "Print this message.",
@@ -213,7 +225,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     for (;;) {
         int i;
         i = getopt_long(*argc, *argv,
-            "p:l:L:cDvh", opts, NULL);
+            "p:l:L:cIGRDvh", opts, NULL);
         if (i == -1) {
             break;
         }
@@ -229,6 +241,15 @@ static int handle_cmdline(int *argc, char ***argv) {
             break;
         case 'c':
             use_stdout = 1;
+            break;
+        case 'I':
+            output_control |= WITH_INFO;
+            break;
+        case 'G':
+            output_control |= WITH_GRAPH;
+            break;
+        case 'R':
+            output_control |= WITH_RM_GRAPH;
             break;
         case 'D':
             debug++;
@@ -266,8 +287,13 @@ static int handle_cmdline(int *argc, char ***argv) {
         exit(EXIT_FAILURE);
     }
 
-    if (l % lambda) {
+    if (l % lambda || lambda == 1) {
         fprintf(stderr, "(L)ambda must be a factor of l, except for 1. See --help.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (!output_control) {
+        fprintf(stderr, "You must specify at least one of I, G or R options. See --help.\n");
         exit(EXIT_FAILURE);
     }
 
