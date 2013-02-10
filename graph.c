@@ -49,13 +49,18 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
     fprintf(out, "# The rest of the file is generated in an automated manner and not meant to be read by human\n");
     for (i = 1; i < numofMs - 2; ++i) {
         for (j = 2; j < nilindex - 1; ++j) {
+            if (ideal_issubset(Rads[j], Ms[i])) {
+                fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%llu;\n", pi, m, i, j);
+                /* if M_pi[i] >= Rad^j, then M_pi[i] >= Rad^j >= Rad^(j+1) >= ... */
+                break;
+            }
+        }
+
+        for (j = nilindex - 2; j >= 2; --j) {
             if (ideal_issubset(Ms[i], Rads[j])) {
                 fprintf(out, "\tRad_%llu -> M_%llu_%lu_%llu;\n", j, pi, m, i);
-            } else if (ideal_issubset(Rads[j], Ms[i])) {
-                fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%llu;\n", pi, m, i, j);
-                /* if M_pi >= Rad^j, then M_pi >= Rad^j >= Rad^(j+1) >= ... */
-                continue;
-            }
+                /* if Rad^j >= M_pi[i], then ... >= Rad^(j-1) >= Rad^j >= M_pi[i] */
+                break;
         }
     }
 
