@@ -29,7 +29,7 @@ char* package = "MPI Reed-Muller codes calculator";
 #else
 char* package = "Reed-Muller codes calculator";
 #endif
-char* version = "0.3.1";
+char* version = "1.0.0";
 char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned char output_control = 0;
@@ -159,7 +159,7 @@ int main(int argc, char **argv) {
     /* print out rm_graph */
     if (output_control & WITH_RM_GRAPH) {
         dbg_msg("Printing out rm_graph...\n");
-//        print_rm_graph(rm_graph_out, RMs, Rads);
+        print_rm_graph(rm_graph_out, Ms, RMs);
         fclose(rm_graph_out);
     }
 
