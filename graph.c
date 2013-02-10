@@ -53,6 +53,8 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
                 fprintf(out, "\tRad_%llu -> M_%llu_%lu_%llu;\n", j, pi, m, i);
             } else if (ideal_issubset(Rads[j], Ms[i])) {
                 fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%llu;\n", pi, m, i, j);
+                /* if M_pi >= Rad^j, then M_pi >= Rad^j >= Rad^(j+1) >= ... */
+                continue;
             }
         }
     }
@@ -124,6 +126,8 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs) {
                 fprintf(out, "\tRM_%llu_%lu_%llu -> M_%llu_%lu_%llu;\n", pi, m, j, pi, m, i);
             } else if (ideal_issubset(RMs[j], Ms[i])) {
                 fprintf(out, "\tM_%llu_%lu_%llu -> RM_%llu_%lu_%llu;\n", pi, m, i, pi, m, j);
+                /* if M_pi[i] >= RM_pi[j], then ... >= M_pi[i+1] >= M_pi[i] >= RM_pi[j] */
+                continue;
             }
         }
 
