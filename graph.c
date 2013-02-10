@@ -104,7 +104,7 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs) {
 
     fprintf(out, "# The rest of the file is generated in an automated manner and not meant to be read by human\n");
 
-    /* for each RM create all possible links with Ms and RMs */
+    /* for each RM create all needed links with Ms and RMs */
     for (j = 2; j < numofMs - 1;) {
         /* first check if current RM is in Ms
          * if it is true, then all Ms links were processed above already
@@ -120,14 +120,20 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs) {
         }
 
         /* if we are here then current RM is not in Ms */
-        /* create all possible links with Ms */
+        /* create all needed links with Ms */
         for (i = 1; i < numofMs - 2; ++i) {
-            if (ideal_issubset(Ms[i], RMs[j])) {
-                fprintf(out, "\tRM_%llu_%lu_%llu -> M_%llu_%lu_%llu;\n", pi, m, j, pi, m, i);
-            } else if (ideal_issubset(RMs[j], Ms[i])) {
+            if (ideal_issubset(RMs[j], Ms[i])) {
                 fprintf(out, "\tM_%llu_%lu_%llu -> RM_%llu_%lu_%llu;\n", pi, m, i, pi, m, j);
                 /* if M_pi[i] >= RM_pi[j], then ... >= M_pi[i+1] >= M_pi[i] >= RM_pi[j] */
-                continue;
+                break;
+            }
+        }
+
+        for (i = numofMs - 3; i >= 1; --i) {
+            if (ideal_issubset(Ms[i], RMs[j])) {
+                fprintf(out, "\tRM_%llu_%lu_%llu -> M_%llu_%lu_%llu;\n", pi, m, j, pi, m, i);
+                /* if RM_pi[j] >= M_pi[i], then RM_pi[j] >= M_pi[i] >= M_pi[i-1] >= ... */
+                break;
             }
         }
 
