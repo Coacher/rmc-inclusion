@@ -77,7 +77,7 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs) {
         for (j = i + 1; j < numofMs; ++j) {
             if (ideal_isequal(RMs[i], RMs[j])) {
                 dbg_msg_l(0, "Warning! RMs collision detected: RMs[%llu] == RMs[%llu]\n", i, j);
-                dbg_msg_l(0, "All produced results are most possibly invalid!\n");
+                dbg_msg_l(0, "All produced results are most probably invalid!\n");
             }
         }
     }
