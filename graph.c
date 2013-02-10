@@ -61,6 +61,7 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
                 fprintf(out, "\tRad_%llu -> M_%llu_%lu_%llu;\n", j, pi, m, i);
                 /* if Rad^j >= M_pi[i], then ... >= Rad^(j-1) >= Rad^j >= M_pi[i] */
                 break;
+            }
         }
     }
 

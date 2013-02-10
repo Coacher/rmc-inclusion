@@ -29,7 +29,7 @@ char* package = "MPI Reed-Muller codes calculator";
 #else
 char* package = "Reed-Muller codes calculator";
 #endif
-char* version = "1.0.3";
+char* version = "1.0.4";
 char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned char output_control = 0;
