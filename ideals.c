@@ -154,3 +154,14 @@ int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
     return 0;
 }
 
+void ideal_print(IDEAL* M) {
+    if (M == NULL)
+        return;
+
+    unsigned long long i;
+
+    fprintf(stdout, "[");
+    for (i = 0; i < (q - 1); ++i)
+        fprintf(stdout, " %u,", M->u_s[i]);
+    fprintf(stdout, " %u ]\n", M->u_s[q - 1]);
+}

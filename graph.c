@@ -1,6 +1,35 @@
 /* functions related to printing M_pi's, Rads and Rad*M_pi's inclusion graphs */
+#include <stdlib.h>
+#include <string.h>
 
 #include "graph.h"
+
+typedef struct LBLD_IDEAL_t {
+    IDEAL I;
+    char* label;
+} LBLD_IDEAL;
+
+static int append_to_label(LBLD_IDEAL* LI, char* s) {
+    if (LI == NULL)
+        return 1;
+
+    if (LI->label == NULL) {
+        LI->label = (char*) malloc((strlen(s) + 1)*sizeof(char));
+        strcpy(LI->label, s);
+    } else {
+        int length = strlen(LI->label);
+        char* p;
+        /* p must have place for a previous label, space,
+         * addition part of label and terminating `\0` */
+        p = (char*) malloc((length + 1 + strlen(s) + 1)*sizeof(char));
+        sprintf(p, "%s %s", LI->label, s);
+
+        free(LI->label);
+        LI->label = p;
+    }
+
+    return 0;
+}
 
 void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
     unsigned long long i, j;
@@ -76,11 +105,19 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs) {
     for (i = 0; i < numofMs; ++i) {
         for (j = i + 1; j < numofMs; ++j) {
             if (ideal_isequal(RMs[i], RMs[j])) {
-                dbg_msg_l(0, "Warning! RMs collision detected: RMs[%llu] == RMs[%llu]\n", i, j);
-                dbg_msg_l(0, "All produced results are most probably invalid!\n");
+                dbg_msg("Warning! RMs collision detected: RMs[%llu] == RMs[%llu]\n", i, j);
+                /* collision detected, deal with it */
+                goto workaround_collisions;
             }
         }
     }
+
+    /* no collisions, proceed as usual */
+    goto usual_workflow;
+
+workaround_collisions:
+
+usual_workflow:
 
     fprintf(out, "digraph M_RM_inclusion {\n");
 
@@ -95,7 +132,7 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs) {
         fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, 1000*numofMs);
     }
 
-    /* label M_pi's chain; it is proven that these equalities hold:
+    /* label M_pi's chain; it is proven that only these equalities hold:
      *  M_pi(m, 0) = Rad*M_pi(m,1)
      *  M_pi(m, numofMs - 2) = Rad*M_pi(m, numofMs - 1) = Rad*QH = Rad
      */

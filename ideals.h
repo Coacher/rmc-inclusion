@@ -44,4 +44,6 @@ int ideal_issubset(IDEAL* M, IDEAL* N);
 int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long t, unsigned long p);
 /* sets res to M * N */
 int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p);
+/* prints out set of u_s */
+void ideal_print(IDEAL* M);
 #endif
