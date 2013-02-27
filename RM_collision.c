@@ -10,7 +10,7 @@
 #include "ideals.h"
 
 char* package = "RMs collision detector";
-char* version = "0.0.3";
+char* version = "0.0.4";
 char* progname = NULL;
 
 /* global debug level */
@@ -20,7 +20,7 @@ static int handle_cmdline(int *argc, char ***argv);
 
 int main(int argc, char **argv) {
     unsigned long long i, j;
-    char was_collision = 0;
+    unsigned char was_collision = 0;
 
     IDEAL* Rad;
     IDEAL* pp;
@@ -72,15 +72,7 @@ int main(int argc, char **argv) {
             if (RMs[j] == NULL) {
                 continue;
             } else if (ideal_isequal(RMs[i], RMs[j])) {
-                if (was_collision) {
-                    fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, j);
-                    ideal_print(Ms[j]);
-
-                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, j);
-                    ideal_print(RMs[j]);
-                    ideal_free(RMs[j]);
-                    RMs[j] == NULL;
-                } else {
+                if (!was_collision) {
                     was_collision = 1;
 
                     fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, i);
@@ -90,9 +82,17 @@ int main(int argc, char **argv) {
 
                     fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, j);
                     ideal_print(Ms[j]);
-
                     fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, j);
                     ideal_print(RMs[j]);
+
+                    ideal_free(RMs[j]);
+                    RMs[j] == NULL;
+                } else {
+                    fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, j);
+                    ideal_print(Ms[j]);
+                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, j);
+                    ideal_print(RMs[j]);
+
                     ideal_free(RMs[j]);
                     RMs[j] == NULL;
                 }
