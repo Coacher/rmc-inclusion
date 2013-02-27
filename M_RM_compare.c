@@ -24,7 +24,7 @@ static int handle_cmdline(int *argc, char ***argv);
 
 int main(int argc, char **argv) {
     unsigned long long i, j;
-    char was_collision = 0;
+    unsigned char was_collision = 0;
 
     IDEAL* Rad;
     IDEAL* pp;
