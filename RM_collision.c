@@ -10,7 +10,7 @@
 #include "ideals.h"
 
 char* package = "RMs collision detector";
-char* version = "0.0.4";
+char* version = "0.0.5";
 char* progname = NULL;
 
 /* global debug level */
@@ -68,6 +68,9 @@ int main(int argc, char **argv) {
     /* do collision test */
     for (i = 0; i < numofMs; ++i) {
         was_collision = 0;
+        if (RMs[i] == NULL)
+            continue;
+
         for (j = i + 1; j < numofMs; ++j) {
             if (RMs[j] == NULL) {
                 continue;
@@ -86,7 +89,7 @@ int main(int argc, char **argv) {
                     ideal_print(RMs[j]);
 
                     ideal_free(RMs[j]);
-                    RMs[j] == NULL;
+                    RMs[j] = NULL;
                 } else {
                     fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, j);
                     ideal_print(Ms[j]);
@@ -94,7 +97,7 @@ int main(int argc, char **argv) {
                     ideal_print(RMs[j]);
 
                     ideal_free(RMs[j]);
-                    RMs[j] == NULL;
+                    RMs[j] = NULL;
                 }
             }
         }
