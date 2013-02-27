@@ -48,3 +48,6 @@ M_RM_compare.o: M_RM_compare.c ideals.h common.h log.h
 
 clean:
 	rm -f *.o rmc RM_collision M_RM_compare *\~
+
+distclean: clean
+	rm -f *.gv
