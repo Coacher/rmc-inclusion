@@ -12,8 +12,8 @@
 #define WITH_Ms       1
 #define WITH_RMs      (1 << 1)
 
-char* package = "Ms/RMs' structure visualizer";
-char* version = "0.0.3";
+char* package = "Ms and RMs structure visualizer";
+char* version = "0.0.4";
 char* progname = NULL;
 unsigned char output_control = 0;
 
@@ -69,20 +69,9 @@ int main(int argc, char **argv) {
         RMs[i] = pp;
     }
 
-    i = 0;
-
-    if (output_control & WITH_Ms) {
-        fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, i);
-        ideal_print(Ms[i]);
-    }
-
-    if (output_control & WITH_RMs) {
-        fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i);
-        ideal_print(RMs[i]);
-    }
-
-    for (i = 1; i < numofMs; ++i) {
-        fprintf(stdout, "\n");
+    for (i = 0; i < numofMs; ++i) {
+        if (i)
+            fprintf(stdout, "\n");
 
         if (output_control & WITH_Ms) {
             fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, i);

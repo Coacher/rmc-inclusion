@@ -8,13 +8,13 @@ else
 CC= gcc $(CFLAGS)
 endif
 
-all: rmc RM_collision M_RM_compare
+all: rmc RM_collision M_RM_visualize
 
 safe: CC= gcc $(SAFE_CFLAGS)
-safe: all RM_collision M_RM_compare
+safe: all RM_collision M_RM_visualize
 
-M_RM_compare: log.o common.o ideals.o M_RM_compare.o
-	$(CC) -o M_RM_compare log.o common.o ideals.o M_RM_compare.o -lgmp
+M_RM_visualize: log.o common.o ideals.o M_RM_visualize.o
+	$(CC) -o M_RM_visualize log.o common.o ideals.o M_RM_visualize.o -lgmp
 
 RM_collision: log.o common.o ideals.o RM_collision.o
 	$(CC) -o RM_collision log.o common.o ideals.o RM_collision.o -lgmp
@@ -43,11 +43,11 @@ rmc.o: rmc.c graph.h info.h ideals.h common.h log.h
 RM_collision.o: RM_collision.c ideals.h common.h log.h
 	$(CC) -c RM_collision.c
 
-M_RM_compare.o: M_RM_compare.c ideals.h common.h log.h
-	$(CC) -c M_RM_compare.c
+M_RM_visualize.o: M_RM_visualize.c ideals.h common.h log.h
+	$(CC) -c M_RM_visualize.c
 
 clean:
-	rm -f *.o rmc RM_collision M_RM_compare *\~
+	rm -f *.o rmc RM_collision M_RM_visualize *\~
 
 distclean: clean
 	rm -f *.gv
