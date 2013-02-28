@@ -1,4 +1,4 @@
-/* This program will gather and print all needed info about M_pi's, Rads and Rad*M_pi's structure
+/* This program will gather and print all needed info about Ms, Rads and RMs structure
  * It is also able to construct and print inclusion graph in dot format */
 #include <stdlib.h>
 #include <stdio.h>
@@ -29,7 +29,7 @@ char* package = "MPI Reed-Muller codes calculator";
 #else
 char* package = "Reed-Muller codes calculator";
 #endif
-char* version = "1.0.4";
+char* version = "2.0.0";
 char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned char output_control = 0;

@@ -1,4 +1,4 @@
-/* functions related to printing M_pi's, Rads and Rad*M_pi's structure info */
+/* functions related to printing Ms, Rads and RMs structure info */
 #include <gmp.h>
 
 #include "info.h"
@@ -28,7 +28,7 @@ void print_info(FILE* out, IDEAL** Ms, IDEAL** Rads, IDEAL** RMs) {
     fprintf(out, "M_p's dimensions:\n");
     for (i = 0; i < nilindex; ++i) {
         m_k(dim, p, l, i);
-        gmp_fprintf(out, "Rad^%lu = M_%lu(%lu,%lu):\tdim = %Zd\n", l*(p - 1) - i, p, l, i, dim);
+        gmp_fprintf(out, "Rad^%lu == M_%lu(%lu,%lu):\tdim = %Zd\n", l*(p - 1) - i, p, l, i, dim);
     }
     fprintf(out, "\n");
 

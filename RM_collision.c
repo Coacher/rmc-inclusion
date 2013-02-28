@@ -1,4 +1,4 @@
-/* A small utility to detect RMs collisions and print out the related ideals */
+/* A small utility to detect RMs collisions and print them out */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>

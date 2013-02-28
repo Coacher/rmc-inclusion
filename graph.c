@@ -1,35 +1,10 @@
-/* functions related to printing M_pi's, Rads and Rad*M_pi's inclusion graphs */
+/* functions related to printing Ms, Rads and RMs inclusion graphs */
 #include <stdlib.h>
 #include <string.h>
 
 #include "graph.h"
 
-typedef struct LBLD_IDEAL_t {
-    IDEAL I;
-    char* label;
-} LBLD_IDEAL;
-
-static int append_to_label(LBLD_IDEAL* LI, char* s) {
-    if (LI == NULL)
-        return 1;
-
-    if (LI->label == NULL) {
-        LI->label = (char*) malloc((strlen(s) + 1)*sizeof(char));
-        strcpy(LI->label, s);
-    } else {
-        int length = strlen(LI->label);
-        char* p;
-        /* p must have place for a previous label, space,
-         * addition part of label and terminating `\0` */
-        p = (char*) malloc((length + 1 + strlen(s) + 1)*sizeof(char));
-        sprintf(p, "%s %s", LI->label, s);
-
-        free(LI->label);
-        LI->label = p;
-    }
-
-    return 0;
-}
+#define MAX_LABEL_LENGTH 512
 
 void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
     unsigned long long i, j;
@@ -42,12 +17,12 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
     fprintf(out, "\tranksep=\"0.35\";\n");
 
 
-    /* contrsuct M_pi's chain */
+    /* contrsuct Ms chain */
     for (i = 1; i < numofMs; ++i) {
         fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, 1000*numofMs);
     }
 
-    /* label M_pi's chain; it is proven that only these equalities hold:
+    /* label Ms chain; it is proven that only these equalities hold:
      *  M_pi(m, 0) = Rad^(nilindex - 1)
      *  M_pi(m, numofMs - 2) = Rad^1 = Rad
      *  M_pi(m, numofMs - 1) = Rad^0 = QH
@@ -61,7 +36,7 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
 
 
     /* construct Rads (except mentioned above) chain and
-     * embed Rads chain into appropriate place in M_pi's chain */
+     * embed Rads chain into appropriate place in Ms chain */
     fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%i;\n", pi, m, numofMs - 2, 2);
     for (i = 2; i < nilindex - 2; ++i) {
         fprintf(out, "\tRad_%llu -> Rad_%llu [weight = %llu];\n", i, i + 1, 1000*nilindex);
@@ -80,7 +55,7 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
         for (j = 2; j < nilindex - 1; ++j) {
             if (ideal_issubset(Rads[j], Ms[i])) {
                 fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%llu;\n", pi, m, i, j);
-                /* if M_pi[i] >= Rad^j, then M_pi[i] >= Rad^j >= Rad^(j+1) >= ... */
+                /* if M_pi[i] > Rad^j, then M_pi[i] > Rad^j > Rad^(j+1) > ... */
                 break;
             }
         }
@@ -88,7 +63,7 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
         for (j = nilindex - 2; j >= 2; --j) {
             if (ideal_issubset(Ms[i], Rads[j])) {
                 fprintf(out, "\tRad_%llu -> M_%llu_%lu_%llu;\n", j, pi, m, i);
-                /* if Rad^j >= M_pi[i], then ... >= Rad^(j-1) >= Rad^j >= M_pi[i] */
+                /* if Rad^j > M_pi[i], then ... > Rad^(j-1) > Rad^j > M_pi[i] */
                 break;
             }
         }
@@ -97,27 +72,45 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
     fprintf(out, "}\n");
 }
 
-void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs) {
-    unsigned long long i, j, k;
-    unsigned char previous_is_M = 0;
+int append_to_label(char** label, char* s) {
+    if (s == NULL)
+        return 1;
 
-    /* since we don't know anything for sure about RMs do this collision test */
-    for (i = 0; i < numofMs; ++i) {
-        for (j = i + 1; j < numofMs; ++j) {
-            if (ideal_isequal(RMs[i], RMs[j])) {
-                dbg_msg("Warning! RMs collision detected: RMs[%llu] == RMs[%llu]\n", i, j);
-                /* collision detected, deal with it */
-                goto workaround_collisions;
-            }
-        }
+    char* p;
+
+    if ((*label) == NULL) {
+        p = (char*) malloc((strlen(s) + 1)*sizeof(char));
+        strcpy(p, s);
+        *label = p;
+    } else {
+        /* p must have place for a previous label,
+         * additional part of label and terminating `\0` */
+        p = (char*) malloc((strlen(*label) + strlen(s) + 1)*sizeof(char));
+        sprintf(p, "%s%s", (*label), s);
+
+        free(*label);
+        *label = p;
     }
 
-    /* no collisions, proceed as usual */
-    goto usual_workflow;
+    return 0;
+}
 
-workaround_collisions:
+void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs) {
+    unsigned long long i, j;
+    unsigned char was_collision = 0;
 
-usual_workflow:
+    char buf[MAX_LABEL_LENGTH];
+    char** labels;
+
+    labels = (char**) malloc(numofMs*sizeof(char*));
+    if (labels == NULL) {
+        fprintf(stderr, "Unable to allocate memory for labels.\n");
+        return;
+    }
+
+    for (i = 0; i < numofMs; ++i)
+        labels[i] = NULL;
+
 
     fprintf(out, "digraph M_RM_inclusion {\n");
 
@@ -127,47 +120,110 @@ usual_workflow:
     fprintf(out, "\tranksep=\"0.35\";\n");
 
 
-    /* contrsuct M_pi's chain */
+    /* label RMs taking collisions into account */
+    for (i = 0; i < numofMs; ++i) {
+        was_collision = 0;
+        if (RMs[i] == NULL)
+            continue;
+
+        for (j = i + 1; j < numofMs; ++j) {
+            if (RMs[j] == NULL) {
+                continue;
+            } else if (ideal_isequal(RMs[i], RMs[j])) {
+                if (!was_collision) {
+                    was_collision = 1;
+
+                    sprintf(buf, "Rad*M_%llu(%lu,%llu) = Rad*M_%llu(%lu,%llu)", pi, m, i, pi, m, j);
+                    append_to_label(labels + i, buf);
+                    dbg_msg_l(3, "%llu'th label: \"%s\"\n", i, labels[i]);
+
+                    ideal_free(RMs[j]);
+                    RMs[j] = NULL;
+                } else {
+                    sprintf(buf, " = Rad*M_%llu(%lu,%llu)", pi, m, j);
+                    append_to_label(labels + i, buf);
+                    dbg_msg_l(3, "%llu'th label: \"%s\"\n", i, labels[i]);
+
+                    ideal_free(RMs[j]);
+                    RMs[j] = NULL;
+                }
+            }
+        }
+
+        if (!was_collision) {
+            sprintf(buf, "Rad*M_%llu(%lu,%llu)", pi, m, i);
+            append_to_label(labels + i, buf);
+            dbg_msg_l(3, "%llu'th label: \"%s\"\n", i, labels[i]);
+        }
+    }
+
+    /* contrsuct Ms chain */
     for (i = 1; i < numofMs; ++i) {
         fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, 1000*numofMs);
     }
 
-    /* label M_pi's chain; it is proven that only these equalities hold:
-     *  M_pi(m, 0) = Rad*M_pi(m,1)
-     *  M_pi(m, numofMs - 2) = Rad*M_pi(m, numofMs - 1) = Rad*QH = Rad
-     */
-    fprintf(out, "\tM_%llu_%lu_%i [label = \"M_%llu(%lu,%i) = Rad*M_%llu(%lu,%i)\"];\n", pi, m, 0, pi, m, 0, pi, m, 1);
-    for (i = 1; i < numofMs - 2; ++i) {
-        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, i, pi, m, i);
+    /* label Ms chain taking collisions with RMs into account */
+    for (i = 0; i < numofMs; ++i) {
+        was_collision = 0;
+
+        for (j = 1; j < numofMs; ++j) {
+            if (RMs[j] == NULL) {
+                continue;
+            } else if (ideal_isequal(Ms[i], RMs[j])) {
+                was_collision = 1;
+                fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = %s\"];\n", \
+                        pi, m, i, pi, m, i, labels[j]);
+
+                ideal_free(RMs[j]);
+                RMs[j] = NULL;
+                break;
+            }
+        }
+
+        if (!was_collision)
+            fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, i, pi, m, i);
     }
-    fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad*M_%llu(%lu,%llu)\"];\n", \
-            pi, m, numofMs - 2, pi, m, numofMs - 2, pi, m, numofMs - 1);
-    fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, numofMs - 1, pi, m, numofMs - 1);
+
+    /* construct RMs chain */
+    for (i = 0; i < numofMs; ++i) {
+        if (RMs[i] == NULL)
+            continue;
+
+        for (j = i + 1; j < numofMs; ++j) {
+            if (RMs[j] == NULL) {
+                continue;
+            } else {
+                fprintf(out, "\tRM_%llu_%lu_%llu -> RM_%llu_%lu_%llu;\n", pi, m, j, pi, m, i);
+                /* if j > i, then ... >= RM_pi[j+1] >= RM_pi[j] > RM_pi[i] */
+                break;
+            }
+        }
+    }
+
+    /* label RMs chain */
+    for (i = 0; i < numofMs; ++i) {
+        if (RMs[i] == NULL)
+            continue;
+
+        fprintf(out, "\tRM_%llu_%lu_%llu [label = \"%s\"];\n", \
+                pi, m, i, labels[i]);
+    }
 
 
     fprintf(out, "# The rest of the file is generated in an automated manner and not meant to be read by human\n");
 
     /* for each RM create all needed links with Ms and RMs */
-    for (j = 2; j < numofMs - 1;) {
-        /* first check if current RM is in Ms
-         * if it is true, then all Ms links were processed above already
-         * and all RMs links were or will be processed during steps with `pure` RMs,
-         * but we need to update label and flag */
-        for (i = 1; i < numofMs - 2; ++i) {
-            if (ideal_isequal(Ms[i], RMs[j])) {
-                previous_is_M = 1;
-                fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad*M_%llu(%lu,%llu)\"];\n", \
-                        pi, m, i, pi, m, i, pi, m, j);
-                goto end;
-            }
-        }
+    for (j = 0; j < numofMs; ++j) {
+        if (RMs[j] == NULL)
+            continue;
 
-        /* if we are here then current RM is not in Ms */
         /* create all needed links with Ms */
+        /* M_pi(m,0) == Rad*M_pi(m,1) */
+        /* M_pi(m, numofMs - 2) == Rad*M_pi(m, numofMs - 1) == Rad*QH == Rad */
         for (i = 1; i < numofMs - 2; ++i) {
             if (ideal_issubset(RMs[j], Ms[i])) {
                 fprintf(out, "\tM_%llu_%lu_%llu -> RM_%llu_%lu_%llu;\n", pi, m, i, pi, m, j);
-                /* if M_pi[i] >= RM_pi[j], then ... >= M_pi[i+1] >= M_pi[i] >= RM_pi[j] */
+                /* if M_pi[i] > RM_pi[j], then ... > M_pi[i+1] > M_pi[i] > RM_pi[j] */
                 break;
             }
         }
@@ -175,28 +231,17 @@ usual_workflow:
         for (i = numofMs - 3; i >= 1; --i) {
             if (ideal_issubset(Ms[i], RMs[j])) {
                 fprintf(out, "\tRM_%llu_%lu_%llu -> M_%llu_%lu_%llu;\n", pi, m, j, pi, m, i);
-                /* if RM_pi[j] >= M_pi[i], then RM_pi[j] >= M_pi[i] >= M_pi[i-1] >= ... */
+                /* if RM_pi[j] > M_pi[i], then RM_pi[j] > M_pi[i] > M_pi[i-1] > ... */
                 break;
             }
         }
-
-        /* create all possible links with RMs*/
-        if (previous_is_M) {
-            /* previous RM was in Ms, so there is no need to create link to it from current RM
-             * as it was already created in a previous for-block,
-             * but we need to create a label */
-            fprintf(out, "\tRM_%llu_%lu_%llu [label = \"Rad*M_%llu(%lu,%llu)\"];\n", pi, m, j, pi, m, j);
-        } else {
-            /* previous RM wasn't in Ms, therefore we need to create link to it from current RM
-             * and create a label as well */
-            fprintf(out, "\tRM_%llu_%lu_%llu [label = \"Rad*M_%llu(%lu,%llu)\"];\n", pi, m, j, pi, m, j);
-            fprintf(out, "\tRM_%llu_%lu_%llu -> RM_%llu_%lu_%llu;\n", pi, m, j, pi, m, j - 1);
-        }
-
-        previous_is_M = 0;
-end:
-        ++j;
     }
 
     fprintf(out, "}\n");
+
+    for (i = 0; i < numofMs; ++i) {
+        if (labels[i])
+            free(labels[i]);
+    }
+    free(labels);
 }

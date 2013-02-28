@@ -35,7 +35,6 @@ unsigned long weight(unsigned long long x, unsigned long pi) {
     return weight;
 }
 
-/* calculates \binom{n}{m} using gmp */
 void bin_coeff(mpz_t rop, long long n, long long m) {
     char sign = 1;
 

@@ -1,4 +1,4 @@
-/* functions related to printing M_pi's, Rads and Rad*M_pi's structure info */
+/* functions related to printing Ms, Rads and RMs structure info */
 #ifndef _INFO_H
 #define _INFO_H
 
