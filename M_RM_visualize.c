@@ -13,7 +13,7 @@
 #define WITH_RMs      (1 << 1)
 
 char* package = "Ms and RMs structure visualizer";
-char* version = "0.0.4";
+char* version = "0.0.5";
 char* progname = NULL;
 unsigned char output_control = 0;
 
@@ -121,7 +121,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     const char *opts_help[] = {
         "Specifies characteristic of field, must be a prime.",
         "Specifies size of field as an exponent of characteristic.",
-        "Specifies series of ideals, can be any factor of exponent, except for 1.",
+        "Specifies series of ideals, can be any factor of exponent.",
         "Enable Ms output.",
         "Enable RMs output.",
         "Increase debugging level.",
@@ -191,8 +191,8 @@ static int handle_cmdline(int *argc, char ***argv) {
         exit(EXIT_FAILURE);
     }
 
-    if (l % lambda || lambda == 1) {
-        fprintf(stderr, "(L)ambda must be a factor of l, except for 1. See --help.\n");
+    if (l % lambda) {
+        fprintf(stderr, "(L)ambda must be a factor of l. See --help.\n");
         exit(EXIT_FAILURE);
     }
 
