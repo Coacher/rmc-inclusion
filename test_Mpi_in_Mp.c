@@ -15,7 +15,7 @@ int mpi_me, mpi_total;
 #include "common.h"
 #include "ideals.h"
 
-char* package = "Check whether all M_pi lay in M_p with same indexes.";
+char* package = "Test whether all M_pi lay in M_p with same indexes";
 char* version = "1.0.0";
 char* progname = NULL;
 
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
     }
 
     dbg_msg("Checking hypothesis...\n");
-    /* The following statements are proved to be true:
+    /* The following statements are proven to be true:
      *   M_pi(0) == M_p(0) == Qu_0
      *   M_pi(1) \subset M_p(1)
      */
