@@ -40,6 +40,8 @@ void ideal_free(IDEAL* M);
 int ideal_isequal(IDEAL* M, IDEAL* N);
 /* returns non-zero when M is a subset of N */
 int ideal_issubset(IDEAL* M, IDEAL* N);
+/* sets res to M \ N. N must be a subset of M */
+int ideal_diff(IDEAL* res, IDEAL* M, IDEAL* N);
 /* sets res to M * (Qu_t) */
 int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long t, unsigned long p);
 /* sets res to M * N */

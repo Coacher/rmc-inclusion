@@ -10,7 +10,7 @@ endif
 
 all: rmc utils
 
-utils: RM_collision M_RM_visualize u_calculator
+utils: RM_collision M_RM_diff M_RM_visualize u_calculator
 
 tests: test_Mpi_in_Mp
 
@@ -25,6 +25,9 @@ u_calculator: log.o common.o ideals.o u_calculator.o
 
 M_RM_visualize: log.o common.o ideals.o M_RM_visualize.o
 	$(CC) -o M_RM_visualize log.o common.o ideals.o M_RM_visualize.o -lgmp
+
+M_RM_diff: log.o common.o ideals.o M_RM_diff.o
+	$(CC) -o M_RM_diff log.o common.o ideals.o M_RM_diff.o -lgmp
 
 RM_collision: log.o common.o ideals.o RM_collision.o
 	$(CC) -o RM_collision log.o common.o ideals.o RM_collision.o -lgmp
@@ -53,6 +56,9 @@ rmc.o: rmc.c graph.h info.h ideals.h common.h log.h
 RM_collision.o: RM_collision.c ideals.h common.h log.h
 	$(CC) -c RM_collision.c
 
+M_RM_diff.o: M_RM_diff.c ideals.h common.h log.h
+	$(CC) -c M_RM_diff.c
+
 M_RM_visualize.o: M_RM_visualize.c ideals.h common.h log.h
 	$(CC) -c M_RM_visualize.c
 
@@ -63,7 +69,7 @@ test_Mpi_in_Mp.o: tests/test_Mpi_in_Mp.c ideals.h common.h log.h
 	$(CC) -c tests/test_Mpi_in_Mp.c
 
 clean:
-	rm -f *.o rmc RM_collision M_RM_visualize u_calculator *\~
+	rm -f *.o rmc RM_collision M_RM_diff M_RM_visualize u_calculator *\~
 	rm -f tests/test_Mpi_in_Mp
 
 distclean: clean

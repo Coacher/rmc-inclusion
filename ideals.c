@@ -56,6 +56,9 @@ void ideal_free(IDEAL* M) {
 int ideal_isequal(IDEAL* M, IDEAL* N) {
     unsigned long long i;
 
+    if (M == NULL || N == NULL)
+        return 0;
+
     if (M->q != N->q)
         return 0;
 
@@ -71,6 +74,9 @@ int ideal_isequal(IDEAL* M, IDEAL* N) {
 int ideal_issubset(IDEAL* M, IDEAL* N) {
     unsigned long long i;
 
+    if (M == NULL || N == NULL)
+        return 0;
+
     if (M->q != N->q)
         return 0;
 
@@ -81,6 +87,27 @@ int ideal_issubset(IDEAL* M, IDEAL* N) {
     }
 
     return 1;
+}
+
+int ideal_diff(IDEAL* res, IDEAL* M, IDEAL* N) {
+    unsigned long long q, i;
+
+    if (M == NULL || N == NULL || res == NULL)
+        return -1;
+
+    if (M->q != N->q || M->q != res->q)
+        return -2;
+
+    q = M->q;
+    for (i = 0; i < q; ++i) {
+        if (M->u_s[i] == 1 && N->u_s[i] == 1) {
+            res->u_s[i] = 0;
+        } else {
+            res->u_s[i] = M->u_s[i];
+        }
+    }
+
+    return 0;
 }
 
 int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long p) {

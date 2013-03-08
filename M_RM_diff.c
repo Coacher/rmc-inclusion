@@ -1,4 +1,4 @@
-/* A small utility to visualize Ms and RMs structure */
+/* A small utility to visualize diff between M_pi(k) and RM_pi(k + 1) */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -12,10 +12,9 @@
 #define WITH_Ms       1
 #define WITH_RMs      (1 << 1)
 
-char* package = "Ms and RMs structure visualizer";
-char* version = "0.0.5";
+char* package = "M_pi(k) diff RM_pi(k + 1) structure visualizer";
+char* version = "0.0.1";
 char* progname = NULL;
-unsigned char output_control = 0;
 
 /* global debug level */
 int debug = 0;
@@ -68,18 +67,18 @@ int main(int argc, char **argv) {
         RMs[i] = pp;
     }
 
-    for (i = 0; i < numofMs; ++i) {
-        if (i)
-            fprintf(stdout, "\n");
-
-        if (output_control & WITH_Ms) {
-            fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, i);
+    for (i = 0; i < (numofMs - 1); ++i) {
+        if (!ideal_isequal(Ms[i], RMs[i + 1])) {
+            ideal_diff(Ms[i], Ms[i], RMs[i + 1]);
+            fprintf(stdout, "M_%llu(%lu,%llu) diff Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i, pi, m, i + 1);
             ideal_print(Ms[i]);
-        }
 
-        if (output_control & WITH_RMs) {
-            fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i);
-            ideal_print(RMs[i]);
+            fprintf(stdout, "Indexes in diff:");
+            for (j = 0; j < q; ++j) {
+                if (Ms[i]->u_s[j])
+                    fprintf(stdout, " u_%llu", j);
+            }
+            fprintf(stdout, ".\n\n");
         }
     }
 
@@ -110,8 +109,6 @@ static int handle_cmdline(int *argc, char ***argv) {
         {"char", 1, 0, 'p'},
         {"exp", 1, 0, 'l'},
         {"lambda", 1, 0, 'L'},
-        {"with_Ms", 0, 0, 'M'},
-        {"with_RMs", 0, 0, 'R'},
         {"debug", 0, 0, 'D'},
         {"version", 0, 0, 'v'},
         {"help", 0, 0, 'h'},
@@ -121,8 +118,6 @@ static int handle_cmdline(int *argc, char ***argv) {
         "Specifies characteristic of field, must be a prime.",
         "Specifies size of field as an exponent of characteristic.",
         "Specifies series of ideals, can be any factor of exponent.",
-        "Enable Ms output.",
-        "Enable RMs output.",
         "Increase debugging level.",
         "Print version information.",
         "Print this message.",
@@ -134,7 +129,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     for (;;) {
         int i;
         i = getopt_long(*argc, *argv,
-            "p:l:L:MRDvh", opts, NULL);
+            "p:l:L:Dvh", opts, NULL);
         if (i == -1) {
             break;
         }
@@ -147,12 +142,6 @@ static int handle_cmdline(int *argc, char ***argv) {
             break;
         case 'L':
             sscanf(optarg, "%lu", &lambda);
-            break;
-        case 'M':
-            output_control |= WITH_Ms;
-            break;
-        case 'R':
-            output_control |= WITH_RMs;
             break;
         case 'D':
             debug++;
@@ -192,11 +181,6 @@ static int handle_cmdline(int *argc, char ***argv) {
 
     if (l % lambda) {
         fprintf(stderr, "(L)ambda must be a factor of l. See --help.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (!output_control) {
-        fprintf(stderr, "You must specify at least one of M or R options. See --help.\n");
         exit(EXIT_FAILURE);
     }
 
