@@ -13,7 +13,7 @@
 #define WITH_RMs      (1 << 1)
 
 char* package = "M_pi(k) diff RM_pi(k + 1) structure visualizer";
-char* version = "0.0.1";
+char* version = "0.0.2";
 char* progname = NULL;
 
 /* global debug level */
@@ -71,9 +71,10 @@ int main(int argc, char **argv) {
         if (!ideal_isequal(Ms[i], RMs[i + 1])) {
             ideal_diff(Ms[i], Ms[i], RMs[i + 1]);
             fprintf(stdout, "M_%llu(%lu,%llu) diff Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i, pi, m, i + 1);
-            ideal_print(Ms[i]);
 
-            fprintf(stdout, "Indexes in diff:");
+            DEBUG_CALL(ideal_print(Ms[i]));
+            DEBUG_CALL(fprintf(stdout, "Indexes in diff:"));
+
             for (j = 0; j < q; ++j) {
                 if (Ms[i]->u_s[j])
                     fprintf(stdout, " u_%llu", j);
