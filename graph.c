@@ -37,11 +37,16 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
 
     /* construct Rads (except mentioned above) chain and
      * embed Rads chain into appropriate place in Ms chain */
-    fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%i;\n", pi, m, numofMs - 2, 2);
     for (i = 2; i < nilindex - 2; ++i) {
         fprintf(out, "\tRad_%llu -> Rad_%llu [weight = %llu];\n", i, i + 1, 1000*nilindex);
     }
-    fprintf(out, "\tRad_%llu -> M_%llu_%lu_%i;\n", nilindex - 2, pi, m, 0);
+    if (nilindex > 3) {
+        /* nilindex == 3 when p == l == lambda == 2
+         * in this case there are no "pure" radical powers, only trivial ones
+         * and they were handled when Ms were handled */
+        fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%i;\n", pi, m, numofMs - 2, 2);
+        fprintf(out, "\tRad_%llu -> M_%llu_%lu_%i;\n", nilindex - 2, pi, m, 0);
+    }
 
     /* label them */
     for (i = 2; i < nilindex - 1; ++i) {
