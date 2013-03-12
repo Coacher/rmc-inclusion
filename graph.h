@@ -8,8 +8,8 @@
 #include "ideals.h"
 
 /* print out Ms and Rads inclusion graph */
-void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads);
+void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, unsigned int r_weight);
 
 /* print out Ms and RMs inclusion graph */
-void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs);
+void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight);
 #endif

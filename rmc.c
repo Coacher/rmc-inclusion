@@ -29,10 +29,12 @@ char* package = "MPI Reed-Muller codes calculator";
 #else
 char* package = "Reed-Muller codes calculator";
 #endif
-char* version = "2.0.0";
+char* version = "2.1.0";
 char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned char output_control = 0;
+unsigned int m_weight = 1000;
+unsigned int r_weight = 1000;
 
 /* global debug level */
 int debug = 0;
@@ -152,14 +154,14 @@ int main(int argc, char **argv) {
     /* print out graph */
     if (output_control & WITH_GRAPH) {
         dbg_msg("Printing out graph...\n");
-        print_graph(graph_out, Ms, Rads);
+        print_graph(graph_out, Ms, Rads, m_weight, r_weight);
         fclose(graph_out);
     }
 
     /* print out rm_graph */
     if (output_control & WITH_RM_GRAPH) {
         dbg_msg("Printing out rm_graph...\n");
-        print_rm_graph(rm_graph_out, Ms, RMs);
+        print_rm_graph(rm_graph_out, Ms, RMs, m_weight);
         fclose(rm_graph_out);
     }
 
@@ -201,6 +203,8 @@ static int handle_cmdline(int *argc, char ***argv) {
         {"with_info", 0, 0, 'I'},
         {"with_graph", 0, 0, 'G'},
         {"with_rm_graph", 0, 0, 'R'},
+        {"m_weight", 1, 0, 'm'},
+        {"r_weight", 1, 0, 'r'},
         {"debug", 0, 0, 'D'},
         {"version", 0, 0, 'v'},
         {"help", 0, 0, 'h'},
@@ -214,6 +218,8 @@ static int handle_cmdline(int *argc, char ***argv) {
         "Enable info output.",
         "Enable graph output.",
         "Enable rm_graph output.",
+        "Specifies weight to use for Ms links in graph construction. Default 1000.",
+        "Specifies weight to use for Rads links in graph construction. Default 1000.",
         "Increase debugging level.",
         "Print version information.",
         "Print this message.",
@@ -225,7 +231,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     for (;;) {
         int i;
         i = getopt_long(*argc, *argv,
-            "p:l:L:cIGRDvh", opts, NULL);
+            "p:l:L:cIGRm:r:Dvh", opts, NULL);
         if (i == -1) {
             break;
         }
@@ -250,6 +256,12 @@ static int handle_cmdline(int *argc, char ***argv) {
             break;
         case 'R':
             output_control |= WITH_RM_GRAPH;
+            break;
+        case 'm':
+            sscanf(optarg, "%u", &m_weight);
+            break;
+        case 'r':
+            sscanf(optarg, "%u", &r_weight);
             break;
         case 'D':
             debug++;

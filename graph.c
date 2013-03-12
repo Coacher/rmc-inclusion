@@ -6,7 +6,7 @@
 
 #define MAX_LABEL_LENGTH 512
 
-void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
+void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, unsigned int r_weight) {
     unsigned long long i, j;
 
     fprintf(out, "digraph M_Rad_inclusion {\n");
@@ -19,7 +19,7 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
 
     /* contrsuct Ms chain */
     for (i = 1; i < numofMs; ++i) {
-        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, 1000*numofMs);
+        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, m_weight*numofMs);
     }
 
     /* label Ms chain; it is proven that only these equalities hold:
@@ -38,7 +38,7 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads) {
     /* construct Rads (except mentioned above) chain and
      * embed Rads chain into appropriate place in Ms chain */
     for (i = 2; i < nilindex - 2; ++i) {
-        fprintf(out, "\tRad_%llu -> Rad_%llu [weight = %llu];\n", i, i + 1, 1000*nilindex);
+        fprintf(out, "\tRad_%llu -> Rad_%llu [weight = %llu];\n", i, i + 1, r_weight*nilindex);
     }
     if (nilindex > 3) {
         /* nilindex == 3 when p == l == lambda == 2
@@ -100,7 +100,7 @@ int append_to_label(char** label, char* s) {
     return 0;
 }
 
-void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs) {
+void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
     unsigned long long i, j;
     unsigned char was_collision = 0;
 
@@ -164,7 +164,7 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs) {
 
     /* contrsuct Ms chain */
     for (i = 1; i < numofMs; ++i) {
-        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, 1000*numofMs);
+        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, m_weight*numofMs);
     }
 
     /* label Ms chain taking collisions with RMs into account */
