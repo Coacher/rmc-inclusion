@@ -12,15 +12,11 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, uns
     fprintf(out, "digraph M_Rad_inclusion {\n");
 
     /* global graph attributes */
-    fprintf(out, "\tsplines=\"ortho\";\n");
-    fprintf(out, "\tnodesep=\"3.0\";\n");
-    fprintf(out, "\tranksep=\"0.35\";\n");
+    fprintf(out, "\tgraph [nodesep=\"3.0\",\n");
+    fprintf(out, "\t\tranksep=\"0.35\",\n");
+    fprintf(out, "\t\tsplines=ortho\n");
+    fprintf(out, "\t];\n");
 
-
-    /* contrsuct Ms chain */
-    for (i = 1; i < numofMs; ++i) {
-        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, m_weight*numofMs);
-    }
 
     /* label Ms chain; it is proven that only these equalities hold:
      *  M_pi(m, 0) == Rad^(nilindex - 1)
@@ -34,15 +30,20 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, uns
     fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 2, pi, m, numofMs - 2, 1);
     fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 1, pi, m, numofMs - 1, 0);
 
+    /* contrsuct Ms chain */
+    for (i = 1; i < numofMs; ++i) {
+        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, m_weight*numofMs);
+    }
+
+
+    /* label Rads chain (except for those in equalities mentioned above) */
+    for (i = 2; i < nilindex - 1; ++i) {
+        fprintf(out, "\tRad_%llu [label = \"Rad^%llu\"];\n", i, i);
+    }
 
     /* construct Rads chain (except for those in equalities mentioned above) */
     for (i = 2; i < nilindex - 2; ++i) {
         fprintf(out, "\tRad_%llu -> Rad_%llu [weight = %llu];\n", i, i + 1, r_weight*nilindex);
-    }
-
-    /* label them */
-    for (i = 2; i < nilindex - 1; ++i) {
-        fprintf(out, "\tRad_%llu [label = \"Rad^%llu\"];\n", i, i);
     }
 
 
@@ -98,6 +99,7 @@ int append_to_label(char** label, char* s) {
 void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
     unsigned long long i, j;
     unsigned char was_collision = 0;
+    unsigned long long previous;
 
     char buf[MAX_LABEL_LENGTH];
     char** labels;
@@ -115,9 +117,10 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
     fprintf(out, "digraph M_RM_inclusion {\n");
 
     /* global graph attributes */
-    fprintf(out, "\tsplines=\"ortho\";\n");
-    fprintf(out, "\tnodesep=\"3.0\";\n");
-    fprintf(out, "\tranksep=\"0.35\";\n");
+    fprintf(out, "\tgraph [nodesep=\"3.0\",\n");
+    fprintf(out, "\t\tranksep=\"0.35\",\n");
+    fprintf(out, "\t\tsplines=ortho\n");
+    fprintf(out, "\t];\n");
 
 
     /* label RMs taking collisions into account */
@@ -155,17 +158,6 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
         }
     }
 
-    /* contrsuct Ms chain */
-    for (i = 1; i < numofMs; ++i) {
-        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, m_weight*numofMs);
-    }
-
-    /* it is proven that M_pi(m,0) == Rad*M_pi(m,1)
-     * and Rad*M_pi(m,0) is smaller than M_pi(m,0)
-     * so it will not collide with either any of Ms or RMs
-     * that's why it is safe to create this link here */
-    fprintf(out, "\tM_%llu_%lu_%u -> RM_%llu_%lu_%u;\n", pi, m, 0, pi, m, 0);
-
     /* label Ms chain taking collisions with RMs into account */
     for (i = 0; i < numofMs; ++i) {
         was_collision = 0;
@@ -186,6 +178,26 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
             fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, i, pi, m, i);
     }
 
+    /* contrsuct Ms chain */
+    for (i = 1; i < numofMs; ++i) {
+        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, m_weight*numofMs);
+    }
+
+    /* label RMs chain */
+    for (i = 0; i < numofMs; ++i) {
+        if (RMs[i] == NULL)
+            continue;
+
+        fprintf(out, "\tRM_%llu_%lu_%llu [label = \"%s\"];\n", \
+                pi, m, i, labels[i]);
+    }
+
+    /* it is proven that M_pi(m,0) == Rad*M_pi(m,1)
+     * and Rad*M_pi(m,0) is smaller than M_pi(m,0)
+     * so it will not collide with either any of Ms or RMs
+     * that's why it is safe to create this link here */
+    fprintf(out, "\tM_%llu_%lu_%u -> RM_%llu_%lu_%u;\n", pi, m, 0, pi, m, 0);
+
     /* construct RMs chain */
     for (i = 1; i < numofMs; ++i) {
         if (RMs[i] == NULL)
@@ -202,15 +214,6 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
         }
     }
 
-    /* label RMs chain */
-    for (i = 0; i < numofMs; ++i) {
-        if (RMs[i] == NULL)
-            continue;
-
-        fprintf(out, "\tRM_%llu_%lu_%llu [label = \"%s\"];\n", \
-                pi, m, i, labels[i]);
-    }
-
 
     fprintf(out, "# The rest of the file is generated in an automated manner and not meant to be read by human\n");
 
@@ -219,22 +222,35 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
      *  Rad*M_pi(m,0)
      *  M_pi(m,0) == Rad*M_pi(m,1)
      *  M_pi(m, numofMs - 2) == Rad*M_pi(m, numofMs - 1) == Rad*QH == Rad */
+    previous = 0;
     for (j = 2; j < numofMs - 1; ++j) {
+        if (RMs[j] == NULL)
+            continue;
+
+        for (i = numofMs - 3; i >= 1; --i) {
+            if (ideal_issubset(Ms[i], RMs[j])) {
+                if (previous < i) {
+                    fprintf(out, "\tRM_%llu_%lu_%llu -> M_%llu_%lu_%llu;\n", pi, m, j, pi, m, i);
+                    previous = i;
+                }
+                /* if RM_pi[j] > M_pi[i], then RM_pi[j] > M_pi[i] > M_pi[i-1] > ... */
+                break;
+            }
+        }
+    }
+
+    previous = numofMs;
+    for (j = numofMs - 2; j >= 2; --j) {
         if (RMs[j] == NULL)
             continue;
 
         for (i = 1; i < numofMs - 2; ++i) {
             if (ideal_issubset(RMs[j], Ms[i])) {
-                fprintf(out, "\tM_%llu_%lu_%llu -> RM_%llu_%lu_%llu;\n", pi, m, i, pi, m, j);
+                if (previous > i) {
+                    fprintf(out, "\tM_%llu_%lu_%llu -> RM_%llu_%lu_%llu;\n", pi, m, i, pi, m, j);
+                    previous = i;
+                }
                 /* if M_pi[i] > RM_pi[j], then ... > M_pi[i+1] > M_pi[i] > RM_pi[j] */
-                break;
-            }
-        }
-
-        for (i = numofMs - 3; i >= 1; --i) {
-            if (ideal_issubset(Ms[i], RMs[j])) {
-                fprintf(out, "\tRM_%llu_%lu_%llu -> M_%llu_%lu_%llu;\n", pi, m, j, pi, m, i);
-                /* if RM_pi[j] > M_pi[i], then RM_pi[j] > M_pi[i] > M_pi[i-1] > ... */
                 break;
             }
         }
