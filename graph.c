@@ -35,18 +35,9 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, uns
     fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 1, pi, m, numofMs - 1, 0);
 
 
-    /* construct Rads chain (except for those in equalities mentioned above)
-     * and embed Rads chain into appropriate place in Ms chain */
+    /* construct Rads chain (except for those in equalities mentioned above) */
     for (i = 2; i < nilindex - 2; ++i) {
         fprintf(out, "\tRad_%llu -> Rad_%llu [weight = %llu];\n", i, i + 1, r_weight*nilindex);
-    }
-    if (nilindex > 3) {
-        /* nilindex == 3 when p == l == lambda == 2
-         * in this case there are no radical powers except for
-         * those in equalities mentioned above
-         * and they were already handled when Ms were handled */
-        fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%u;\n", pi, m, numofMs - 2, 2);
-        fprintf(out, "\tRad_%llu -> M_%llu_%lu_%u;\n", nilindex - 2, pi, m, 0);
     }
 
     /* label them */
@@ -58,8 +49,10 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, uns
     /* carcass is ready, fill it with inclusion links */
     fprintf(out, "# The rest of the file is generated in an automated manner and not meant to be read by human\n");
 
-    for (i = 1; i < numofMs - 2; ++i) {
-        for (j = 2; j < nilindex - 1; ++j) {
+    /* for each Rad create all needed links between Rad and Ms */
+    for (j = 2; j < nilindex - 1; ++j) {
+
+        for (i = 1; i < numofMs - 2; ++i) {
             if (ideal_issubset(Rads[j], Ms[i])) {
                 fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%llu;\n", pi, m, i, j);
                 /* if M_pi[i] > Rad^j, then M_pi[i] > Rad^j > Rad^(j+1) > ... */
@@ -67,7 +60,7 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, uns
             }
         }
 
-        for (j = nilindex - 2; j >= 2; --j) {
+        for (i = numofMs - 3; i >= 1; --i) {
             if (ideal_issubset(Ms[i], Rads[j])) {
                 fprintf(out, "\tRad_%llu -> M_%llu_%lu_%llu;\n", j, pi, m, i);
                 /* if Rad^j > M_pi[i], then ... > Rad^(j-1) > Rad^j > M_pi[i] */
@@ -221,7 +214,7 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
 
     fprintf(out, "# The rest of the file is generated in an automated manner and not meant to be read by human\n");
 
-    /* for each RM create all needed links between Ms and RMs
+    /* for each RM create all needed links between RM and Ms
      * things that were already handled:
      *  Rad*M_pi(m,0)
      *  M_pi(m,0) == Rad*M_pi(m,1)
