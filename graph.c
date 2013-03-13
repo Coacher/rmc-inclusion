@@ -239,7 +239,7 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
         }
     }
 
-    previous = numofMs;
+    previous = numofMs - 2;
     for (j = numofMs - 2; j >= 2; --j) {
         if (RMs[j] == NULL)
             continue;
