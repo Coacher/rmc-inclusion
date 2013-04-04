@@ -12,13 +12,8 @@ all: rmc utils
 
 utils: RM_collision M_RM_diff M_RM_visualize u_calculator
 
-tests: test_Mpi_in_Mp
-
 safe: CC= gcc $(SAFE_CFLAGS)
 safe: all
-
-test_Mpi_in_Mp: log.o common.o ideals.o test_Mpi_in_Mp.o
-	$(CC) -o tests/test_Mpi_in_Mp log.o common.o ideals.o test_Mpi_in_Mp.o -lgmp
 
 u_calculator: log.o common.o ideals.o u_calculator.o
 	$(CC) -o u_calculator log.o common.o ideals.o u_calculator.o -lgmp
@@ -65,12 +60,8 @@ M_RM_visualize.o: M_RM_visualize.c ideals.h common.h log.h
 u_calculator.o: u_calculator.c ideals.h common.h log.h
 	$(CC) -c u_calculator.c
 
-test_Mpi_in_Mp.o: tests/test_Mpi_in_Mp.c ideals.h common.h log.h
-	$(CC) -c tests/test_Mpi_in_Mp.c
-
 clean:
 	rm -f *.o rmc RM_collision M_RM_diff M_RM_visualize u_calculator *\~
-	rm -f tests/test_Mpi_in_Mp
 
 distclean: clean
 	rm -f *.gv
