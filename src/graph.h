@@ -4,8 +4,9 @@
 
 #include <stdio.h>
 
-#include "common.h"
-#include "ideals.h"
+#include "rmc/log.h"
+#include "rmc/common.h"
+#include "rmc/ideals.h"
 
 /* print out Ms and Rads inclusion graph */
 void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, unsigned int r_weight);

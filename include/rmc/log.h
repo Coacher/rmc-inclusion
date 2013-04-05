@@ -2,8 +2,6 @@
 #ifndef _LOG_H
 #define _LOG_H
 
-#define ENABLE_DEBUG
-
 /* global debug level */
 extern int debug;
 

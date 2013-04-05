@@ -1,6 +1,6 @@
 /* a number of small useful functions */
 
-#include "common.h"
+#include "rmc/common.h"
 
 unsigned long long pow_ul(unsigned long p, unsigned long l) {
     unsigned long long ret = 1;

@@ -73,11 +73,11 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, uns
     fprintf(out, "}\n");
 }
 
-int append_to_label(char** label, char* s) {
+static int append_to_label(char** label, char* s) {
+    char* p;
+
     if (s == NULL)
         return 1;
-
-    char* p;
 
     if ((*label) == NULL) {
         p = (char*) malloc((strlen(s) + 1)*sizeof(char));

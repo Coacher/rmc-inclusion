@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "ideals.h"
+#include "rmc/ideals.h"
 
 IDEAL* ideal_create(unsigned long long q) {
     IDEAL* M;
@@ -173,7 +173,7 @@ int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
     q = N->q;
     for (j = 0; j < q; ++j) {
         if (N->u_s[j]) {
-            if (ret = ideal_multiplyby_u(res, M, j, p))
+            if ((ret = ideal_multiplyby_u(res, M, j, p)))
                 return ret;
         }
     }
@@ -182,10 +182,10 @@ int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
 }
 
 void ideal_print(IDEAL* M) {
+    unsigned long long i;
+
     if (M == NULL)
         return;
-
-    unsigned long long i;
 
     fprintf(stdout, "[");
     for (i = 0; i < (q - 1); ++i)

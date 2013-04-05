@@ -5,12 +5,12 @@
 #include <string.h>
 #include <getopt.h>
 
-#include "log.h"
-#include "common.h"
-#include "ideals.h"
+#include "rmc/log.h"
+#include "rmc/common.h"
+#include "rmc/ideals.h"
 
-char* package = "u_s calculator";
-char* version = "0.0.1";
+const char* package = "u_s calculator";
+const char* version = "0.0.1";
 char* progname = NULL;
 
 /* indexes of two elements to multiply */

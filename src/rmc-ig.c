@@ -6,15 +6,9 @@
 #include <string.h>
 #include <getopt.h>
 
-#ifdef WITH_MPI
-#include <mpi.h>
-
-int mpi_me, mpi_total;
-#endif
-
-#include "log.h"
-#include "common.h"
-#include "ideals.h"
+#include "rmc/log.h"
+#include "rmc/common.h"
+#include "rmc/ideals.h"
 #include "info.h"
 #include "graph.h"
 
@@ -24,12 +18,8 @@ int mpi_me, mpi_total;
 #define WITH_GRAPH      (1 << 1)
 #define WITH_RM_GRAPH   (1 << 2)
 
-#ifdef WITH_MPI
-char* package = "MPI Reed-Muller codes calculator";
-#else
-char* package = "Reed-Muller codes calculator";
-#endif
-char* version = "2.2.2";
+const char* package = "Reed-Muller codes calculator";
+const char* version = "2.2.2";
 char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned char output_control = 0;
@@ -53,13 +43,6 @@ int main(int argc, char **argv) {
     char     info_outname[MAX_FILENAME_LEN];
     char    graph_outname[MAX_FILENAME_LEN];
     char rm_graph_outname[MAX_FILENAME_LEN];
-
-#ifdef WITH_MPI
-    MPI_Init(&argc, &argv);
-
-    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_me);
-    MPI_Comm_size(MPI_COMM_WORLD, &mpi_total);
-#endif
 
     /* learn who we really are */
     progname = (char *)strrchr(argv[0], '/');
@@ -183,10 +166,6 @@ int main(int argc, char **argv) {
         ideal_free(RMs[i]);
     }
     free(RMs);
-
-#ifdef WITH_MPI
-    MPI_Finalize();
-#endif
 
     return 0;
 }

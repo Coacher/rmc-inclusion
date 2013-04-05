@@ -1,17 +1,21 @@
-/* A small utility to detect RMs collisions and print them out */
+/* A small utility to visualize Ms and RMs structure */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <getopt.h>
 
-#include "log.h"
-#include "common.h"
-#include "ideals.h"
+#include "rmc/log.h"
+#include "rmc/common.h"
+#include "rmc/ideals.h"
 
-char* package = "RMs collision detector";
-char* version = "0.0.5";
+#define WITH_Ms       1
+#define WITH_RMs      (1 << 1)
+
+const char* package = "Ms and RMs structure visualizer";
+const char* version = "0.0.5";
 char* progname = NULL;
+unsigned char output_control = 0;
 
 /* global debug level */
 int debug = 0;
@@ -20,7 +24,6 @@ static int handle_cmdline(int *argc, char ***argv);
 
 int main(int argc, char **argv) {
     unsigned long long i, j;
-    unsigned char was_collision = 0;
 
     IDEAL* Rad;
     IDEAL* pp;
@@ -65,44 +68,19 @@ int main(int argc, char **argv) {
         RMs[i] = pp;
     }
 
-    /* do collision test */
     for (i = 0; i < numofMs; ++i) {
-        was_collision = 0;
-        if (RMs[i] == NULL)
-            continue;
-
-        for (j = i + 1; j < numofMs; ++j) {
-            if (RMs[j] == NULL) {
-                continue;
-            } else if (ideal_isequal(RMs[i], RMs[j])) {
-                if (!was_collision) {
-                    was_collision = 1;
-
-                    fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, i);
-                    ideal_print(Ms[i]);
-                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i);
-                    ideal_print(RMs[i]);
-
-                    fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, j);
-                    ideal_print(Ms[j]);
-                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, j);
-                    ideal_print(RMs[j]);
-
-                    ideal_free(RMs[j]);
-                    RMs[j] = NULL;
-                } else {
-                    fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, j);
-                    ideal_print(Ms[j]);
-                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, j);
-                    ideal_print(RMs[j]);
-
-                    ideal_free(RMs[j]);
-                    RMs[j] = NULL;
-                }
-            }
-        }
-        if (was_collision)
+        if (i)
             fprintf(stdout, "\n");
+
+        if (output_control & WITH_Ms) {
+            fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, i);
+            ideal_print(Ms[i]);
+        }
+
+        if (output_control & WITH_RMs) {
+            fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i);
+            ideal_print(RMs[i]);
+        }
     }
 
     /* do cleanup */
@@ -132,6 +110,8 @@ static int handle_cmdline(int *argc, char ***argv) {
         {"char", 1, 0, 'p'},
         {"exp", 1, 0, 'l'},
         {"lambda", 1, 0, 'L'},
+        {"with_Ms", 0, 0, 'M'},
+        {"with_RMs", 0, 0, 'R'},
         {"debug", 0, 0, 'D'},
         {"version", 0, 0, 'v'},
         {"help", 0, 0, 'h'},
@@ -140,7 +120,9 @@ static int handle_cmdline(int *argc, char ***argv) {
     const char *opts_help[] = {
         "Specifies characteristic of field, must be a prime.",
         "Specifies size of field as an exponent of characteristic.",
-        "Specifies series of ideals, can be any factor of exponent, except for 1.",
+        "Specifies series of ideals, can be any factor of exponent.",
+        "Enable Ms output.",
+        "Enable RMs output.",
         "Increase debugging level.",
         "Print version information.",
         "Print this message.",
@@ -152,7 +134,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     for (;;) {
         int i;
         i = getopt_long(*argc, *argv,
-            "p:l:L:Dvh", opts, NULL);
+            "p:l:L:MRDvh", opts, NULL);
         if (i == -1) {
             break;
         }
@@ -165,6 +147,12 @@ static int handle_cmdline(int *argc, char ***argv) {
             break;
         case 'L':
             sscanf(optarg, "%lu", &lambda);
+            break;
+        case 'M':
+            output_control |= WITH_Ms;
+            break;
+        case 'R':
+            output_control |= WITH_RMs;
             break;
         case 'D':
             debug++;
@@ -202,8 +190,13 @@ static int handle_cmdline(int *argc, char ***argv) {
         exit(EXIT_FAILURE);
     }
 
-    if (l % lambda || lambda == 1) {
-        fprintf(stderr, "(L)ambda must be a factor of l, except for 1. See --help.\n");
+    if (l % lambda) {
+        fprintf(stderr, "(L)ambda must be a factor of l. See --help.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (!output_control) {
+        fprintf(stderr, "You must specify at least one of M or R options. See --help.\n");
         exit(EXIT_FAILURE);
     }
 

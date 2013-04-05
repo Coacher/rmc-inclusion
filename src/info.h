@@ -4,8 +4,8 @@
 
 #include <stdio.h>
 
-#include "common.h"
-#include "ideals.h"
+#include "rmc/common.h"
+#include "rmc/ideals.h"
 
 /* print out all needed info */
 void print_info(FILE* out, IDEAL** Ms, IDEAL** Rads, IDEAL** RMs);

@@ -1,19 +1,16 @@
-/* A small utility to visualize diff between M_pi(k) and RM_pi(k + 1) */
+/* A small utility to detect RMs collisions and print them out */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <getopt.h>
 
-#include "log.h"
-#include "common.h"
-#include "ideals.h"
+#include "rmc/log.h"
+#include "rmc/common.h"
+#include "rmc/ideals.h"
 
-#define WITH_Ms       1
-#define WITH_RMs      (1 << 1)
-
-char* package = "M_pi(k) diff RM_pi(k + 1) structure visualizer";
-char* version = "0.0.2";
+const char* package = "RMs collision detector";
+const char* version = "0.0.5";
 char* progname = NULL;
 
 /* global debug level */
@@ -23,6 +20,7 @@ static int handle_cmdline(int *argc, char ***argv);
 
 int main(int argc, char **argv) {
     unsigned long long i, j;
+    unsigned char was_collision = 0;
 
     IDEAL* Rad;
     IDEAL* pp;
@@ -67,20 +65,44 @@ int main(int argc, char **argv) {
         RMs[i] = pp;
     }
 
-    for (i = 0; i < (numofMs - 1); ++i) {
-        if (!ideal_isequal(Ms[i], RMs[i + 1])) {
-            ideal_diff(Ms[i], Ms[i], RMs[i + 1]);
-            fprintf(stdout, "M_%llu(%lu,%llu) diff Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i, pi, m, i + 1);
+    /* do collision test */
+    for (i = 0; i < numofMs; ++i) {
+        was_collision = 0;
+        if (RMs[i] == NULL)
+            continue;
 
-            DEBUG_CALL(ideal_print(Ms[i]));
-            DEBUG_CALL(fprintf(stdout, "Indexes in diff:"));
+        for (j = i + 1; j < numofMs; ++j) {
+            if (RMs[j] == NULL) {
+                continue;
+            } else if (ideal_isequal(RMs[i], RMs[j])) {
+                if (!was_collision) {
+                    was_collision = 1;
 
-            for (j = 0; j < q; ++j) {
-                if (Ms[i]->u_s[j])
-                    fprintf(stdout, " u_%llu", j);
+                    fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, i);
+                    ideal_print(Ms[i]);
+                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i);
+                    ideal_print(RMs[i]);
+
+                    fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, j);
+                    ideal_print(Ms[j]);
+                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, j);
+                    ideal_print(RMs[j]);
+
+                    ideal_free(RMs[j]);
+                    RMs[j] = NULL;
+                } else {
+                    fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, j);
+                    ideal_print(Ms[j]);
+                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, j);
+                    ideal_print(RMs[j]);
+
+                    ideal_free(RMs[j]);
+                    RMs[j] = NULL;
+                }
             }
-            fprintf(stdout, ".\n\n");
         }
+        if (was_collision)
+            fprintf(stdout, "\n");
     }
 
     /* do cleanup */
@@ -118,7 +140,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     const char *opts_help[] = {
         "Specifies characteristic of field, must be a prime.",
         "Specifies size of field as an exponent of characteristic.",
-        "Specifies series of ideals, can be any factor of exponent.",
+        "Specifies series of ideals, can be any factor of exponent, except for 1.",
         "Increase debugging level.",
         "Print version information.",
         "Print this message.",
@@ -180,8 +202,8 @@ static int handle_cmdline(int *argc, char ***argv) {
         exit(EXIT_FAILURE);
     }
 
-    if (l % lambda) {
-        fprintf(stderr, "(L)ambda must be a factor of l. See --help.\n");
+    if (l % lambda || lambda == 1) {
+        fprintf(stderr, "(L)ambda must be a factor of l, except for 1. See --help.\n");
         exit(EXIT_FAILURE);
     }
 

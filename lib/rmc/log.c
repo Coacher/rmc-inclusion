@@ -4,7 +4,7 @@
 #include <string.h>
 #include <gmp.h>
 
-#include "log.h"
+#include "rmc/log.h"
 
 #ifdef WITH_MPI
 
