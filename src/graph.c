@@ -1,4 +1,4 @@
-/* functions related to printing Ms, Rads and RMs inclusion graphs */
+/* functions related to printing Ms/Rads and Ms/RMs inclusion graphs */
 #include <stdlib.h>
 #include <string.h>
 

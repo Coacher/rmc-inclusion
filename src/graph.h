@@ -1,4 +1,4 @@
-/* functions related to printing Ms, Rads and RMs inclusion graphs */
+/* functions related to printing Ms/Rads and Ms/RMs inclusion graphs */
 #ifndef _GRAPH_H
 #define _GRAPH_H
 

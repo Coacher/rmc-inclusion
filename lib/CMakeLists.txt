@@ -7,6 +7,10 @@ set(LIBRMC_LINK_LIBRARIES gmp)
 
 file(GLOB librmc_SOURCES rmc/*.c)
 
+if(WITH_DEBUG)
+    add_definitions(ENABLE_DEBUG)
+endif(WITH_DEBUG)
+
 if(WITH_STATIC_LIB)
 
     add_library(rmc STATIC ${librmc_SOURCES})

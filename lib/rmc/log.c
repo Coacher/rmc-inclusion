@@ -7,7 +7,6 @@
 #include "rmc/log.h"
 
 #ifdef WITH_MPI
-
 #define MAX_OUTPUT_STR_LENGTH 1024
 
 extern int mpi_me, mpi_total;

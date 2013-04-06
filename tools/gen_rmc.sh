@@ -1,15 +1,20 @@
 #!/bin/sh
 
-if [ -x "rmc" ]; then
-    if [ -d "$1-$2-$3" ]; then
-        rm -r "$1-$2-$3"
+if [ -d "$1" ]; then
+    if [ -x "$1/rmc-ig" ]; then
+        if [ -d "$2-$3-$4" ]; then
+            rm -r "$2-$3-$4"
+        fi
+
+        mkdir "$2-$3-$4" && cd "$2-$3-$4"
+
+        "../$1/rmc-ig" -p $2 -l $3 -L $4 -IGR || exit 1;
+    else
+        echo "rmc-ig is not found. You should run 'make' to build it."
+        exit 1;
     fi
-
-    mkdir "$1-$2-$3" && cd "$1-$2-$3"
-
-    ../rmc -p $1 -l $2 -L $3 -IGR || exit 1;
 else
-    echo "rmc is not found. You should run 'make' to build it."
+    echo "Directory $1 does not exist."
     exit 1;
 fi
 

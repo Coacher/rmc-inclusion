@@ -24,3 +24,6 @@ DEADJOE
 *.la
 *.a
 *.lai
+
+# build dir
+build/

@@ -1,5 +1,5 @@
 /* This program will gather and print all needed info about Ms, Rads and RMs structure
- * It is also able to construct and print inclusion graph in dot format */
+ * It is also able to construct and print inclusion graphs in dot format */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -18,7 +18,7 @@
 #define WITH_GRAPH      (1 << 1)
 #define WITH_RM_GRAPH   (1 << 2)
 
-const char* package = "Reed-Muller codes calculator";
+const char* package = "Basic Reed-Muller codes calculator";
 const char* version = "2.2.2";
 char* progname = NULL;
 unsigned char use_stdout = 0;

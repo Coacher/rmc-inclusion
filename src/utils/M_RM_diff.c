@@ -1,4 +1,4 @@
-/* A small utility to visualize diff between M_pi(k) and RM_pi(k + 1) */
+/* A small utility to visualize diff between M_pi(k) and RM_pi(k+1) */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -12,7 +12,7 @@
 #define WITH_Ms       1
 #define WITH_RMs      (1 << 1)
 
-const char* package = "M_pi(k) diff RM_pi(k + 1) structure visualizer";
+const char* package = "Utility to visualize diff between M_pi(k) and RM_pi(k+1)";
 const char* version = "0.0.2";
 char* progname = NULL;
 
