@@ -216,3 +216,49 @@ void ideal_print(IDEAL* M) {
         fprintf(stdout, " %u,", M->u_s[i]);
     fprintf(stdout, " %u ]\n", M->u_s[q - 1]);
 }
+
+unsigned long long minimum_Pi_for_P(unsigned long long j, \
+        unsigned long p, unsigned long m, unsigned long lambda) {
+
+    unsigned long long i, theta, tau;
+    unsigned long long sum = 0;
+
+    theta = j / m*(p - 1);
+    tau = j % m*(p - 1);
+
+    for(i = 0; i < theta; ++i) {
+        sum += m*(p - 1)*pow_ul(p, lambda - 1 - i);
+    }
+
+    sum += tau*pow_ul(p, lambda - 1 - theta);
+
+    return sum;
+}
+
+static unsigned long long lift(unsigned long long t,
+        unsigned long p, unsigned long m) {
+    return p*(t + 1) + m*(p - 1) - 1;
+}
+
+unsigned long long max_minimum_P_for_Pi(unsigned long long j, \
+        unsigned long p, unsigned long m) {
+
+    unsigned long long i, theta, tau;
+    unsigned long long ret = 0;
+
+    if (j < m*(p-1)) {
+        return j;
+    } else {
+        theta = j / m*(p - 1);
+        tau = j % m*(p - 1);
+
+        ret = lift(tau, p, m);
+
+        for(i = 1; i < theta; ++i) {
+            ret = lift(ret, p, m);
+        }
+    }
+
+    return ret;
+}
+

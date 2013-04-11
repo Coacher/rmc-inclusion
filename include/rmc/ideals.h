@@ -52,4 +52,22 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long t, unsigned long
 int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p);
 /* prints out the set of u_s which form the M */
 void ideal_print(IDEAL* M);
+
+/*
+ * We use notation from [2] here.
+ *
+ * [2]: TODO
+ *
+ */
+/* returns for the given j a minimum k such that P_j \subset \Pi_k */
+unsigned long long minimum_Pi_for_P(unsigned long long j, \
+        unsigned long p, unsigned long m, unsigned long lambda);
+
+/* for the given j there is a maximum k' among all those k
+ * for which j is minimum such that \Pi_k \subset P_j
+ * also all k' are different for different j
+ *
+ * returns k' for the given j */
+unsigned long long max_minimum_P_for_Pi(unsigned long long j, \
+        unsigned long p, unsigned long m);
 #endif
