@@ -53,6 +53,29 @@ void ideal_free(IDEAL* M) {
     }
 }
 
+void m_k(mpz_t rop, unsigned long long pi, unsigned long m, unsigned long k) {
+    unsigned long j;
+    mpz_t tmp1, tmp2;
+
+    mpz_init(tmp1);
+    mpz_init(tmp2);
+
+    mpz_set_ui(rop, 0);
+
+    for (j = 0; j <= m; ++j) {
+        bin_coeff(tmp1, m, j);
+        bin_coeff(tmp2, m + k - pi*j, k - pi*j);
+        mpz_mul(tmp1, tmp1, tmp2);
+        if (j & 1)
+            mpz_mul_si(tmp1, tmp1, -1);
+
+        mpz_add(rop, rop, tmp1);
+    }
+
+    mpz_clear(tmp1);
+    mpz_clear(tmp2);
+}
+
 int ideal_isequal(IDEAL* M, IDEAL* N) {
     unsigned long long i;
 
@@ -182,11 +205,12 @@ int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
 }
 
 void ideal_print(IDEAL* M) {
-    unsigned long long i;
+    unsigned long long q, i;
 
     if (M == NULL)
         return;
 
+    q = M->q;
     fprintf(stdout, "[");
     for (i = 0; i < (q - 1); ++i)
         fprintf(stdout, " %u,", M->u_s[i]);
