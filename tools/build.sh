@@ -1,3 +1,3 @@
 #!/bin/sh
 
-cd ../build && rm -rf ./* && cmake ../ && make
+cd build && rm -rf ./* && cmake ../ && make
