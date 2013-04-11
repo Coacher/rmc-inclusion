@@ -9,6 +9,7 @@
 #include "rmc/log.h"
 #include "rmc/common.h"
 #include "rmc/ideals.h"
+#include "constants.h"
 #include "info.h"
 #include "graph.h"
 
