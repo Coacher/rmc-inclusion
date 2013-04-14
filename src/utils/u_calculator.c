@@ -5,13 +5,12 @@
 #include <string.h>
 #include <getopt.h>
 
-#include "rmc/log.h"
 #include "rmc/common.h"
 #include "rmc/ideals.h"
 #include "constants.h"
 
 const char* package = "u_s calculator";
-const char* version = "0.0.1";
+const char* version = "1.0.0";
 char* progname = NULL;
 
 /* indexes of two elements to multiply */
@@ -56,11 +55,11 @@ int main(int argc, char **argv) {
     } else if ( (i + j > q - 2) && (i + j < 2*(q - 1)) ) {
         delta = i + j - (q - 1);
     } else if ((i + j) == 2*(q - 1)) {
-        fprintf(stdout, "result: - u_%llu - u_0\n", q - 1);
+        fprintf(stdout, "result: - u_0 - u_%llu\n", q - 1);
         return 0;
     }
 
-    /* pick max of i,j so later (i - delta) is posisitve */
+    /* pick max of i, j so later (i - delta) is posisitve */
     i = (i > j) ? i: j;
 
     /* u_i * u_j is non-zero first when i + j > q - 2
@@ -89,9 +88,9 @@ int main(int argc, char **argv) {
     mpz_init(coeff);
 
     bin_coeff(coeff, i, delta);
-    sign = ((i - delta) & 1) ? -1 : 1;
+    sign = ((i - delta) & 1) ? 1 : -1;
 
-    if (sign > 0)
+    if (sign < 0)
         mpz_mul_si(coeff, coeff, -1);
 
     gmp_fprintf(stdout, "result: %Zd * u_%llu\n", coeff, delta);
@@ -120,8 +119,8 @@ static int handle_cmdline(int *argc, char ***argv) {
         "Specifies characteristic of field, must be a prime.",
         "Specifies size of field as an exponent of characteristic.",
         "Specifies series of ideals, can be any factor of exponent, except for 1.",
-        "Specifies index of the first element to multiply.",
-        "Specifies index of the second element to multiply.",
+        "Specifies index of the first element to multiply. Default 0.",
+        "Specifies index of the second element to multiply. Default 0.",
         "Increase debugging level.",
         "Print version information.",
         "Print this message.",
@@ -193,13 +192,6 @@ static int handle_cmdline(int *argc, char ***argv) {
         fprintf(stderr, "(L)ambda must be a factor of l, except for 1. See --help.\n");
         exit(EXIT_FAILURE);
     }
-
-    if (i == 0 || j == 0) {
-        fprintf(stderr, "You must specify exactly two u_s indexes.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    dbg_msg_l(2, "i: %llu, j: %llu\n", i, j);
 
     return 0;
 }
