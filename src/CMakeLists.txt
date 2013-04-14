@@ -19,17 +19,17 @@ install(TARGETS rmc-ig
 )
 
 
-project(rmc-beautifier)
+project(rmc-short)
 
-set(rmc-beautifier_SOURCES
+set(rmc-short_SOURCES
     graph.c
-    rmc-beautifier.c
+    rmc-short.c
 )
 
-add_executable(rmc-beautifier ${rmc-beautifier_SOURCES} $<TARGET_OBJECTS:constants>)
-target_link_libraries(rmc-beautifier ${RMC_LINK_LIBRARIES})
+add_executable(rmc-short ${rmc-short_SOURCES} $<TARGET_OBJECTS:constants>)
+target_link_libraries(rmc-short ${RMC_LINK_LIBRARIES})
 
-install(TARGETS rmc-beautifier
+install(TARGETS rmc-short
     RUNTIME DESTINATION ${BIN_INSTALL_DIR}
     COMPONENT binary
 )

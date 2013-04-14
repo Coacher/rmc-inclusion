@@ -1,6 +1,6 @@
-/* This program will construct and print inclusion graph for Ms and Rads in dot format
- * using advanced techniques provided by theoretical background
- * i.e. no direct operations with ideals are performed */
+/* This program will construct and print Ms/Rads inclusion graph in dot format
+ * It uses advanced techniques provided by theoretical background
+ * i.e. no operations with ideals are performed so everything is much faster */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -8,15 +8,14 @@
 #include <getopt.h>
 
 #include "rmc/log.h"
-#include "rmc/common.h"
 #include "rmc/ideals.h"
 #include "constants.h"
 #include "graph.h"
 
 #define MAX_FILENAME_LEN 128
 
-const char* package = "Basic Reed-Muller codes beautiful graph generator";
-const char* version = "0.0.1";
+const char* package = "Basic Reed-Muller codes shortened graph generator";
+const char* version = "0.0.2";
 char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned int m_weight = 1000;
@@ -41,7 +40,7 @@ int main(int argc, char **argv) {
 
     /* prepare output files */
     if (!use_stdout) {
-        sprintf(graph_outname, "inclusion_tree_%lu-%lu-%lu.gv", p, l, lambda);
+        sprintf(graph_outname, "inclusion_tree_short_%lu-%lu-%lu.gv", p, l, lambda);
         graph_out = fopen(graph_outname, "w");
 
         if (!graph_out) {
