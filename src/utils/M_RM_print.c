@@ -6,7 +6,6 @@
 #include <getopt.h>
 
 #include "rmc/log.h"
-#include "rmc/common.h"
 #include "rmc/ideals.h"
 #include "constants.h"
 
@@ -14,7 +13,7 @@
 #define WITH_RMs      (1 << 1)
 
 const char* package = "Ms and RMs structure visualizer";
-const char* version = "0.0.5";
+const char* version = "1.0.0";
 char* progname = NULL;
 unsigned char output_control = 0;
 
