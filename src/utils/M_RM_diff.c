@@ -1,4 +1,4 @@
-/* A small utility to visualize diff between M_pi(k) and RM_pi(k+1) */
+/* A small utility to visualize diff between M_pi(k) and RM_pi(k + 1) */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -6,7 +6,6 @@
 #include <getopt.h>
 
 #include "rmc/log.h"
-#include "rmc/common.h"
 #include "rmc/ideals.h"
 #include "constants.h"
 
@@ -14,7 +13,7 @@
 #define WITH_RMs      (1 << 1)
 
 const char* package = "Utility to visualize diff between M_pi(k) and RM_pi(k+1)";
-const char* version = "0.0.2";
+const char* version = "1.0.0";
 char* progname = NULL;
 
 /* global debug level */
@@ -71,16 +70,21 @@ int main(int argc, char **argv) {
     for (i = 0; i < (numofMs - 1); ++i) {
         if (!ideal_isequal(Ms[i], RMs[i + 1])) {
             ideal_diff(Ms[i], Ms[i], RMs[i + 1]);
-            fprintf(stdout, "M_%llu(%lu,%llu) diff Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i, pi, m, i + 1);
+            fprintf(stdout, "M_%llu(%lu,%llu) \\ Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i, pi, m, i + 1);
 
-            DEBUG_CALL(ideal_print(Ms[i]));
-            DEBUG_CALL(fprintf(stdout, "Indexes in diff:"));
+            if (debug) {
+                fprintf(stdout, "\n");
+                ideal_print(Ms[i]);
+                fprintf(stdout, "Indexes in diff:");
+            }
 
             for (j = 0; j < q; ++j) {
                 if (Ms[i]->u_s[j])
                     fprintf(stdout, " u_%llu", j);
             }
             fprintf(stdout, ".\n\n");
+        } else {
+            dbg_msg_l(2, "M_%llu(%lu,%llu) == Rad*M_%llu(%lu,%llu)\n", pi, m, i, pi, m, i + 1);
         }
     }
 
