@@ -295,11 +295,9 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
      *  M_pi(m, numofMs - 1) == Rad^0 == QH
      */
     fprintf(out, "\tM_%llu_%lu_%u [label = \"M_%llu(%lu,%u) = Rad^%llu\"];\n", pi, m, 0, pi, m, 0, nilindex - 1);
-    for (i = 1; i < numofMs - 2; ++i) {
-        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, i, pi, m, i);
-    }
     fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 2, pi, m, numofMs - 2, 1);
     fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 1, pi, m, numofMs - 1, 0);
+    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, numofMs - 1, pi, m, numofMs - 2, m_weight*nilindex);
 
 
     /* label Rads chain (except for those in equalities mentioned above) */
@@ -313,16 +311,18 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
     }
 
 
-    /* fill and label Mpi_to_Rad array */
+    /* fill, label and link Mpi_to_Rad array */
     for (i = 2; i < nilindex - 1; ++i) {
         Mpi_to_Rad[i] = minimum_Pi_for_P(l*(p - 1) - i, p, m, lambda);
         fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, Mpi_to_Rad[i], pi, m, Mpi_to_Rad[i]);
+        fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%llu;\n", pi, m, Mpi_to_Rad[i], i);
     }
 
-    /* fill and label Rad_to_Mpi array */
+    /* fill, label and link Rad_to_Mpi array */
     for (i = 2; i < nilindex - 1; ++i) {
         Rad_to_Mpi[i] = max_minimum_P_for_Pi(l*(p - 1) - i, p, m);
         fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, Rad_to_Mpi[i], pi, m, Rad_to_Mpi[i]);
+        fprintf(out, "\tRad_%llu -> M_%llu_%lu_%llu;\n", i, pi, m, Rad_to_Mpi[i]);
     }
 
 
@@ -332,24 +332,39 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
     /* contrsuct Ms chain */
     i = j = nilindex - 2;
     previous = 0;
-    while(i >= 2 || j >= 2) {
+    while(i >= 2 && j >= 2) {
         if (Rad_to_Mpi[i] < Mpi_to_Rad[j]) {
-            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, 2*m_weight*nilindex);
+            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*nilindex);
             previous = Rad_to_Mpi[i];
             --i;
         } else if (Rad_to_Mpi[i] > Mpi_to_Rad[j]) {
-            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[j], pi, m, previous, 2*m_weight*nilindex);
+            /* if previous == Rad_to_Mpi[j] then we don't want to create
+             * Mpi_to_Rad[j] -> Rad_to_Mpi[j] link as it will duplicate
+             * already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
+            if (previous != Rad_to_Mpi[j]) {
+                fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*nilindex);
+            }
             previous = Mpi_to_Rad[j];
             --j;
         } else {
-            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, 2*m_weight*nilindex);
+            /* it is possible to have Rad_to_Mpi[i] == Mpi_to_Rad[j] for some i and j
+             * however, all elements in Rad_to_Mpi array are different as well as in Mpi_to_Rad array
+             * so, it is impossible to have Rad_to_Mpi[i] == Mpi_to_Rad[j] == previous */
+            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*nilindex);
             previous = Rad_to_Mpi[i];
             --i;
             --j;
         }
     }
 
-    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, numofMs - 2, pi, m, previous, 2*m_weight*nilindex);
+    /* obviously Mpi_to_Rad[t] > Rad_to_Mpi[t] for any t
+     * so, in previous while we won't get situation where i > 2 and j == 2 */
+    for (; j >= 2; --j) {
+        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*nilindex);
+        previous = Mpi_to_Rad[j];
+    }
+
+    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, numofMs - 2, pi, m, previous, m_weight*nilindex);
 
     fprintf(out, "}\n");
 
