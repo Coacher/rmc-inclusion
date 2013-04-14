@@ -8,7 +8,7 @@ set(LIBRMC_LINK_LIBRARIES gmp)
 file(GLOB librmc_SOURCES rmc/*.c)
 
 if (WITH_DEBUG)
-    add_definitions(ENABLE_DEBUG)
+    add_definitions(-DENABLE_DEBUG)
 endif (WITH_DEBUG)
 
 if (WITH_STATIC_LIB)
