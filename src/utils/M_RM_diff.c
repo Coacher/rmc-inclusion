@@ -8,6 +8,7 @@
 #include "rmc/log.h"
 #include "rmc/common.h"
 #include "rmc/ideals.h"
+#include "constants.h"
 
 #define WITH_Ms       1
 #define WITH_RMs      (1 << 1)
@@ -37,7 +38,7 @@ int main(int argc, char **argv) {
     handle_cmdline(&argc, &argv);
 
     /* initializing needed things */
-    init_constants(p, l, lambda);
+    init_constants();
 
     Ms   = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
     RMs  = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));

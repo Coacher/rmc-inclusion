@@ -1,11 +1,12 @@
 project(rmc)
 
 # required cmake version
-cmake_minimum_required(VERSION 2.6.0)
+cmake_minimum_required(VERSION 2.8.8)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 # global needed variables
 set(APPLICATION_NAME ${PROJECT_NAME})
+set(TOP_PRJ_DIR ${PROJECT_SOURCE_DIR})
 
 # add definitions
 include(DefineCMakeDefaults)

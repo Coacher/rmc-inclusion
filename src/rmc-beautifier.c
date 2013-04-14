@@ -1,4 +1,6 @@
-/* A small utility to visualize Ms and RMs structure */
+/* This program will construct and print inclusion graph for Ms and Rads in dot format
+ * using advanced techniques provided by theoretical background
+ * i.e. no direct operations with ideals are performed */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -9,14 +11,16 @@
 #include "rmc/common.h"
 #include "rmc/ideals.h"
 #include "constants.h"
+#include "graph.h"
 
-#define WITH_Ms       1
-#define WITH_RMs      (1 << 1)
+#define MAX_FILENAME_LEN 128
 
-const char* package = "Ms and RMs structure visualizer";
-const char* version = "0.0.5";
+const char* package = "Basic Reed-Muller codes beautiful graph generator";
+const char* version = "0.0.1";
 char* progname = NULL;
-unsigned char output_control = 0;
+unsigned char use_stdout = 0;
+unsigned int m_weight = 1000;
+unsigned int r_weight = 1000;
 
 /* global debug level */
 int debug = 0;
@@ -24,12 +28,9 @@ int debug = 0;
 static int handle_cmdline(int *argc, char ***argv);
 
 int main(int argc, char **argv) {
-    unsigned long long i;
+    FILE *graph_out;
 
-    IDEAL* Rad;
-    IDEAL* pp;
-    IDEAL** Ms;
-    IDEAL** RMs;
+    char graph_outname[MAX_FILENAME_LEN];
 
     /* learn who we really are */
     progname = (char *)strrchr(argv[0], '/');
@@ -38,67 +39,26 @@ int main(int argc, char **argv) {
     /* handle cmdline */
     handle_cmdline(&argc, &argv);
 
+    /* prepare output files */
+    if (!use_stdout) {
+        sprintf(graph_outname, "inclusion_tree_%lu-%lu-%lu.gv", p, l, lambda);
+        graph_out = fopen(graph_outname, "w");
+
+        if (!graph_out) {
+            fprintf(stderr, "Error opening \"%s\" file\n", graph_outname);
+            exit(EXIT_FAILURE);
+        }
+    } else {
+        graph_out = stdout;
+    }
+
     /* initializing needed things */
     init_constants();
 
-    Ms   = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
-    RMs  = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
-
-    if (Ms == NULL || RMs == NULL) {
-        fprintf(stderr, "Unable to allocate memory for ideals' arrays.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    /* do the job */
-    dbg_msg("Computing Ms...\n");
-    for (i = 0; i < numofMs; ++i) {
-        pp = ideal_create(q);
-        ideal_init(pp, pi, m, i);
-        Ms[i] = pp;
-    }
-
-    dbg_msg("Computing Rad...\n");
-    pp = ideal_create(q);
-    ideal_init(pp, p, l, l*(p - 1) - 1);
-    Rad = pp;
-
-    dbg_msg("Computing RMs...\n");
-    for (i = 0; i < numofMs; ++i) {
-        pp = ideal_create(q);
-        ideal_product(pp, Rad, Ms[i], p);
-        RMs[i] = pp;
-    }
-
-    for (i = 0; i < numofMs; ++i) {
-        if (i)
-            fprintf(stdout, "\n");
-
-        if (output_control & WITH_Ms) {
-            fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, i);
-            ideal_print(Ms[i]);
-        }
-
-        if (output_control & WITH_RMs) {
-            fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i);
-            ideal_print(RMs[i]);
-        }
-    }
-
-    /* do cleanup */
-    dbg_msg_l(5, "Freeing Ms...\n");
-    for (i = 0; i < numofMs; ++i) {
-        ideal_free(Ms[i]);
-    }
-    free(Ms);
-
-    dbg_msg_l(5, "Freeing Rad...\n");
-    ideal_free(Rad);
-
-    dbg_msg_l(5, "Freeing RMs...\n");
-    for (i = 0; i < numofMs; ++i) {
-        ideal_free(RMs[i]);
-    }
-    free(RMs);
+    /* print out graph */
+    dbg_msg("Printing out graph...\n");
+    print_graph_beautiful(graph_out, m_weight, r_weight);
+    fclose(graph_out);
 
     return 0;
 }
@@ -111,8 +71,9 @@ static int handle_cmdline(int *argc, char ***argv) {
         {"char", 1, 0, 'p'},
         {"exp", 1, 0, 'l'},
         {"lambda", 1, 0, 'L'},
-        {"with_Ms", 0, 0, 'M'},
-        {"with_RMs", 0, 0, 'R'},
+        {"stdout", 0, 0, 'c'},
+        {"m_weight", 1, 0, 'm'},
+        {"r_weight", 1, 0, 'r'},
         {"debug", 0, 0, 'D'},
         {"version", 0, 0, 'v'},
         {"help", 0, 0, 'h'},
@@ -121,9 +82,10 @@ static int handle_cmdline(int *argc, char ***argv) {
     const char *opts_help[] = {
         "Specifies characteristic of field, must be a prime.",
         "Specifies size of field as an exponent of characteristic.",
-        "Specifies series of ideals, can be any factor of exponent.",
-        "Enable Ms output.",
-        "Enable RMs output.",
+        "Specifies series of ideals, can be any factor of exponent, except for 1.",
+        "Write output to stdout.",
+        "Specifies weight to use for Ms links in graph construction. Default 1000.",
+        "Specifies weight to use for Rads links in graph construction. Default 1000.",
         "Increase debugging level.",
         "Print version information.",
         "Print this message.",
@@ -135,7 +97,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     for (;;) {
         int i;
         i = getopt_long(*argc, *argv,
-            "p:l:L:MRDvh", opts, NULL);
+            "p:l:L:cIGRm:r:Dvh", opts, NULL);
         if (i == -1) {
             break;
         }
@@ -149,11 +111,14 @@ static int handle_cmdline(int *argc, char ***argv) {
         case 'L':
             sscanf(optarg, "%lu", &lambda);
             break;
-        case 'M':
-            output_control |= WITH_Ms;
+        case 'c':
+            use_stdout = 1;
             break;
-        case 'R':
-            output_control |= WITH_RMs;
+        case 'm':
+            sscanf(optarg, "%u", &m_weight);
+            break;
+        case 'r':
+            sscanf(optarg, "%u", &r_weight);
             break;
         case 'D':
             debug++;
@@ -191,13 +156,8 @@ static int handle_cmdline(int *argc, char ***argv) {
         exit(EXIT_FAILURE);
     }
 
-    if (l % lambda) {
-        fprintf(stderr, "(L)ambda must be a factor of l. See --help.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (!output_control) {
-        fprintf(stderr, "You must specify at least one of M or R options. See --help.\n");
+    if (l % lambda || lambda == 1) {
+        fprintf(stderr, "(L)ambda must be a factor of l, except for 1. See --help.\n");
         exit(EXIT_FAILURE);
     }
 

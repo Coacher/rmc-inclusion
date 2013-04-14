@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
     }
 
     /* initializing needed things */
-    init_constants(p, l, lambda);
+    init_constants();
 
     Ms   = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
     Rads = (IDEAL**) malloc(nilindex*sizeof(IDEAL*));

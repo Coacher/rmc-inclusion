@@ -8,6 +8,7 @@
 #include "rmc/log.h"
 #include "rmc/common.h"
 #include "rmc/ideals.h"
+#include "constants.h"
 
 const char* package = "u_s calculator";
 const char* version = "0.0.1";
@@ -41,7 +42,7 @@ int main(int argc, char **argv) {
     handle_cmdline(&argc, &argv);
 
     /* initializing needed things */
-    init_constants(p, l, lambda);
+    init_constants();
 
     if ( !(i < q) || !(j < q) ) {
         fprintf(stderr, "Indexes must be lesser than q = p^l.\n");

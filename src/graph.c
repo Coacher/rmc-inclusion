@@ -74,23 +74,23 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, uns
 }
 
 static int append_to_label(char** label, char* s) {
-    char* p;
+    char* pp;
 
     if (s == NULL)
         return 1;
 
     if ((*label) == NULL) {
-        p = (char*) malloc((strlen(s) + 1)*sizeof(char));
-        strcpy(p, s);
-        *label = p;
+        pp = (char*) malloc((strlen(s) + 1)*sizeof(char));
+        strcpy(pp, s);
+        *label = pp;
     } else {
-        /* p must have place for a previous label,
+        /* pp must have place for a previous label,
          * additional part of label and terminating `\0` */
-        p = (char*) malloc((strlen(*label) + strlen(s) + 1)*sizeof(char));
-        sprintf(p, "%s%s", (*label), s);
+        pp = (char*) malloc((strlen(*label) + strlen(s) + 1)*sizeof(char));
+        sprintf(pp, "%s%s", (*label), s);
 
         free(*label);
-        *label = p;
+        *label = pp;
     }
 
     return 0;
@@ -136,14 +136,12 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
 
                     sprintf(buf, "Rad*M_%llu(%lu,%llu) = Rad*M_%llu(%lu,%llu)", pi, m, i, pi, m, j);
                     append_to_label(labels + i, buf);
-                    dbg_msg_l(3, "%llu'th label: \"%s\"\n", i, labels[i]);
 
                     ideal_free(RMs[j]);
                     RMs[j] = NULL;
                 } else {
                     sprintf(buf, " = Rad*M_%llu(%lu,%llu)", pi, m, j);
                     append_to_label(labels + i, buf);
-                    dbg_msg_l(3, "%llu'th label: \"%s\"\n", i, labels[i]);
 
                     ideal_free(RMs[j]);
                     RMs[j] = NULL;
@@ -154,7 +152,6 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
         if (!was_collision) {
             sprintf(buf, "Rad*M_%llu(%lu,%llu)", pi, m, i);
             append_to_label(labels + i, buf);
-            dbg_msg_l(3, "%llu'th label: \"%s\"\n", i, labels[i]);
         }
     }
 
@@ -263,4 +260,97 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
             free(labels[i]);
     }
     free(labels);
+}
+
+void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weight) {
+    unsigned long long i, j, previous;
+
+    /* arrays to store all needed values of k */
+    unsigned long long *Mpi_to_Rad;
+    unsigned long long *Rad_to_Mpi;
+
+    Mpi_to_Rad = (unsigned long long*) malloc(nilindex*sizeof(unsigned long long));
+    Rad_to_Mpi = (unsigned long long*) malloc(nilindex*sizeof(unsigned long long));
+
+    if (Mpi_to_Rad == NULL || Rad_to_Mpi == NULL) {
+        fprintf(stderr, "Unable to allocate memory for arrays of k.\n");
+        return;
+    }
+
+
+    fprintf(out, "digraph M_Rad_inclusion {\n");
+
+    /* global graph attributes */
+    fprintf(out, "\tgraph [nodesep=\"3.0\",\n");
+    fprintf(out, "\t\tranksep=\"0.35\",\n");
+    fprintf(out, "\t\tsplines=ortho\n");
+    fprintf(out, "\t];\n");
+
+
+    /* label Ms/RMs equalities; it is proven that only these equalities hold:
+     *  M_pi(m, 0) == Rad^(nilindex - 1)
+     *  M_pi(m, numofMs - 2) == Rad^1 == Rad
+     *  M_pi(m, numofMs - 1) == Rad^0 == QH
+     */
+    fprintf(out, "\tM_%llu_%lu_%u [label = \"M_%llu(%lu,%u) = Rad^%llu\"];\n", pi, m, 0, pi, m, 0, nilindex - 1);
+    for (i = 1; i < numofMs - 2; ++i) {
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, i, pi, m, i);
+    }
+    fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 2, pi, m, numofMs - 2, 1);
+    fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 1, pi, m, numofMs - 1, 0);
+
+
+    /* label Rads chain (except for those in equalities mentioned above) */
+    for (i = 2; i < nilindex - 1; ++i) {
+        fprintf(out, "\tRad_%llu [label = \"Rad^%llu\"];\n", i, i);
+    }
+
+    /* construct Rads chain (except for those in equalities mentioned above) */
+    for (i = 2; i < nilindex - 2; ++i) {
+        fprintf(out, "\tRad_%llu -> Rad_%llu [weight = %llu];\n", i, i + 1, r_weight*nilindex);
+    }
+
+
+    /* create and label Mpi_to_Rad */
+    for (i = 2; i < nilindex - 1; ++i) {
+        Mpi_to_Rad[i] = minimum_Pi_for_P(l*(p - 1) - i, p, m, lambda);
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, Mpi_to_Rad[i], pi, m, Mpi_to_Rad[i]);
+    }
+
+    /* create and label Rad_to_Mpi */
+    for (i = 2; i < nilindex - 1; ++i) {
+        Rad_to_Mpi[i] = max_minimum_P_for_Pi(l*(p - 1) - i, p, m);
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, Rad_to_Mpi[i], pi, m, Rad_to_Mpi[i]);
+    }
+
+
+    /* carcass is ready, fill it with inclusion links */
+    fprintf(out, "# The rest of the file is generated in an automated manner and not meant to be read by human\n");
+
+    /* contrsuct Ms chain */
+    i = j = nilindex - 2;
+    previous = 0;
+    while(i >= 2 || j >= 2) {
+        if (Rad_to_Mpi[i] < Mpi_to_Rad[j]) {
+            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, 2*m_weight*nilindex);
+            previous = Rad_to_Mpi[i];
+            --i;
+        } else if (Rad_to_Mpi[i] > Mpi_to_Rad[j]) {
+            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[j], pi, m, previous, 2*m_weight*nilindex);
+            previous = Mpi_to_Rad[j];
+            --j;
+        } else {
+            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, 2*m_weight*nilindex);
+            previous = Rad_to_Mpi[i];
+            --i;
+            --j;
+        }
+    }
+
+    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, numofMs - 2, pi, m, previous, 2*m_weight*nilindex);
+
+    fprintf(out, "}\n");
+
+    free(Rad_to_Mpi);
+    free(Mpi_to_Rad);
 }
