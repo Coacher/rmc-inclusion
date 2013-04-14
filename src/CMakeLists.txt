@@ -22,7 +22,6 @@ install(TARGETS rmc-ig
 project(rmc-beautifier)
 
 set(rmc-beautifier_SOURCES
-    info.c
     graph.c
     rmc-beautifier.c
 )
@@ -45,7 +44,7 @@ set(UTILITIES
     u_calculator
 )
 
-foreach(UTILITY ${UTILITIES})
+foreach (UTILITY ${UTILITIES})
     add_executable(${UTILITY} utils/${UTILITY}.c $<TARGET_OBJECTS:constants>)
     target_link_libraries(${UTILITY} ${RMC_LINK_LIBRARIES})
 
@@ -53,4 +52,4 @@ foreach(UTILITY ${UTILITIES})
         RUNTIME DESTINATION ${BIN_INSTALL_DIR}
         COMPONENT binary
     )
-endforeach(UTILITY ${UTILITIES})
+endforeach (UTILITY ${UTILITIES})

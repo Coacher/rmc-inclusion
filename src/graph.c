@@ -9,6 +9,7 @@
 void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, unsigned int r_weight) {
     unsigned long long i, j;
 
+
     fprintf(out, "digraph M_Rad_inclusion {\n");
 
     /* global graph attributes */
@@ -180,6 +181,7 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
         fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, m_weight*numofMs);
     }
 
+
     /* label RMs chain */
     for (i = 0; i < numofMs; ++i) {
         if (RMs[i] == NULL)
@@ -311,13 +313,13 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
     }
 
 
-    /* create and label Mpi_to_Rad */
+    /* fill and label Mpi_to_Rad array */
     for (i = 2; i < nilindex - 1; ++i) {
         Mpi_to_Rad[i] = minimum_Pi_for_P(l*(p - 1) - i, p, m, lambda);
         fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, Mpi_to_Rad[i], pi, m, Mpi_to_Rad[i]);
     }
 
-    /* create and label Rad_to_Mpi */
+    /* fill and label Rad_to_Mpi array */
     for (i = 2; i < nilindex - 1; ++i) {
         Rad_to_Mpi[i] = max_minimum_P_for_Pi(l*(p - 1) - i, p, m);
         fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, Rad_to_Mpi[i], pi, m, Rad_to_Mpi[i]);

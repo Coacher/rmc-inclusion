@@ -7,15 +7,15 @@ set(LIBRMC_LINK_LIBRARIES gmp)
 
 file(GLOB librmc_SOURCES rmc/*.c)
 
-if(WITH_DEBUG)
+if (WITH_DEBUG)
     add_definitions(ENABLE_DEBUG)
-endif(WITH_DEBUG)
+endif (WITH_DEBUG)
 
-if(WITH_STATIC_LIB)
+if (WITH_STATIC_LIB)
 
     add_library(rmc STATIC ${librmc_SOURCES})
 
-else(WITH_STATIC_LIB)
+else (WITH_STATIC_LIB)
 
     add_library(rmc SHARED ${librmc_SOURCES})
 
@@ -24,7 +24,7 @@ else(WITH_STATIC_LIB)
         SOVERSION ${LIBRARY_SOVERSION}
     )
 
-endif(WITH_STATIC_LIB)
+endif (WITH_STATIC_LIB)
 
 target_link_libraries(rmc ${LIBRMC_LINK_LIBRARIES})
 

@@ -4,8 +4,6 @@
 
 #include <stdio.h>
 
-#include "rmc/log.h"
-#include "rmc/common.h"
 #include "rmc/ideals.h"
 #include "constants.h"
 
@@ -17,9 +15,8 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight);
 
 /* prints out Ms and Rads beautiful inclusion graph
  *
- * this function doesn't even calculate any ideals,
+ * this function doesn't require any ideals to be computed,
  * but uses theoretical results to print out only
- * meaningful part of inclusion graph
- * therefore it is much faster and uses much less memory */
+ * meaningful part of inclusion graph */
 void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weight);
 #endif

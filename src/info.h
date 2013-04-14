@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 
-#include "rmc/common.h"
 #include "rmc/ideals.h"
 #include "constants.h"
 
