@@ -6,12 +6,11 @@
 #include <getopt.h>
 
 #include "rmc/log.h"
-#include "rmc/common.h"
 #include "rmc/ideals.h"
 #include "constants.h"
 
 const char* package = "RMs collision detector";
-const char* version = "0.0.5";
+const char* version = "1.0.0";
 char* progname = NULL;
 
 /* global debug level */
