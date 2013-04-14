@@ -12,7 +12,7 @@ set(TOP_PRJ_DIR ${PROJECT_SOURCE_DIR})
 include(DefineCMakeDefaults)
 include(DefineCompilerFlags)
 include(DefineInstallationPaths)
-include(DefineOptions.cmake)
+include(DefineOptions)
 
 # search for libraries
 find_package(GMP REQUIRED)

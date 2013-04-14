@@ -1,21 +1,20 @@
-# - Try to find GMP
-# Once done this will define
+# Try to find GMP library
+# If found the following variables are defined:
 #
-#  GMP_FOUND - system has GMP
-#  GMP_INCLUDE_DIRS - the GMP include directory
-#  GMP_LIBRARIES - Link these to use GMP
-#  GMP_DEFINITIONS - Compiler switches required for using GMP
+#   GMP_FOUND - system has GMP
+#   GMP_INCLUDE_DIRS - GMP include directory
+#   GMP_LIBRARIES - link these to use GMP
+#   GMP_DEFINITIONS - compiler switches required for GMP
 #
-#  Copyright (c) 2010 Andreas Schneider <asn@cynapses.org>
+# Based on CMake module (part of libssh) by Andreas Schneider <asn@cynapses.org>
 #
-#  Redistribution and use is allowed according to the terms of the New
-#  BSD license.
-#  For details see the accompanying COPYING-CMAKE-SCRIPTS file.
+# Redistribution and use is allowed according to the terms of
+# the New BSD license.
+# For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
 
 if (GMP_LIBRARIES AND GMP_INCLUDE_DIRS)
-  # in cache already
-  set(GMP_FOUND TRUE)
+  set(GMP_FOUND TRUE) # in cache already
 else (GMP_LIBRARIES AND GMP_INCLUDE_DIRS)
 
   find_path(GMP_INCLUDE_DIR
@@ -24,7 +23,6 @@ else (GMP_LIBRARIES AND GMP_INCLUDE_DIRS)
     PATHS
       /usr/include
       /usr/local/include
-      /opt/local/include
   )
 
   find_library(GMP_LIBRARY
@@ -33,7 +31,6 @@ else (GMP_LIBRARIES AND GMP_INCLUDE_DIRS)
     PATHS
       /usr/lib
       /usr/local/lib
-      /opt/local/lib
   )
 
   set(GMP_INCLUDE_DIRS

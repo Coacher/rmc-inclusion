@@ -1,4 +1,4 @@
-if (UNIX OR OS2)
+if (UNIX)
   IF (NOT APPLICATION_NAME)
     MESSAGE(STATUS "${PROJECT_NAME} is used as APPLICATION_NAME")
     SET(APPLICATION_NAME ${PROJECT_NAME})
@@ -95,7 +95,7 @@ if (UNIX OR OS2)
     CACHE PATH "The ${APPLICATION_NAME} info install dir (default prefix/info)"
   )
 else()
-  # Same same
+  # Same
   set(BIN_INSTALL_DIR "bin" CACHE PATH "-")
   set(SBIN_INSTALL_DIR "sbin" CACHE PATH "-")
   set(LIB_INSTALL_DIR "lib${LIB_SUFFIX}" CACHE PATH "-")

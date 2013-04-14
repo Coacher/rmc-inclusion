@@ -113,16 +113,19 @@ int ideal_issubset(IDEAL* M, IDEAL* N) {
 }
 
 int ideal_diff(IDEAL* res, IDEAL* M, IDEAL* N) {
-    unsigned long long q, i;
+    unsigned long long i;
 
-    if (M == NULL || N == NULL || res == NULL)
+    if (M == NULL || N == NULL || res == NULL) {
+        dbg_msg("ideal_diff: incorrect input parameters\n");
         return -1;
+    }
 
-    if (M->q != N->q || M->q != res->q)
+    if (M->q != N->q || M->q != res->q) {
+        dbg_msg("ideal_diff: incorrect input parameters\n");
         return -2;
+    }
 
-    q = M->q;
-    for (i = 0; i < q; ++i) {
+    for (i = 0; i < res->q; ++i) {
         if (M->u_s[i] == 1 && N->u_s[i] == 1) {
             res->u_s[i] = 0;
         } else {
@@ -134,15 +137,20 @@ int ideal_diff(IDEAL* res, IDEAL* M, IDEAL* N) {
 }
 
 int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long p) {
-    unsigned long long q, i, delta;
+    unsigned long long i, q;
+    unsigned long long delta;
     unsigned long long div1, div2;
     unsigned long digit1, digit2;
 
-    if (M == NULL || res == NULL)
+    if (M == NULL || res == NULL) {
+        dbg_msg("ideal_multiplyby_u: incorrect input parameters\n");
         return -1;
+    }
 
-    if (M->q != res->q)
+    if (M->q != res->q) {
+        dbg_msg("ideal_multiplyby_u: incorrect input parameters\n");
         return -2;
+    }
 
     q = M->q;
     for (i = 0; i < q; ++i) {
@@ -184,17 +192,20 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long
 }
 
 int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
-    unsigned long long q, j;
+    unsigned long long j;
     int ret;
 
-    if (M == NULL || N == NULL || res == NULL)
+    if (M == NULL || N == NULL || res == NULL) {
+        dbg_msg("ideal_product: incorrect input parameters\n");
         return -1;
+    }
 
-    if (M->q != N->q || M->q != res->q)
+    if (M->q != N->q || M->q != res->q) {
+        dbg_msg("ideal_product: incorrect input parameters\n");
         return -2;
+    }
 
-    q = N->q;
-    for (j = 0; j < q; ++j) {
+    for (j = 0; j < N->q; ++j) {
         if (N->u_s[j]) {
             if ((ret = ideal_multiplyby_u(res, M, j, p)))
                 return ret;
@@ -205,16 +216,17 @@ int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
 }
 
 void ideal_print(IDEAL* M) {
-    unsigned long long q, i;
+    unsigned long long i;
 
     if (M == NULL)
         return;
 
-    q = M->q;
     fprintf(stdout, "[");
-    for (i = 0; i < (q - 1); ++i)
+
+    for (i = 0; i < (M->q - 1); ++i)
         fprintf(stdout, " %u,", M->u_s[i]);
-    fprintf(stdout, " %u ]\n", M->u_s[q - 1]);
+
+    fprintf(stdout, " %u ]\n", M->u_s[M->q - 1]);
 }
 
 unsigned long long minimum_Pi_for_P(unsigned long long j, \
@@ -261,4 +273,3 @@ unsigned long long max_minimum_P_for_Pi(unsigned long long j, \
 
     return ret;
 }
-

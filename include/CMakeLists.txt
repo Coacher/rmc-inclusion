@@ -6,4 +6,4 @@ install(
     FILES ${rmc_HEADERS}
     DESTINATION ${INCLUDE_INSTALL_DIR}/${APPLICATION_NAME}
     COMPONENT headers
-)
+    )

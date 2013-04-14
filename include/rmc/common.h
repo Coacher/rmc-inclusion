@@ -11,6 +11,6 @@ unsigned long long pow_ul(unsigned long base, unsigned long power);
 unsigned long weight(unsigned long long x, unsigned long pi);
 
 /* binomial coefficient \binom{n}{m}
- * this version is able to handle negative inputs */
+ * this version handles negative inputs */
 void bin_coeff(mpz_t rop, long long n, long long m);
 #endif
