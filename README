@@ -1,9 +1,20 @@
+rmc-ig README -- Important introductory notes.
+Copyright (C) 2012, 2013 Tumaykin Ilya <itumaykin[at]gmail[dot]com>
+See the end of this document for copying conditions.
+
 rmc-ig: the project dedicated to construction and plotting inclusion graphs
 of certain ideals called basic Reed-Muller codes (see [0]) and radical powers
 in a certain group algebra QH where Q is a finite field
 with characteristic p and size q = p^l and H is a group isomorphic
 to (Q, +) - additive group of field Q.
 
+[0]: E. Couselo, S. Gonzalez, V. Markov, C. Martinez, A. Nechaev,
+    “Ideal representation of Reed-Solomon and Reed-Muller codes”,
+    Algebra and Logic, 51, 3 (2012), 195-212.
+
+
+README
+------
 It is a known fact (see [0]) that in case of prime field
 all basic Reed-Muller codes are simply equal to radical powers,
 however there are no such equalities in a non-prime field,
@@ -13,7 +24,7 @@ the layout of these ideals in a non-prime cases.
 This project consists of 3 main parts: librmc, rmc-ig and rmc-short tools and
 a number of small useful utilities.
 
-librmc: library providing simple interface for working with M_pi(m,k) ideals,
+librmc: library providing a simple interface for working with M_pi(m,k) ideals,
 i.e. basic Reed-Muller codes, like creation, multiplication, substraction as
 well as a number of functions to obtain necessary parameters of these ideals
 like dimension.
@@ -34,17 +45,24 @@ info like collisions between Ms and Rad*Ms or simply printing out Qu_i ideals
 which form a given M_pi(m,k). Refer to the source code or short help message
 provided by each utility.
 
-Limitations. All ideal indexes and most of the parameters are bounded
+LIMITATIONS
+-----------
+All ideals' indexes and most of the other parameters are bounded
 by the size of `unsigned long long` type of your machine.
 However, this bound is far beyond limits of practical uses of these programs
 as with the big number of processed ideals one will get too big and complex
 graphs to comprehend.
 
-Requirements. External dependencies are minimal: GMP, CMake and a C compiler.
+COMPILATION
+-----------
+External dependencies are minimal: GMP, CMake and a C compiler.
+For building one can use standard cmake building procedure or run script
+tools/build.sh from the project's top dir.
 
-Building: one can use standart cmake building procedure or call script
-tools/build.sh from the project top dir.
-
-[0]: E. Couselo, S. Gonzalez, V. Markov, C. Martinez, A. Nechaev,
-    “Ideal representation of Reed-Solomon and Reed-Muller codes”,
-    Algebra and Logic, 51, 3 (2012), 195-212.
+LICENSING
+---------
+All content in this project is licensed under
+the GNU Lesser General Public License (LGPL) version 2.1,
+with the only exception to files in cmake/Modules dir which were once
+a part of libssh project and have their own license.
+You can find the full text of LGPLv2.1 license in the COPYING file.
