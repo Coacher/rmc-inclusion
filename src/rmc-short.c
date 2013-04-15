@@ -15,7 +15,7 @@
 #define MAX_FILENAME_LEN 128
 
 const char* package = "Basic Reed-Muller codes shortened graph generator";
-const char* version = "0.9.4";
+const char* version = "0.9.5";
 char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned int m_weight = 1000;
@@ -99,7 +99,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     for (;;) {
         int i;
         i = getopt_long(*argc, *argv,
-            "p:l:L:cIGRm:r:Dvh", opts, NULL);
+            "p:l:L:cIGRm:r:o:Dvh", opts, NULL);
         if (i == -1) {
             break;
         }
