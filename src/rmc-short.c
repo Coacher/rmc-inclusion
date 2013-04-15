@@ -15,7 +15,7 @@
 #define MAX_FILENAME_LEN 128
 
 const char* package = "Basic Reed-Muller codes shortened graph generator";
-const char* version = "0.9.0";
+const char* version = "0.9.3";
 char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned int m_weight = 1000;

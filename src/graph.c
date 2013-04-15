@@ -297,7 +297,7 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
     fprintf(out, "\tM_%llu_%lu_%u [label = \"M_%llu(%lu,%u) = Rad^%llu\"];\n", pi, m, 0, pi, m, 0, nilindex - 1);
     fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 2, pi, m, numofMs - 2, 1);
     fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 1, pi, m, numofMs - 1, 0);
-    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, numofMs - 1, pi, m, numofMs - 2, m_weight*nilindex);
+    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, numofMs - 1, pi, m, numofMs - 2, m_weight*numofMs);
 
 
     /* label Rads chain (except for those in equalities mentioned above) */
@@ -334,7 +334,7 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
     previous = 0;
     while(i >= 2 && j >= 2) {
         if (Rad_to_Mpi[i] < Mpi_to_Rad[j]) {
-            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*nilindex);
+            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
             previous = Rad_to_Mpi[i];
             --i;
         } else if (Rad_to_Mpi[i] > Mpi_to_Rad[j]) {
@@ -342,7 +342,7 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
              * Mpi_to_Rad[j] -> Rad_to_Mpi[j] link as it will duplicate
              * already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
             if (previous != Rad_to_Mpi[j]) {
-                fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*nilindex);
+                fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*numofMs);
             }
             previous = Mpi_to_Rad[j];
             --j;
@@ -350,7 +350,7 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
             /* it is possible to have Rad_to_Mpi[i] == Mpi_to_Rad[j] for some i and j
              * however, all elements in Rad_to_Mpi array are different as well as in Mpi_to_Rad array
              * so, it is impossible to have Rad_to_Mpi[i] == Mpi_to_Rad[j] == previous */
-            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*nilindex);
+            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
             previous = Rad_to_Mpi[i];
             --i;
             --j;
@@ -360,11 +360,11 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
     /* obviously Mpi_to_Rad[t] > Rad_to_Mpi[t] for any t
      * so, in previous while we won't get situation where i > 2 and j == 2 */
     for (; j >= 2; --j) {
-        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*nilindex);
+        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*numofMs);
         previous = Mpi_to_Rad[j];
     }
 
-    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, numofMs - 2, pi, m, previous, m_weight*nilindex);
+    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, numofMs - 2, pi, m, previous, m_weight*numofMs);
 
     fprintf(out, "}\n");
 
