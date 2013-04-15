@@ -334,6 +334,21 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
     previous = 0;
     while(i >= 2 && j >= 2) {
         if (Rad_to_Mpi[i] < Mpi_to_Rad[j]) {
+            /*
+             * we don't need to check whether previous == Rad_to_Mpi[i] here
+             * assume Rad_to_Mpi[i] == previous and we have (i,j) values of indexes
+             * we can get into (i,j) state in 3 ways:
+             * 1. (i+1, j+1) --> (i,j)
+             *  then Rad_to_Mpi[i + 1] == Mpi_to_Rad[j + 1] == previous,
+             *  therefore Rad_to_Mpi[i] == Rad_to_Mpi[i + 1] which cannot be since
+             *  all elements in Rad_to_Mpi array are different
+             * 2. (i, j+1) --> (i,j)
+             *  then previous == Mpi_to_Rad[j + 1] == Rad_to_Mpi[i] < Rad_to_Mpi[i]
+             *  therefore we get contradiction
+             * 3. (i+1, j) --> (i,j)
+             *  then previous == Rad_to_Mpi[i+1] == Rad_to_Mpi[i] which again
+             *  cannot be as all elements in Rad_to_Mpi array are different
+             */
             fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
             previous = Rad_to_Mpi[i];
             --i;
