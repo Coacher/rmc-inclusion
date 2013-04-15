@@ -235,8 +235,8 @@ unsigned long long minimum_Pi_for_P(unsigned long long j, \
     unsigned long long i, theta, tau;
     unsigned long long sum = 0;
 
-    theta = j / m*(p - 1);
-    tau = j % m*(p - 1);
+    theta = j / (m*(p - 1));
+    tau = j % (m*(p - 1));
 
     for(i = 0; i < theta; ++i) {
         sum += m*(p - 1)*pow_ul(p, lambda - 1 - i);
@@ -261,8 +261,8 @@ unsigned long long max_minimum_P_for_Pi(unsigned long long j, \
     if (j < m*(p-1)) {
         return j;
     } else {
-        theta = j / m*(p - 1);
-        tau = j % m*(p - 1);
+        theta = j / (m*(p - 1));
+        tau = j % (m*(p - 1));
 
         ret = lift(tau, p, m);
 
