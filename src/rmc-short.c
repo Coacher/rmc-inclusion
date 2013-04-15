@@ -15,11 +15,12 @@
 #define MAX_FILENAME_LEN 128
 
 const char* package = "Basic Reed-Muller codes shortened graph generator";
-const char* version = "0.9.3";
+const char* version = "0.9.4";
 char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned int m_weight = 1000;
 unsigned int r_weight = 1000;
+unsigned int o_weight = 1000;
 
 /* global debug level */
 int debug = 0;
@@ -56,7 +57,7 @@ int main(int argc, char **argv) {
 
     /* print out graph */
     dbg_msg("Printing out graph...\n");
-    print_graph_beautiful(graph_out, m_weight, r_weight);
+    print_graph_beautiful(graph_out, m_weight, r_weight, o_weight);
     fclose(graph_out);
 
     return 0;
@@ -73,6 +74,7 @@ static int handle_cmdline(int *argc, char ***argv) {
         {"stdout", 0, 0, 'c'},
         {"m_weight", 1, 0, 'm'},
         {"r_weight", 1, 0, 'r'},
+        {"o_weight", 1, 0, 'o'},
         {"debug", 0, 0, 'D'},
         {"version", 0, 0, 'v'},
         {"help", 0, 0, 'h'},
@@ -85,6 +87,7 @@ static int handle_cmdline(int *argc, char ***argv) {
         "Write output to stdout.",
         "Specifies weight to use for Ms links in graph construction. Default 1000.",
         "Specifies weight to use for Rads links in graph construction. Default 1000.",
+        "Specifies weight to use for Rads<->Ms links in graph construction. Default 1000.",
         "Increase debugging level.",
         "Print version information.",
         "Print this message.",
@@ -118,6 +121,9 @@ static int handle_cmdline(int *argc, char ***argv) {
             break;
         case 'r':
             sscanf(optarg, "%u", &r_weight);
+            break;
+        case 'o':
+            sscanf(optarg, "%u", &o_weight);
             break;
         case 'D':
             debug++;

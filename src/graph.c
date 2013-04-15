@@ -264,7 +264,7 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
     free(labels);
 }
 
-void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weight) {
+void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weight, unsigned int o_weight) {
     unsigned long long i, j, previous;
 
     /* arrays to store all needed values of k */
@@ -315,14 +315,14 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
     for (i = 2; i < nilindex - 1; ++i) {
         Mpi_to_Rad[i] = minimum_Pi_for_P(l*(p - 1) - i, p, m, lambda);
         fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, Mpi_to_Rad[i], pi, m, Mpi_to_Rad[i]);
-        fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%llu;\n", pi, m, Mpi_to_Rad[i], i);
+        fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[i], i, o_weight*nilindex);
     }
 
     /* fill, label and link Rad_to_Mpi array */
     for (i = 2; i < nilindex - 1; ++i) {
         Rad_to_Mpi[i] = max_minimum_P_for_Pi(l*(p - 1) - i, p, m);
         fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, Rad_to_Mpi[i], pi, m, Rad_to_Mpi[i]);
-        fprintf(out, "\tRad_%llu -> M_%llu_%lu_%llu;\n", i, pi, m, Rad_to_Mpi[i]);
+        fprintf(out, "\tRad_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", i, pi, m, Rad_to_Mpi[i], o_weight*nilindex);
     }
 
 

@@ -18,5 +18,5 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight);
  * this function doesn't require any ideals to be computed,
  * but uses theoretical results to print out only
  * meaningful part of inclusion graph */
-void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weight);
+void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weight, unsigned int o_weight);
 #endif
