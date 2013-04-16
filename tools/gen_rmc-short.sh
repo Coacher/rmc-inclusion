@@ -2,7 +2,7 @@
 
 M_WEIGHT="${5:-1000}"
 R_WEIGHT="${6:-1000}"
-O_WEIGHT="${7:-1000}"
+O_WEIGHT="${7:-10}"
 
 if [ -d "$1" ]; then
     if [ -x "$1/rmc-short" ]; then
