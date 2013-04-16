@@ -6,7 +6,9 @@
 
 #define MAX_LABEL_LENGTH 512
 
-void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, unsigned int r_weight) {
+void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, \
+        unsigned int m_weight, unsigned int r_weight, unsigned int o_weight, \
+        unsigned int use_groups) {
     unsigned long long i, j;
 
 
@@ -24,22 +26,44 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, uns
      *  M_pi(m, numofMs - 2) == Rad^1 == Rad
      *  M_pi(m, numofMs - 1) == Rad^0 == QH
      */
-    fprintf(out, "\tM_%llu_%lu_%u [label = \"M_%llu(%lu,%u) = Rad^%llu\"];\n", pi, m, 0, pi, m, 0, nilindex - 1);
-    for (i = 1; i < numofMs - 2; ++i) {
-        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, i, pi, m, i);
+    if (use_groups) {
+        fprintf(out, "\tM_%llu_%lu_%u [label = \"M_%llu(%lu,%u) = Rad^%llu\", group = \"Ms\"];\n", \
+                pi, m, 0, pi, m, 0, nilindex - 1);
+        for (i = 1; i < numofMs - 2; ++i) {
+            fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\", group = \"Ms\"];\n", \
+                    pi, m, i, pi, m, i);
+        }
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\", group = \"Ms\"];\n", \
+                pi, m, numofMs - 2, pi, m, numofMs - 2, 1);
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\", group = \"Ms\"];\n", \
+                pi, m, numofMs - 1, pi, m, numofMs - 1, 0);
+    } else {
+        fprintf(out, "\tM_%llu_%lu_%u [label = \"M_%llu(%lu,%u) = Rad^%llu\"];\n", \
+                pi, m, 0, pi, m, 0, nilindex - 1);
+        for (i = 1; i < numofMs - 2; ++i) {
+            fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", \
+                    pi, m, i, pi, m, i);
+        }
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", \
+                pi, m, numofMs - 2, pi, m, numofMs - 2, 1);
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", \
+                pi, m, numofMs - 1, pi, m, numofMs - 1, 0);
     }
-    fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 2, pi, m, numofMs - 2, 1);
-    fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 1, pi, m, numofMs - 1, 0);
 
     /* contrsuct Ms chain */
     for (i = 1; i < numofMs; ++i) {
-        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, m_weight*numofMs);
+        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", \
+                pi, m, i, pi, m, i - 1, m_weight*numofMs);
     }
 
 
     /* label Rads chain (except for those in equalities mentioned above) */
     for (i = 2; i < nilindex - 1; ++i) {
-        fprintf(out, "\tRad_%llu [label = \"Rad^%llu\"];\n", i, i);
+        if (use_groups) {
+            fprintf(out, "\tRad_%llu [label = \"Rad^%llu\", group = \"Rads\"];\n", i, i);
+        } else {
+            fprintf(out, "\tRad_%llu [label = \"Rad^%llu\"];\n", i, i);
+        }
     }
 
     /* construct Rads chain (except for those in equalities mentioned above) */
@@ -56,7 +80,8 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, uns
 
         for (i = 1; i < numofMs - 2; ++i) {
             if (ideal_issubset(Rads[j], Ms[i])) {
-                fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%llu;\n", pi, m, i, j);
+                fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%llu [weight = %llu];\n", \
+                        pi, m, i, j, o_weight*nilindex);
                 /* if M_pi[i] > Rad^j, then M_pi[i] > Rad^j > Rad^(j+1) > ... */
                 break;
             }
@@ -64,7 +89,8 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, unsigned int m_weight, uns
 
         for (i = numofMs - 3; i >= 1; --i) {
             if (ideal_issubset(Ms[i], Rads[j])) {
-                fprintf(out, "\tRad_%llu -> M_%llu_%lu_%llu;\n", j, pi, m, i);
+                fprintf(out, "\tRad_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", \
+                        j, pi, m, i, o_weight*nilindex);
                 /* if Rad^j > M_pi[i], then ... > Rad^(j-1) > Rad^j > M_pi[i] */
                 break;
             }
@@ -135,7 +161,8 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
                 if (!was_collision) {
                     was_collision = 1;
 
-                    sprintf(buf, "Rad*M_%llu(%lu,%llu) = Rad*M_%llu(%lu,%llu)", pi, m, i, pi, m, j);
+                    sprintf(buf, "Rad*M_%llu(%lu,%llu) = Rad*M_%llu(%lu,%llu)", \
+                            pi, m, i, pi, m, j);
                     append_to_label(labels + i, buf);
 
                     ideal_free(RMs[j]);
@@ -173,12 +200,14 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
         }
 
         if (!was_collision)
-            fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, i, pi, m, i);
+            fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", \
+                    pi, m, i, pi, m, i);
     }
 
     /* contrsuct Ms chain */
     for (i = 1; i < numofMs; ++i) {
-        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, i, pi, m, i - 1, m_weight*numofMs);
+        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", \
+                pi, m, i, pi, m, i - 1, m_weight*numofMs);
     }
 
 
@@ -264,7 +293,9 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
     free(labels);
 }
 
-void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weight, unsigned int o_weight) {
+void print_graph_beautiful(FILE* out, \
+        unsigned int m_weight, unsigned int r_weight, unsigned int o_weight,
+        unsigned int use_groups) {
     unsigned long long i, j, previous;
 
     /* arrays to store all needed values of k */
@@ -294,15 +325,31 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
      *  M_pi(m, numofMs - 2) == Rad^1 == Rad
      *  M_pi(m, numofMs - 1) == Rad^0 == QH
      */
-    fprintf(out, "\tM_%llu_%lu_%u [label = \"M_%llu(%lu,%u) = Rad^%llu\"];\n", pi, m, 0, pi, m, 0, nilindex - 1);
-    fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 2, pi, m, numofMs - 2, 1);
-    fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", pi, m, numofMs - 1, pi, m, numofMs - 1, 0);
+    if (use_groups) {
+        fprintf(out, "\tM_%llu_%lu_%u [label = \"M_%llu(%lu,%u) = Rad^%llu\", group = \"Ms\"];\n", \
+                pi, m, 0, pi, m, 0, nilindex - 1);
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\", group = \"Ms\"];\n", \
+                pi, m, numofMs - 2, pi, m, numofMs - 2, 1);
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\", group = \"Ms\"];\n", \
+                pi, m, numofMs - 1, pi, m, numofMs - 1, 0);
+    } else {
+        fprintf(out, "\tM_%llu_%lu_%u [label = \"M_%llu(%lu,%u) = Rad^%llu\"];\n", \
+                pi, m, 0, pi, m, 0, nilindex - 1);
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", \
+                pi, m, numofMs - 2, pi, m, numofMs - 2, 1);
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu) = Rad^%u\"];\n", \
+                pi, m, numofMs - 1, pi, m, numofMs - 1, 0);
+    }
     fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, numofMs - 1, pi, m, numofMs - 2, m_weight*numofMs);
 
 
     /* label Rads chain (except for those in equalities mentioned above) */
     for (i = 2; i < nilindex - 1; ++i) {
-        fprintf(out, "\tRad_%llu [label = \"Rad^%llu\"];\n", i, i);
+        if (use_groups) {
+            fprintf(out, "\tRad_%llu [label = \"Rad^%llu\", group = \"Rads\"];\n", i, i);
+        } else {
+            fprintf(out, "\tRad_%llu [label = \"Rad^%llu\"];\n", i, i);
+        }
     }
 
     /* construct Rads chain (except for those in equalities mentioned above) */
@@ -314,14 +361,14 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
     /* fill, label and link Mpi_to_Rad array */
     for (i = 2; i < nilindex - 1; ++i) {
         Mpi_to_Rad[i] = minimum_Pi_for_P(l*(p - 1) - i, p, m, lambda);
-        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, Mpi_to_Rad[i], pi, m, Mpi_to_Rad[i]);
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\", group = \"Ms\"];\n", pi, m, Mpi_to_Rad[i], pi, m, Mpi_to_Rad[i]);
         fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[i], i, o_weight*nilindex);
     }
 
     /* fill, label and link Rad_to_Mpi array */
     for (i = 2; i < nilindex - 1; ++i) {
         Rad_to_Mpi[i] = max_minimum_P_for_Pi(l*(p - 1) - i, p, m);
-        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", pi, m, Rad_to_Mpi[i], pi, m, Rad_to_Mpi[i]);
+        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\", group = \"Ms\"];\n", pi, m, Rad_to_Mpi[i], pi, m, Rad_to_Mpi[i]);
         fprintf(out, "\tRad_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", i, pi, m, Rad_to_Mpi[i], o_weight*nilindex);
     }
 
@@ -349,7 +396,13 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
              *  then previous == Rad_to_Mpi[i+1] == Rad_to_Mpi[i] which again
              *  cannot be as all elements in Rad_to_Mpi array are different
              */
-            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
+            if (previous + 1 == Rad_to_Mpi[i]) {
+                fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", \
+                        pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
+            } else {
+                fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu, style = \"dashed\"];\n", \
+                        pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
+            }
             previous = Rad_to_Mpi[i];
             --i;
         } else if (Rad_to_Mpi[i] > Mpi_to_Rad[j]) {
@@ -357,7 +410,13 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
              * Mpi_to_Rad[j] -> Rad_to_Mpi[j] link as it will duplicate
              * already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
             if (previous != Rad_to_Mpi[j]) {
-                fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*numofMs);
+                if (previous + 1 == Mpi_to_Rad[j]) {
+                    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", \
+                            pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*numofMs);
+                } else {
+                    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu, style = \"dashed\"];\n", \
+                            pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*numofMs);
+                }
             }
             previous = Mpi_to_Rad[j];
             --j;
@@ -365,7 +424,13 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
             /* it is possible to have Rad_to_Mpi[i] == Mpi_to_Rad[j] for some i and j
              * however, all elements in Rad_to_Mpi array are different as well as in Mpi_to_Rad array
              * so, it is impossible to have Rad_to_Mpi[i] == Mpi_to_Rad[j] == previous */
-            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
+            if (previous + 1 == Rad_to_Mpi[i]) {
+                fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", \
+                        pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
+            } else {
+                fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu, style = \"dashed\"];\n", \
+                        pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
+            }
             previous = Rad_to_Mpi[i];
             --i;
             --j;
@@ -375,11 +440,28 @@ void print_graph_beautiful(FILE* out, unsigned int m_weight, unsigned int r_weig
     /* obviously Mpi_to_Rad[t] > Rad_to_Mpi[t] for any t
      * so, in previous while we won't get situation where i > 2 and j == 2 */
     for (; j >= 2; --j) {
-        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*numofMs);
+        if (previous + 1 == Mpi_to_Rad[j]) {
+            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", \
+                    pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*numofMs);
+        } else {
+            fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu, style = \"dashed\"];\n", \
+                    pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*numofMs);
+        }
         previous = Mpi_to_Rad[j];
     }
 
-    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", pi, m, numofMs - 2, pi, m, previous, m_weight*numofMs);
+    /* Mpi_to_Rad[2] is never equal to M_pi(m, numofMs - 2) == Rad because
+     * for any j < l(p - 1) and k such that k is minimum such that P_j \susbet \Pi_k
+     * there exists t such that weight(t, p) == j, weight(t, pi) == k and
+     * weight(t + 1, p) == j + 1, weight(t + 1, pi) == k + 1.
+     * Therefore if Mpi_to_Rad[2] == M_pi(m, numofMs - 2) then there exists
+     * t such that weight(t, p) == l(p - 1) - 2, weight(t, pi) == numofMs - 2
+     * and weight(t + 1, p) = l(p - 1) - 1, weight(t + 1, pi) == numofMs - 1.
+     * As Rad == M_pi(m, numofMs - 2) and weight(t + 1, p) == l(p - 1) - 1
+     * it follows that weight(t + 1, pi) <= numofMs - 2,
+     * which contradicts weight(t + 1, pi) == numofMs - 1 */
+    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu, style = \"dashed\"];\n", \
+            pi, m, numofMs - 2, pi, m, previous, m_weight*numofMs);
 
     fprintf(out, "}\n");
 
