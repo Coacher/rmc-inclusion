@@ -17,7 +17,8 @@ if [ -d "$1-$2-$3" ]; then
         dot -Tsvg "rm_inclusion_tree_$1-$2-$3_reduced.gv" > "rm_inclusion_tree_$1-$2-$3.svg"
     fi
 else
-    echo "Directory $1-$2-$3 does not exist. You should run gen_rmc.sh script to create and fill it."
+    echo "Directory $1-$2-$3 does not exist."
+    echo "You should run gen_rmc-ig.sh or gen_rmc-short.sh script to create and fill it."
     exit 1;
 fi
 

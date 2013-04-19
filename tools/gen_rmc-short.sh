@@ -24,3 +24,5 @@ else
     echo "Directory $1 does not exist."
     exit 1;
 fi
+
+exit 0;
