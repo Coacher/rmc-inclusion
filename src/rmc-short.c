@@ -15,13 +15,13 @@
 #define MAX_FILENAME_LEN 128
 
 const char* package = "Basic Reed-Muller codes shortened graph generator";
-const char* version = "1.1.1";
+const char* version = "1.2.0";
 char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned int m_weight = 1000;
 unsigned int r_weight = 1000;
 unsigned int o_weight = 10;
-unsigned char use_groups = 0;
+unsigned char use_groups = 1;
 
 /* global debug level */
 int debug = 0;
@@ -76,7 +76,7 @@ static int handle_cmdline(int *argc, char ***argv) {
         {"m_weight", 1, 0, 'm'},
         {"r_weight", 1, 0, 'r'},
         {"o_weight", 1, 0, 'o'},
-        {"use_groups", 0, 0, 'g'},
+        {"no_groups", 0, 0, 'n'},
         {"debug", 0, 0, 'D'},
         {"version", 0, 0, 'v'},
         {"help", 0, 0, 'h'},
@@ -90,7 +90,7 @@ static int handle_cmdline(int *argc, char ***argv) {
         "Specifies weight to use for Ms links in graph construction. Default 1000.",
         "Specifies weight to use for Rads links in graph construction. Default 1000.",
         "Specifies weight to use for Rads<->Ms links in graph construction. Default 10.",
-        "Enable grouping of Rads and Ms when plotting Ms/Rads inclusion graph.",
+        "Disable grouping of Rads and Ms when plotting Ms/Rads inclusion graph.",
         "Increase debugging level.",
         "Print version information.",
         "Print this message.",
@@ -102,7 +102,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     for (;;) {
         int i;
         i = getopt_long(*argc, *argv,
-            "p:l:L:cIGRm:r:o:gDvh", opts, NULL);
+            "p:l:L:cm:r:o:nDvh", opts, NULL);
         if (i == -1) {
             break;
         }
@@ -128,8 +128,8 @@ static int handle_cmdline(int *argc, char ***argv) {
         case 'o':
             sscanf(optarg, "%u", &o_weight);
             break;
-        case 'g':
-            use_groups = 1;
+        case 'n':
+            use_groups = 0;
             break;
         case 'D':
             debug++;
