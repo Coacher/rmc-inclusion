@@ -392,6 +392,8 @@ void print_graph_beautiful(FILE* out, \
     i = j = nilindex - 2;
     previous = 0;
     while(i >= 2 && j >= 2) {
+    /* obviously Mpi_to_Rad[t] > Rad_to_Mpi[t] for any t
+     * so, we won't get situation where i > 2 && j == 2, but keep both checks for sanity */
         if (Rad_to_Mpi[i] < Mpi_to_Rad[j]) {
             /*
              * we don't need to check whether previous == Rad_to_Mpi[i] here
@@ -436,17 +438,31 @@ void print_graph_beautiful(FILE* out, \
             /* it is possible to have Rad_to_Mpi[i] == Mpi_to_Rad[j] for some i and j
              * however, all elements in Rad_to_Mpi array are different as well as in Mpi_to_Rad array
              * so, it is impossible to have Rad_to_Mpi[i] == Mpi_to_Rad[j] == previous */
-            if (previous + 1 == Rad_to_Mpi[i]) {
-                fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", \
-                        pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
-            } else {
-                fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu, style = \"dashed\"];\n", \
-                        pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
+            /* if previous == Rad_to_Mpi[j] then we don't want to create
+             * Mpi_to_Rad[j] -> Rad_to_Mpi[j] link as it will duplicate
+             * already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
+            if (previous != Rad_to_Mpi[j]) {
+                if (previous + 1 == Rad_to_Mpi[i]) {
+                    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", \
+                            pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
+                } else {
+                    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu, style = \"dashed\"];\n", \
+                            pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
+                }
             }
             previous = Rad_to_Mpi[i];
             --i;
             --j;
         }
+    }
+
+    /* this block handles situation when i == j == 2 in the end of previous while
+     * when this happens we don't want to create
+     * Mpi_to_Rad[j] -> Rad_to_Mpi[j] link as it will duplicate
+     * already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
+    if (j == 2) {
+        previous = Mpi_to_Rad[j];
+        --j;
     }
 
     /* obviously Mpi_to_Rad[t] > Rad_to_Mpi[t] for any t
