@@ -6,7 +6,7 @@ O_WEIGHT="${7:-10}"
 
 IG_PARAMS="-m ${M_WEIGHT} -r ${R_WEIGHT} -o ${O_WEIGHT}"
 
-[ -n "$USE_GROUPING" ] && IG_PARAMS="${IG_PARAMS} -g"
+[ -n "$NO_GROUPING" ] && IG_PARAMS="${IG_PARAMS} -n"
 
 if [ -d "$1" ]; then
     if [ -x "$1/rmc-short" ]; then
