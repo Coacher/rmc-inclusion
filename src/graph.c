@@ -361,14 +361,26 @@ void print_graph_beautiful(FILE* out, \
     /* fill, label and link Mpi_to_Rad array */
     for (i = 2; i < nilindex - 1; ++i) {
         Mpi_to_Rad[i] = minimum_Pi_for_P(l*(p - 1) - i, p, m, lambda);
-        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\", group = \"Ms\"];\n", pi, m, Mpi_to_Rad[i], pi, m, Mpi_to_Rad[i]);
+        if (use_groups) {
+            fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\", group = \"Ms\"];\n", \
+                    pi, m, Mpi_to_Rad[i], pi, m, Mpi_to_Rad[i]);
+        } else {
+            fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", \
+                    pi, m, Mpi_to_Rad[i], pi, m, Mpi_to_Rad[i]);
+        }
         fprintf(out, "\tM_%llu_%lu_%llu -> Rad_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[i], i, o_weight*nilindex);
     }
 
     /* fill, label and link Rad_to_Mpi array */
     for (i = 2; i < nilindex - 1; ++i) {
         Rad_to_Mpi[i] = max_minimum_P_for_Pi(l*(p - 1) - i, p, m);
-        fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\", group = \"Ms\"];\n", pi, m, Rad_to_Mpi[i], pi, m, Rad_to_Mpi[i]);
+        if (use_groups) {
+            fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\", group = \"Ms\"];\n", \
+                    pi, m, Rad_to_Mpi[i], pi, m, Rad_to_Mpi[i]);
+        } else {
+            fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\"];\n", \
+                    pi, m, Rad_to_Mpi[i], pi, m, Rad_to_Mpi[i]);
+        }
         fprintf(out, "\tRad_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", i, pi, m, Rad_to_Mpi[i], o_weight*nilindex);
     }
 
