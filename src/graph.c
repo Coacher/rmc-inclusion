@@ -442,15 +442,15 @@ void print_graph_beautiful(FILE* out, \
              * Mpi_to_Rad[j] -> Rad_to_Mpi[j] link as it will duplicate
              * already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
             if (previous != Rad_to_Mpi[j]) {
-                if (previous + 1 == Rad_to_Mpi[i]) {
+                if (previous + 1 == Mpi_to_Rad[j]) {
                     fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", \
-                            pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
+                            pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*numofMs);
                 } else {
                     fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu, style = \"dashed\"];\n", \
-                            pi, m, Rad_to_Mpi[i], pi, m, previous, m_weight*numofMs);
+                            pi, m, Mpi_to_Rad[j], pi, m, previous, m_weight*numofMs);
                 }
             }
-            previous = Rad_to_Mpi[i];
+            previous = Mpi_to_Rad[j];
             --i;
             --j;
         }
@@ -488,8 +488,13 @@ void print_graph_beautiful(FILE* out, \
      * As Rad == M_pi(m, numofMs - 2) and weight(t + 1, p) == l(p - 1) - 1
      * it follows that weight(t + 1, pi) <= numofMs - 2,
      * which contradicts weight(t + 1, pi) == numofMs - 1 */
-    fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu, style = \"dashed\"];\n", \
-            pi, m, numofMs - 2, pi, m, previous, m_weight*numofMs);
+    if (previous + 1 == numofMs - 2) {
+        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu];\n", \
+                pi, m, numofMs - 2, pi, m, previous, m_weight*numofMs);
+    } else {
+        fprintf(out, "\tM_%llu_%lu_%llu -> M_%llu_%lu_%llu [weight = %llu, style = \"dashed\"];\n", \
+                pi, m, numofMs - 2, pi, m, previous, m_weight*numofMs);
+    }
 
     fprintf(out, "}\n");
 
