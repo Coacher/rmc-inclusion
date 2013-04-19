@@ -36,9 +36,12 @@ visualize the layout of Ms in QH.
 
 rmc-short: special tool which is dedicated to plotting Ms/Rads inclusion
 graph only. However, it doesn't compute ideals directly, but uses
-some theoretical results to obtain already transitively reduced inclusion graph.
+some theoretical results to obtain almost* transitively reduced inclusion graph.
 It is much faster that rmc-ig and plots only needed M_pi(m,k) omitting trivial
-inclusion chains.
+inclusion chains. Note: 'almost' means that the graph would be transitively
+reduced with possible exceptions to links connecting consecutive radical powers
+which sometimes are redundant. However, this applies only to a very small cases,
+namely p = lambda = 2 and even l.
 
 utils: a number of small utilities which are designed to print out some special
 info like collisions between Ms and Rad*Ms or simply printing out Qu_i ideals
