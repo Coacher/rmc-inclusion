@@ -9,9 +9,6 @@
 #include "rmc/ideals.h"
 #include "constants.h"
 
-#define WITH_Ms       1
-#define WITH_RMs      (1 << 1)
-
 const char* package = "Utility to visualize diff between M_pi(k) and RM_pi(k+1)";
 const char* version = "1.0.0";
 char* progname = NULL;
