@@ -131,7 +131,7 @@ static int handle_cmdline(int *argc, char ***argv) {
 
     for (;;) {
         int k;
-        k= getopt_long(*argc, *argv,
+        k = getopt_long(*argc, *argv,
             "p:l:L:i:j:Dvh", opts, NULL);
         if (k == -1) {
             break;
