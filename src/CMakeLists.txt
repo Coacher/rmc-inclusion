@@ -40,6 +40,7 @@ project(utilities)
 set(UTILITIES
     M_RM_diff
     M_RM_print
+    Rads_print
     RM_collision
     u_calculator
 )
