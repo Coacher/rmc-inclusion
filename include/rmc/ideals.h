@@ -54,7 +54,7 @@ void ideal_print(IDEAL* M);
 /*
  * We use notation from [1] below.
  *
- * [1]: unfortunately this article is still prepared for printing
+ * [1]: unfortunately this article is still being prepared for printing
  *      feel free to contact me directly if you need any help
  *      you can find my e-mail in README file
  *
