@@ -252,7 +252,7 @@ static unsigned long long lift(unsigned long long t,
     return p*(t + 1) + m*(p - 1) - 1;
 }
 
-unsigned long long max_minimum_P_for_Pi(unsigned long long j, \
+unsigned long long maximum_Pi_for_P(unsigned long long j, \
         unsigned long p, unsigned long m) {
 
     unsigned long long i, theta, tau;
@@ -272,4 +272,34 @@ unsigned long long max_minimum_P_for_Pi(unsigned long long j, \
     }
 
     return ret;
+}
+
+unsigned long long minimum_P_for_Pi(unsigned long long k, \
+        unsigned long p, unsigned long m) {
+    unsigned long long j, k_j;
+
+    j = k_j = 0;
+
+    while (k_j < k) {
+        ++j;
+        k_j = maximum_Pi_for_P(j, p, m);
+    }
+
+    return j;
+}
+
+unsigned long long maximum_P_for_Pi(unsigned long long k, \
+        unsigned long p, unsigned long m, \
+        unsigned long l, unsigned long lambda) {
+    unsigned long long j, k_j;
+
+    j = l*(p - 1);
+    k_j = minimum_Pi_for_P(j, p, m, lambda);
+
+    while (k < k_j) {
+        --j;
+        k_j = minimum_Pi_for_P(j, p, m, lambda);
+    }
+
+    return j;
 }

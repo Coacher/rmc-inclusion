@@ -64,10 +64,18 @@ void ideal_print(IDEAL* M);
 unsigned long long minimum_Pi_for_P(unsigned long long j, \
         unsigned long p, unsigned long m, unsigned long lambda);
 
-/* for the given j there is a maximum k' among all those k
- * for which j is a minimum such that \Pi_k \subset P_j
- *
- * returns k' for the given j */
-unsigned long long max_minimum_P_for_Pi(unsigned long long j, \
+/* returns for the given j a maximum k such that \Pi_k \subset P_j */
+unsigned long long maximum_Pi_for_P(unsigned long long j, \
         unsigned long p, unsigned long m);
+
+/* returns for the given k a minimum j such that \Pi_k \subset P_j */
+/* uses lookup method */
+unsigned long long minimum_P_for_Pi(unsigned long long k, \
+        unsigned long p, unsigned long m);
+
+/* returns for the given k a maximum j such that P_j \subset \Pi_k */
+/* uses lookup method */
+unsigned long long maximum_P_for_Pi(unsigned long long k, \
+        unsigned long p, unsigned long m, \
+        unsigned long l, unsigned long lambda);
 #endif
