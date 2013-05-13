@@ -75,7 +75,9 @@ unsigned long long minimum_P_for_Pi(unsigned long long k, \
 
 /* returns for the given k a maximum j such that P_j \subset \Pi_k */
 /* uses lookup method */
+/* upper_bound is an index of the top M_pi ideal, i.e. upper_bound = numofMs - 1 */
 unsigned long long maximum_P_for_Pi(unsigned long long k, \
         unsigned long p, unsigned long m, \
-        unsigned long l, unsigned long lambda);
+        unsigned long l, unsigned long lambda,
+        unsigned long long upper_bound);
 #endif

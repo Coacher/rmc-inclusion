@@ -290,11 +290,14 @@ unsigned long long minimum_P_for_Pi(unsigned long long k, \
 
 unsigned long long maximum_P_for_Pi(unsigned long long k, \
         unsigned long p, unsigned long m, \
-        unsigned long l, unsigned long lambda) {
+        unsigned long l, unsigned long lambda,
+        unsigned long long upper_bound) {
     unsigned long long j, k_j;
 
-    j = l*(p - 1);
-    k_j = minimum_Pi_for_P(j, p, m, lambda);
+    if ((k_j = (upper_bound - k)) <= 1)
+        return l*(p - 1) - k_j;
+
+    j = l*(p - 1) - 1;
 
     while (k < k_j) {
         --j;
