@@ -373,7 +373,7 @@ void print_graph_beautiful(FILE* out, \
 
     /* fill, label and link Rad_to_Mpi array */
     for (i = 2; i < nilindex - 1; ++i) {
-        Rad_to_Mpi[i] = max_minimum_P_for_Pi(l*(p - 1) - i, p, m);
+        Rad_to_Mpi[i] = maximum_Pi_for_P(l*(p - 1) - i, p, m);
         if (use_groups) {
             fprintf(out, "\tM_%llu_%lu_%llu [label = \"M_%llu(%lu,%llu)\", group = \"Ms\"];\n", \
                     pi, m, Rad_to_Mpi[i], pi, m, Rad_to_Mpi[i]);
