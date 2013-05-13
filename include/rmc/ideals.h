@@ -42,6 +42,8 @@ int ideal_isequal(IDEAL* M, IDEAL* N);
 int ideal_issubset(IDEAL* M, IDEAL* N);
 /* sets res to M \ N. N must be a subset of M */
 int ideal_diff(IDEAL* res, IDEAL* M, IDEAL* N);
+/* sets res to M \cap N. */
+int ideal_intersect(IDEAL* res, IDEAL* M, IDEAL* N);
 
 /* sets res to M * (Qu_j) */
 int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long p);

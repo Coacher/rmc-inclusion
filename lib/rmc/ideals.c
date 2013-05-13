@@ -136,6 +136,26 @@ int ideal_diff(IDEAL* res, IDEAL* M, IDEAL* N) {
     return 0;
 }
 
+int ideal_intersect(IDEAL* res, IDEAL* M, IDEAL* N) {
+    unsigned long long i;
+
+    if (M == NULL || N == NULL || res == NULL) {
+        dbg_msg("ideal_intersect: incorrect input parameters\n");
+        return -1;
+    }
+
+    if (M->q != N->q || M->q != res->q) {
+        dbg_msg("ideal_intersect: incorrect input parameters\n");
+        return -2;
+    }
+
+    for (i = 0; i < res->q; ++i) {
+        res->u_s[i] = (M->u_s[i] == 1 && N->u_s[i] == 1);
+    }
+
+    return 0;
+}
+
 int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long p) {
     unsigned long long i, q;
     unsigned long long delta;
