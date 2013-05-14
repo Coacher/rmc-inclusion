@@ -10,7 +10,7 @@
 #include "constants.h"
 
 const char* package = "Rads structure visualizer";
-const char* version = "1.0.0";
+const char* version = "1.1.0";
 char* progname = NULL;
 
 /* global debug level */
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     dbg_msg("Computing Rads...\n");
     for (i = 0; i < nilindex; ++i) {
         pp = ideal_create(q);
-        ideal_init(pp, p, l, l*(p - 1) - i);
+        ideal_init(pp, p, l, i);
         Rads[i] = pp;
     }
 
@@ -53,8 +53,13 @@ int main(int argc, char **argv) {
         if (i)
             fprintf(stdout, "\n");
 
-        fprintf(stdout, "M_%lu(%lu,%llu) = Rad^%llu\t= ", p, l, i, l*(p - 1) - i);
-        ideal_print(Rads[l*(p - 1) - i]);
+        fprintf(stdout, "M_%lu(%lu,%llu) = Rad^%llu\t=\n", p, l, i, l*(p - 1) - i);
+        ideal_print(Rads[i]);
+        if (debug && i) {
+            ideal_diff(Rads[i - 1], Rads[i], Rads[i - 1]);
+            fprintf(stdout, "M_%lu(%lu,%llu) \\ M_%lu(%lu,%llu)\t\t=", p, l, i, p, l, i - 1);
+            ideal_print_verbose(Rads[i - 1]);
+        }
     }
 
     /* do cleanup */
