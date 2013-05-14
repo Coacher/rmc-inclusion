@@ -1,10 +1,10 @@
-rmc-ig README -- Important introductory notes.
+rmc-inclusion README -- Important introductory notes.
 Copyright (C) 2012, 2013 Tumaykin Ilya <itumaykin[at]gmail[dot]com>
 See the end of this document for copying conditions.
 
-rmc-ig: the project dedicated to construction and plotting inclusion graphs
-of certain ideals called basic Reed-Muller codes (see [0]) and radical powers
-in a certain group algebra QH where Q is a finite field
+rmc-inclusion: the project dedicated to construction and plotting inclusion
+graphs of certain ideals M_pi(m,k) called basic Reed-Muller codes (see [0]) and
+radical powers in a certain group algebra QH, where Q is a finite field
 with characteristic p and size q = p^l and H is a group isomorphic
 to (Q, +) - additive group of field Q.
 
@@ -15,31 +15,38 @@ to (Q, +) - additive group of field Q.
 
 README
 ------
-It is a known fact (see [0]) that in a case of prime field
-all basic Reed-Muller codes are simply equal to radical powers,
-however there are no such equalities in a case of non-prime field,
-except trivial ones. This program helps to study
-the layout of these ideals in a non-prime cases.
+It is a known fact (see [0]) that in the case of prime field
+all basic Reed-Muller codes are simply equal to radical powers.
+However, there are no such equalities in the case of non-prime field,
+except trivial ones. This program helps to study the layout of these ideals
+in a non-prime cases.
 
-This project consists of 3 main parts: librmc, rmc-ig and rmc-short tools and
+This project consists of 3 main parts: librmc, rmc-{diff,ig,short} tools and
 a number of small useful utilities.
 
-librmc: library providing a simple interface for working with M_pi(m,k) ideals,
-i.e. basic Reed-Muller codes. Implemented creation, multiplication, substraction,
-intersection and a number of functions to obtain necessary parameters of these ideals
-like dimension.
+librmc: library providing a simple interface for working with M_pi(m,k) ideals.
+It supports all basic operations, like creation, multiplication, substraction,
+intersection and a number of functions to obtain necessary parameters of these
+ideals, like dimension.
 
-rmc-ig: the most powerful tool which is able to print out all needed info
+rmc-diff: a tool to print diff between any M_pi(m, i) ideal and any Rad^j.
+Both i and j can be specified and in this case diff only beetwen them is printed.
+When given only one index this tool will construct the shortest inclusion chain
+with the specified ideal in the middle and the closest ideals of another type
+on the sides.
+
+rmc-ig: the most powerful tool which is able to print all needed info
 about M_pi(m,k) ideals and radical powers. It is also able to print
-inclusion graphs of Ms/Rads and Rad*Ms/Ms. Therefore it allows to fully
+inclusion graphs of Ms/Rads and Rad*Ms/Ms. Therefore, it allows to fully
 visualize the layout of Ms in QH.
 
-rmc-short: special tool which is dedicated to plotting Ms/Rads inclusion
-graph only. However, it doesn't compute ideals directly, but uses
-some theoretical results to obtain almost* transitively reduced inclusion graph.
-It is much faster that rmc-ig and plots only needed M_pi(m,k) omitting trivial
-inclusion chains. Note: 'almost' means that the graph would be transitively
-reduced with possible exceptions to links connecting consecutive radical powers
+rmc-short: special tool which is dedicated to plotting only Ms/Rads inclusion
+graph. However, it doesn't compute ideals directly, but uses some
+theoretical results to obtain almost* transitively reduced inclusion graph.
+It is much faster than rmc-ig and plots only needed M_pi(m,k), omitting trivial
+inclusion chains.
+Note: 'almost' means that the graph would be transitively reduced with
+possible exceptions to links between consecutive radical powers
 which sometimes are redundant. However, this applies only to a very small cases,
 namely p = lambda = 2 and even l.
 
