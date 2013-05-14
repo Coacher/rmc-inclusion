@@ -32,7 +32,6 @@ int main(int argc, char **argv) {
     unsigned long digit1, digit2;
     char sign = 1;
 
-
     /* learn who we really are */
     progname = (char *)strrchr(argv[0], '/');
     progname = progname ? (progname + 1) : argv[0];
