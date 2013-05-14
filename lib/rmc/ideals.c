@@ -246,7 +246,7 @@ void ideal_print(IDEAL* M) {
     for (i = 0; i < (M->q - 1); ++i)
         fprintf(stdout, " %u", M->u_s[i]);
 
-    ++i; /* i = M->q - 1 */
+    /* i = M->q - 1 */
     fprintf(stdout, " %u ]\n", M->u_s[i]);
 }
 
@@ -262,7 +262,7 @@ void ideal_print_verbose(IDEAL* M) {
         }
     }
 
-    ++i; /* i = M->q - 1 */
+    /* i = M->q - 1 */
     if (!M->u_s[i]) {
         /* only the whole group algebra contains u_(q-1) */
         fprintf(stdout, "\n");
