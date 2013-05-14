@@ -34,6 +34,21 @@ install(TARGETS rmc-short
     COMPONENT binary
 )
 
+project(rmc-diff)
+
+set(rmc-diff_SOURCES
+    color.c
+    rmc-diff.c
+)
+
+add_executable(rmc-diff ${rmc-diff_SOURCES} $<TARGET_OBJECTS:constants>)
+target_link_libraries(rmc-diff ${RMC_LINK_LIBRARIES})
+
+install(TARGETS rmc-diff
+    RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+    COMPONENT binary
+)
+
 
 project(utilities)
 
