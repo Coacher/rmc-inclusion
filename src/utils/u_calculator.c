@@ -11,7 +11,7 @@
 
 const char* package = "u_s calculator";
 const char* version = "1.0.0";
-char* progname = NULL;
+const char* progname = NULL;
 
 /* indexes of two elements to multiply */
 unsigned long long i, j;
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
     char sign = 1;
 
     /* learn who we really are */
-    progname = (char *)strrchr(argv[0], '/');
+    progname = (const char *)strrchr(argv[0], '/');
     progname = progname ? (progname + 1) : argv[0];
 
     /* handle cmdline */
@@ -181,6 +181,9 @@ static int handle_cmdline(int *argc, char ***argv) {
             break;
         }
     }
+
+    *argc -= optind;
+    *argv += optind;
 
     if (p == 0 || l == 0 || lambda == 0) {
         fprintf(stderr, "You must specify at least p, l and L options. See --help.\n");

@@ -11,7 +11,7 @@
 
 const char* package = "Utility to visualize diff between M_pi(k) and RM_pi(k+1)";
 const char* version = "1.1.0";
-char* progname = NULL;
+const char* progname = NULL;
 
 /* global debug level */
 int debug = 0;
@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     IDEAL** RMs;
 
     /* learn who we really are */
-    progname = (char *)strrchr(argv[0], '/');
+    progname = (const char *)strrchr(argv[0], '/');
     progname = progname ? (progname + 1) : argv[0];
 
     /* handle cmdline */
@@ -173,6 +173,9 @@ static int handle_cmdline(int *argc, char ***argv) {
             break;
         }
     }
+
+    *argc -= optind;
+    *argv += optind;
 
     if (p == 0 || l == 0 || lambda == 0) {
         fprintf(stderr, "You must specify at least p, l and L options. See --help.\n");

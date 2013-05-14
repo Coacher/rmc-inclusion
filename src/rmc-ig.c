@@ -21,7 +21,7 @@
 
 const char* package = "Basic Reed-Muller codes plotter";
 const char* version = "3.1.1";
-char* progname = NULL;
+const char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned char output_control = 0;
 unsigned int m_weight = 1000;
@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
     char rm_graph_outname[MAX_FILENAME_LEN];
 
     /* learn who we really are */
-    progname = (char *)strrchr(argv[0], '/');
+    progname = (const char *)strrchr(argv[0], '/');
     progname = progname ? (progname + 1) : argv[0];
 
     /* handle cmdline */
@@ -285,6 +285,9 @@ static int handle_cmdline(int *argc, char ***argv) {
             break;
         }
     }
+
+    *argc -= optind;
+    *argv += optind;
 
     if (p == 0 || l == 0 || lambda == 0) {
         fprintf(stderr, "You must specify at least p, l and L options. See --help.\n");
