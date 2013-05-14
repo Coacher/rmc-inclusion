@@ -10,7 +10,7 @@
 #include "constants.h"
 
 const char* package = "RMs collision detector";
-const char* version = "1.0.0";
+const char* version = "1.1.0";
 char* progname = NULL;
 
 /* global debug level */
@@ -78,23 +78,13 @@ int main(int argc, char **argv) {
                 if (!was_collision) {
                     was_collision = 1;
 
-                    fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, i);
-                    ideal_print(Ms[i]);
-                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i);
-                    ideal_print(RMs[i]);
-
-                    fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, j);
-                    ideal_print(Ms[j]);
-                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, j);
-                    ideal_print(RMs[j]);
+                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)", pi, m, i);
+                    fprintf(stdout, " == Rad*M_%llu(%lu,%llu)", pi, m, j);
 
                     ideal_free(RMs[j]);
                     RMs[j] = NULL;
                 } else {
-                    fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, j);
-                    ideal_print(Ms[j]);
-                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, j);
-                    ideal_print(RMs[j]);
+                    fprintf(stdout, " == Rad*M_%llu(%lu,%llu)", pi, m, j);
 
                     ideal_free(RMs[j]);
                     RMs[j] = NULL;
