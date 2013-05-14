@@ -244,9 +244,31 @@ void ideal_print(IDEAL* M) {
     fprintf(stdout, "[");
 
     for (i = 0; i < (M->q - 1); ++i)
-        fprintf(stdout, " %u,", M->u_s[i]);
+        fprintf(stdout, " %u", M->u_s[i]);
 
-    fprintf(stdout, " %u ]\n", M->u_s[M->q - 1]);
+    ++i; /* i = M->q - 1 */
+    fprintf(stdout, " %u ]\n", M->u_s[i]);
+}
+
+void ideal_print_verbose(IDEAL* M) {
+    unsigned long long i;
+
+    if (M == NULL)
+        return;
+
+    for (i = 0; i < (M->q - 1); ++i) {
+        if (M->u_s[i]) {
+            fprintf(stdout, " u_%llu", i);
+        }
+    }
+
+    ++i; /* i = M->q - 1 */
+    if (!M->u_s[i]) {
+        /* only the whole group algebra contains u_(q-1) */
+        fprintf(stdout, "\n");
+    } else {
+        fprintf(stdout, " u_%llu\n", i);
+    }
 }
 
 unsigned long long minimum_Pi_for_P(unsigned long long j, \

@@ -50,8 +50,10 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long
 /* sets res to M * N */
 int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p);
 
-/* prints out the set of u_s which form the M */
+/* prints out the set of u_s which form the M as an array of bits */
 void ideal_print(IDEAL* M);
+/* prints out the set of u_s which form the M in a verbose way*/
+void ideal_print_verbose(IDEAL* M);
 
 /*
  * We use notation from [1] below.
