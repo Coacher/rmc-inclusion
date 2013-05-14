@@ -13,7 +13,7 @@
 #define WITH_RMs      (1 << 1)
 
 const char* package = "Ms and RMs structure visualizer";
-const char* version = "1.0.0";
+const char* version = "1.1.0";
 char* progname = NULL;
 unsigned char output_control = 0;
 
@@ -73,13 +73,23 @@ int main(int argc, char **argv) {
             fprintf(stdout, "\n");
 
         if (output_control & WITH_Ms) {
-            fprintf(stdout, "M_%llu(%lu,%llu)\t\t= ", pi, m, i);
+            fprintf(stdout, "M_%llu(%lu,%llu)\t\t=\n", pi, m, i);
             ideal_print(Ms[i]);
+            if (debug && i) {
+                ideal_diff(Ms[i - 1], Ms[i], Ms[i - 1]);
+                fprintf(stdout, "M_%llu(%lu,%llu) \\ M_%llu(%lu,%llu)\t\t=", pi, m, i, pi, m, i - 1);
+                ideal_print_verbose(Ms[i - 1]);
+            }
         }
 
         if (output_control & WITH_RMs) {
-            fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i);
+            fprintf(stdout, "Rad*M_%llu(%lu,%llu)\t\t=\n", pi, m, i);
             ideal_print(RMs[i]);
+            if (debug && i) {
+                ideal_diff(RMs[i - 1], RMs[i], RMs[i - 1]);
+                fprintf(stdout, "Rad*M_%llu(%lu,%llu) \\ Rad*M_%llu(%lu,%llu)\t\t=", pi, m, i, pi, m, i - 1);
+                ideal_print_verbose(RMs[i - 1]);
+            }
         }
     }
 
