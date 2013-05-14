@@ -281,7 +281,7 @@ static int handle_cmdline(int *argc, char ***argv) {
         "Specifies series of ideals, can be any factor of exponent.",
         "Specifies index of the M_pi(m, k) ideal. If none will compare against closest.",
         "Specifies power of the Rad. If none will compare against closest.",
-        "Use colors in output.",
+        "Use colors in output. Currently only special elements are colored.",
         "Increase debugging level.",
         "Print version information.",
         "Print this message.",
