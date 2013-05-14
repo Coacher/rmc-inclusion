@@ -10,7 +10,7 @@
 #include "constants.h"
 
 const char* package = "Utility to visualize diff between M_pi(k) and RM_pi(k+1)";
-const char* version = "1.0.0";
+const char* version = "1.1.0";
 char* progname = NULL;
 
 /* global debug level */
@@ -19,7 +19,7 @@ int debug = 0;
 static int handle_cmdline(int *argc, char ***argv);
 
 int main(int argc, char **argv) {
-    unsigned long long i, j;
+    unsigned long long i;
 
     IDEAL* Rad;
     IDEAL* pp;
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     for (i = 0; i < (numofMs - 1); ++i) {
         if (!ideal_isequal(Ms[i], RMs[i + 1])) {
             ideal_diff(Ms[i], Ms[i], RMs[i + 1]);
-            fprintf(stdout, "M_%llu(%lu,%llu) \\ Rad*M_%llu(%lu,%llu)\t\t= ", pi, m, i, pi, m, i + 1);
+            fprintf(stdout, "M_%llu(%lu,%llu) \\ Rad*M_%llu(%lu,%llu)\t\t=", pi, m, i, pi, m, i + 1);
 
             if (debug) {
                 fprintf(stdout, "\n");
@@ -75,11 +75,8 @@ int main(int argc, char **argv) {
                 fprintf(stdout, "Indexes in diff:");
             }
 
-            for (j = 0; j < q; ++j) {
-                if (Ms[i]->u_s[j])
-                    fprintf(stdout, " u_%llu", j);
-            }
-            fprintf(stdout, ".\n\n");
+            ideal_print_verbose(Ms[i]);
+            fprintf(stdout, "\n");
         } else {
             dbg_msg_l(2, "M_%llu(%lu,%llu) == Rad*M_%llu(%lu,%llu)\n", pi, m, i, pi, m, i + 1);
         }
