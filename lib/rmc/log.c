@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+
+#ifdef ENABLE_GMP
 #include <gmp.h>
+#endif
 
 #include "rmc/log.h"
 
@@ -59,7 +62,7 @@ void dbg_msg_l(int level, const char *fmt, ...)
 /* write message to stderr if debug >= 0 */
 void gmp_dbg_msg(const char *fmt, ...)
 {
-#ifdef ENABLE_DEBUG
+#if defined ENABLE_DEBUG && defined ENABLE_GMP
     if (debug) {
         va_list args;
 
@@ -79,7 +82,7 @@ void gmp_dbg_msg(const char *fmt, ...)
 /* write message to stderr if debug >= level */
 void gmp_dbg_msg_l(int level, const char *fmt, ...)
 {
-#ifdef ENABLE_DEBUG
+#if defined ENABLE_DEBUG && defined ENABLE_GMP
     if (debug >= level) {
         va_list args;
 

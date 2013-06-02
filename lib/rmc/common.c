@@ -2,7 +2,7 @@
 
 #include "rmc/common.h"
 
-unsigned long long pow_ul(unsigned long p, unsigned long l) {
+unsigned long long pow_ull(unsigned int p, unsigned int l) {
     unsigned long long ret = 1;
 
     while (l) {
@@ -16,8 +16,8 @@ unsigned long long pow_ul(unsigned long p, unsigned long l) {
     return ret;
 }
 
-unsigned long weight(unsigned long long x, unsigned long pi) {
-    unsigned long ret = 0;
+unsigned long long weight(unsigned long long x, unsigned long long pi) {
+    unsigned long long ret = 0;
 
     while (x) {
         ret += x % pi;
@@ -27,17 +27,18 @@ unsigned long weight(unsigned long long x, unsigned long pi) {
     return ret;
 }
 
-void bin_coeff(mpz_t rop, long long n, long long m) {
 #ifdef ENABLE_GMP
+void bin_coeff(mpz_t rop, long long n, long long m) {
     char sign = 1;
 
-    if (m < 0) {
+    if ((m < 0) || ( (n < m) && (0 <= n) )) {
         mpz_set_ui(rop, 0);
         return;
     }
 
     if (n < 0) {
-        /* \binom{n}{k} = (-1)^k*\binom{m-n-1}{m}, when n < 0 <= m */
+        /* \binom{n}{m} = (-1)^m*\binom{m-n-1}{m}, when n < 0 <= m */
+        /* won't overflow in our use cases */
         n = m - n - 1;
         sign = (m & 1) ? -1 : 1;
     }
@@ -46,7 +47,5 @@ void bin_coeff(mpz_t rop, long long n, long long m) {
 
     if (sign < 0)
         mpz_mul_si(rop, rop, sign);
-#else
-    dbg_msg("librmc built without GMP support. bin_coeff won't work.\n");
-#endif
 }
+#endif

@@ -25,7 +25,7 @@ IDEAL* ideal_create(unsigned long long q) {
     return M;
 }
 
-int ideal_init(IDEAL* M, unsigned long pi, unsigned long m, unsigned long k) {
+int ideal_init(IDEAL* M, unsigned long long pi, unsigned int m, unsigned long long k) {
     unsigned long long i;
 
     if (M == NULL)
@@ -53,9 +53,9 @@ void ideal_free(IDEAL* M) {
     }
 }
 
-void m_k(mpz_t rop, unsigned long long pi, unsigned long m, unsigned long k) {
 #ifdef ENABLE_GMP
-    unsigned long j;
+void m_k(mpz_t rop, unsigned long long pi, unsigned int m, unsigned long long k) {
+    unsigned int j;
     mpz_t tmp1, tmp2;
 
     mpz_init(tmp1);
@@ -65,6 +65,7 @@ void m_k(mpz_t rop, unsigned long long pi, unsigned long m, unsigned long k) {
 
     for (j = 0; j <= m; ++j) {
         bin_coeff(tmp1, m, j);
+        /* the next call requires special attention as parameters can overflow */
         bin_coeff(tmp2, m + k - pi*j, k - pi*j);
         mpz_mul(tmp1, tmp1, tmp2);
         if (j & 1)
@@ -75,10 +76,8 @@ void m_k(mpz_t rop, unsigned long long pi, unsigned long m, unsigned long k) {
 
     mpz_clear(tmp1);
     mpz_clear(tmp2);
-#else
-    dbg_msg("librmc built without GMP support. m_k won't work.\n");
-#endif
 }
+#endif
 
 int ideal_isequal(IDEAL* M, IDEAL* N) {
     unsigned long long i;
@@ -160,7 +159,7 @@ int ideal_intersect(IDEAL* res, IDEAL* M, IDEAL* N) {
     return 0;
 }
 
-int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long p) {
+int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned int p) {
     unsigned long long i, q;
     unsigned long long delta;
     unsigned long long div1, div2;
@@ -215,7 +214,7 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned long
     return 0;
 }
 
-int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned long p) {
+int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned int p) {
     unsigned long long j;
     int ret;
 
@@ -276,35 +275,37 @@ void ideal_print_verbose(IDEAL* M) {
 }
 
 unsigned long long minimum_Pi_for_P(unsigned long long j, \
-        unsigned long p, unsigned long m, unsigned long lambda) {
+        unsigned int p, unsigned int m, unsigned int lambda) {
 
-    unsigned long long i, theta, tau;
+    unsigned long long i;
+    unsigned int theta, tau;
     unsigned long long sum = 0;
 
     theta = j / (m*(p - 1));
     tau = j % (m*(p - 1));
 
     for(i = 0; i < theta; ++i) {
-        sum += m*(p - 1)*pow_ul(p, lambda - 1 - i);
+        sum += m*(p - 1)*pow_ull(p, lambda - 1 - i);
     }
 
-    sum += tau*pow_ul(p, lambda - 1 - theta);
+    sum += tau*pow_ull(p, lambda - 1 - theta);
 
     return sum;
 }
 
 static unsigned long long lift(unsigned long long t,
-        unsigned long p, unsigned long m) {
+        unsigned int p, unsigned int m) {
     return p*(t + 1) + m*(p - 1) - 1;
 }
 
 unsigned long long maximum_Pi_for_P(unsigned long long j, \
-        unsigned long p, unsigned long m) {
+        unsigned int p, unsigned int m) {
 
-    unsigned long long i, theta, tau;
+    unsigned long long i;
+    unsigned int theta, tau;
     unsigned long long ret = 0;
 
-    if (j < m*(p-1)) {
+    if (j < m*(p - 1)) {
         return j;
     } else {
         theta = j / (m*(p - 1));
@@ -321,7 +322,7 @@ unsigned long long maximum_Pi_for_P(unsigned long long j, \
 }
 
 unsigned long long minimum_P_for_Pi(unsigned long long k, \
-        unsigned long p, unsigned long m) {
+        unsigned int p, unsigned int m) {
     unsigned long long j, k_j;
 
     j = k_j = 0;
@@ -335,8 +336,8 @@ unsigned long long minimum_P_for_Pi(unsigned long long k, \
 }
 
 unsigned long long maximum_P_for_Pi(unsigned long long k, \
-        unsigned long p, unsigned long m, \
-        unsigned long l, unsigned long lambda,
+        unsigned int p, unsigned int m, \
+        unsigned int l, unsigned int lambda,
         unsigned long long top_index) {
     unsigned long long j, k_j;
 
