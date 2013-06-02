@@ -10,7 +10,7 @@
 #include "constants.h"
 
 const char* package = "u_s calculator";
-const char* version = "1.0.0";
+const char* version = "1.1.0";
 const char* progname = NULL;
 
 /* indexes of two elements to multiply */
@@ -47,19 +47,35 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-    /* calculate index of u_i*u_j */
-    if ( (i + j <= q - 2) ) {
-        fprintf(stdout, "result: 0\n");
-        return 0;
-    } else if ( (i + j > q - 2) && (i + j < 2*(q - 1)) ) {
-        delta = i + j - (q - 1);
-    } else if ((i + j) == 2*(q - 1)) {
-        fprintf(stdout, "result: - u_0 - u_%llu\n", q - 1);
-        return 0;
-    }
-
     /* pick max of i, j so later (i - delta) is posisitve */
     i = (i > j) ? i: j;
+
+    /* calculate index of u_i*u_j */
+    /* same as i + j == 2*(q - 1), but no overflow happens */
+    if ( (j == (q - 1)) && (i == (q - 1)) ) {
+        fprintf(stdout, "result: - u_0 - u_%llu\n", q - 1);
+        return 0;
+    /* same as i + j <= q - 2, but no overflow happens */
+    } else if ( i <= (q - 2 - j) ) {
+        fprintf(stdout, "result: 0\n");
+        return 0;
+    /* the only possible option left for i, j is (i + j > q - 2) && (i + j < 2*(q - 1))
+     * i + j >= q - 1, therefore either i or j >= (q - 1) / 2
+     * and since i is max of {i,j}, i >= (q - 1) / 2 */
+    } else {
+        /* same as delta = i + j - (q - 1), but no overflow happens */
+        if (p == 2) {
+        /* p == 2 therefore q is even and i >= q/2 - 1 */
+            delta = i - ((q >> 1) - 1);
+            delta += j;
+            delta -= (q >> 1);
+        } else {
+        /* p > 2 and odd therefore q is odd */
+            delta = i - ((q - 1) >> 1);
+            delta += j;
+            delta -= ((q - 1) >> 1);
+        }
+    }
 
     /* u_i * u_j is non-zero first when i + j > q - 2
      * and second when \binom{i}{delta} != 0 mod p
