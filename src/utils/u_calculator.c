@@ -10,7 +10,7 @@
 #include "constants.h"
 
 const char* package = "u_s calculator";
-const char* version = "1.1.1";
+const char* version = "1.1.2";
 const char* progname = NULL;
 
 /* indexes of two elements to multiply */
@@ -156,13 +156,13 @@ static int handle_cmdline(int *argc, char ***argv) {
         }
         switch (k) {
         case 'p':
-            sscanf(optarg, "%lu", &p);
+            sscanf(optarg, "%u", &p);
             break;
         case 'l':
-            sscanf(optarg, "%lu", &l);
+            sscanf(optarg, "%u", &l);
             break;
         case 'L':
-            sscanf(optarg, "%lu", &lambda);
+            sscanf(optarg, "%u", &lambda);
             break;
         case 'i':
             sscanf(optarg, "%llu", &i);
