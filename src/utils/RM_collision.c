@@ -10,7 +10,7 @@
 #include "constants.h"
 
 const char* package = "RMs collision detector";
-const char* version = "1.1.0";
+const char* version = "1.1.1";
 const char* progname = NULL;
 
 /* global debug level */
@@ -78,13 +78,13 @@ int main(int argc, char **argv) {
                 if (!was_collision) {
                     was_collision = 1;
 
-                    fprintf(stdout, "Rad*M_%llu(%lu,%llu)", pi, m, i);
-                    fprintf(stdout, " == Rad*M_%llu(%lu,%llu)", pi, m, j);
+                    fprintf(stdout, "Rad*M_%llu(%u,%llu)", pi, m, i);
+                    fprintf(stdout, " == Rad*M_%llu(%u,%llu)", pi, m, j);
 
                     ideal_free(RMs[j]);
                     RMs[j] = NULL;
                 } else {
-                    fprintf(stdout, " == Rad*M_%llu(%lu,%llu)", pi, m, j);
+                    fprintf(stdout, " == Rad*M_%llu(%u,%llu)", pi, m, j);
 
                     ideal_free(RMs[j]);
                     RMs[j] = NULL;
@@ -148,13 +148,13 @@ static int handle_cmdline(int *argc, char ***argv) {
         }
         switch (i) {
         case 'p':
-            sscanf(optarg, "%lu", &p);
+            sscanf(optarg, "%u", &p);
             break;
         case 'l':
-            sscanf(optarg, "%lu", &l);
+            sscanf(optarg, "%u", &l);
             break;
         case 'L':
-            sscanf(optarg, "%lu", &lambda);
+            sscanf(optarg, "%u", &lambda);
             break;
         case 'D':
             debug++;
