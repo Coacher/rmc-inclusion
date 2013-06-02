@@ -10,7 +10,7 @@
 #include "constants.h"
 
 const char* package = "Utility to visualize diff between M_pi(k) and RM_pi(k+1)";
-const char* version = "1.1.0";
+const char* version = "1.1.1";
 const char* progname = NULL;
 
 /* global debug level */
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     for (i = 0; i < (numofMs - 1); ++i) {
         if (!ideal_isequal(Ms[i], RMs[i + 1])) {
             ideal_diff(Ms[i], Ms[i], RMs[i + 1]);
-            fprintf(stdout, "M_%llu(%lu,%llu) \\ Rad*M_%llu(%lu,%llu)\t\t=", pi, m, i, pi, m, i + 1);
+            fprintf(stdout, "M_%llu(%u,%llu) \\ Rad*M_%llu(%u,%llu)\t\t=", pi, m, i, pi, m, i + 1);
 
             if (debug) {
                 fprintf(stdout, "\n");
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
             ideal_print_verbose(Ms[i]);
             fprintf(stdout, "\n");
         } else {
-            dbg_msg_l(2, "M_%llu(%lu,%llu) == Rad*M_%llu(%lu,%llu)\n", pi, m, i, pi, m, i + 1);
+            dbg_msg_l(2, "M_%llu(%u,%llu) == Rad*M_%llu(%u,%llu)\n", pi, m, i, pi, m, i + 1);
         }
     }
 
@@ -135,13 +135,13 @@ static int handle_cmdline(int *argc, char ***argv) {
         }
         switch (i) {
         case 'p':
-            sscanf(optarg, "%lu", &p);
+            sscanf(optarg, "%u", &p);
             break;
         case 'l':
-            sscanf(optarg, "%lu", &l);
+            sscanf(optarg, "%u", &l);
             break;
         case 'L':
-            sscanf(optarg, "%lu", &lambda);
+            sscanf(optarg, "%u", &lambda);
             break;
         case 'D':
             debug++;
