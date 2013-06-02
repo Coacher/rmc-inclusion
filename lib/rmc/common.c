@@ -28,6 +28,7 @@ unsigned long weight(unsigned long long x, unsigned long pi) {
 }
 
 void bin_coeff(mpz_t rop, long long n, long long m) {
+#ifdef ENABLE_GMP
     char sign = 1;
 
     if (m < 0) {
@@ -45,4 +46,7 @@ void bin_coeff(mpz_t rop, long long n, long long m) {
 
     if (sign < 0)
         mpz_mul_si(rop, rop, sign);
+#else
+    dbg_msg("librmc built without GMP support. bin_coeff won't work.\n");
+#endif
 }

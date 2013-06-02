@@ -15,7 +15,10 @@ include(DefineInstallationPaths)
 include(DefineOptions)
 
 # search for libraries
-find_package(GMP REQUIRED)
+if (WITH_GMP)
+    find_package(GMP REQUIRED)
+    add_definitions(-DENABLE_GMP)
+endif (WITH_GMP)
 
 set(RMC_PUBLIC_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/include

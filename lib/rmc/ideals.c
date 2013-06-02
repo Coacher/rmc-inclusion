@@ -54,6 +54,7 @@ void ideal_free(IDEAL* M) {
 }
 
 void m_k(mpz_t rop, unsigned long long pi, unsigned long m, unsigned long k) {
+#ifdef ENABLE_GMP
     unsigned long j;
     mpz_t tmp1, tmp2;
 
@@ -74,6 +75,9 @@ void m_k(mpz_t rop, unsigned long long pi, unsigned long m, unsigned long k) {
 
     mpz_clear(tmp1);
     mpz_clear(tmp2);
+#else
+    dbg_msg("librmc built without GMP support. m_k won't work.\n");
+#endif
 }
 
 int ideal_isequal(IDEAL* M, IDEAL* N) {
