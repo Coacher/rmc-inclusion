@@ -20,7 +20,7 @@
 #define WITH_RM_GRAPH   (1 << 2)
 
 const char* package = "Basic Reed-Muller codes plotter";
-const char* version = "3.1.1";
+const char* version = "3.1.2";
 const char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned char output_control = 0;
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
     /* prepare output files */
     if (!use_stdout) {
         if (output_control & WITH_INFO) {
-            sprintf(info_outname, "codes_info_%lu-%lu-%lu.txt", p, l, lambda);
+            sprintf(info_outname, "codes_info_%u-%u-%u.txt", p, l, lambda);
             info_out = fopen(info_outname, "w");
 
             if (!info_out) {
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
         }
 
         if (output_control & WITH_GRAPH) {
-            sprintf(graph_outname, "inclusion_tree_%lu-%lu-%lu.gv", p, l, lambda);
+            sprintf(graph_outname, "inclusion_tree_%u-%u-%u.gv", p, l, lambda);
             graph_out = fopen(graph_outname, "w");
 
             if (!graph_out) {
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
         }
 
         if (output_control & WITH_RM_GRAPH) {
-            sprintf(rm_graph_outname, "rm_inclusion_tree_%lu-%lu-%lu.gv", p, l, lambda);
+            sprintf(rm_graph_outname, "rm_inclusion_tree_%u-%u-%u.gv", p, l, lambda);
             rm_graph_out = fopen(rm_graph_outname, "w");
 
             if (!rm_graph_out) {
@@ -223,13 +223,13 @@ static int handle_cmdline(int *argc, char ***argv) {
         }
         switch (i) {
         case 'p':
-            sscanf(optarg, "%lu", &p);
+            sscanf(optarg, "%u", &p);
             break;
         case 'l':
-            sscanf(optarg, "%lu", &l);
+            sscanf(optarg, "%u", &l);
             break;
         case 'L':
-            sscanf(optarg, "%lu", &lambda);
+            sscanf(optarg, "%u", &lambda);
             break;
         case 'c':
             use_stdout = 1;
