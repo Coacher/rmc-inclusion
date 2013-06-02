@@ -52,8 +52,10 @@ int ideal_diff(IDEAL* res, IDEAL* M, IDEAL* N);
 int ideal_intersect(IDEAL* res, IDEAL* M, IDEAL* N);
 
 /* sets res to M * (Qu_j) */
+/* NOTE: res->u_s must be filled with zeros */
 int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned int p);
 /* sets res to M * N */
+/* NOTE: res->u_s must be filled with zeros */
 int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned int p);
 
 /* prints out the set of u_s which form the M as an array of bits */

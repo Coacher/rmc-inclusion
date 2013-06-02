@@ -163,7 +163,7 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned int 
     unsigned long long i, q;
     unsigned long long delta;
     unsigned long long div1, div2;
-    unsigned long digit1, digit2;
+    unsigned int digit1, digit2;
 
     if (M == NULL || res == NULL) {
         dbg_msg("ideal_multiplyby_u: incorrect input parameters\n");
@@ -178,8 +178,34 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned int 
     q = M->q;
     for (i = 0; i < q; ++i) {
         if (M->u_s[i]) {
-            if ( (i + j > q - 2) && (i + j < 2*(q - 1)) ) {
-                delta = i + j - (q - 1);
+            /* ensure i is max of {i, j} */
+            if (j > i) {
+                delta = i; i = j; j = delta;
+            }
+
+            /* same as i + j == 2*(q - 1), but no overflow happens */
+            if ( (i == (q - 1)) && (j == (q - 1)) ) {
+                res->u_s[0] = 1;
+                res->u_s[q - 1] = 1;
+            /* same as i + j <= q - 2, but no overflow happens */
+            } else if ( i <= (q - 2 - j) ) {
+                continue;
+            /* the only possible option left for i, j is (i + j > q - 2) && (i + j < 2*(q - 1))
+            * i + j >= q - 1, therefore either i or j >= (q - 1) / 2
+            * and since i is max of {i,j}, i >= (q - 1) / 2 */
+            } else {
+                /* same as delta = i + j - (q - 1), but no overflow happens */
+                if (p == 2) {
+                /* p == 2 therefore q is even and i >= q/2 - 1 */
+                    delta = i - ((q >> 1) - 1);
+                    delta += j;
+                    delta -= (q >> 1);
+                } else {
+                /* p > 2 and odd therefore q is odd */
+                    delta = i - ((q - 1) >> 1);
+                    delta += j;
+                    delta -= ((q - 1) >> 1);
+                }
 
                 if (res->u_s[delta]) {
                     /* Qu_delta already in res so don't bother */
@@ -204,9 +230,6 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned int 
 
                     res->u_s[delta] = (digit1 >= digit2);
                 }
-            } else if ((i + j) == 2*(q - 1)) {
-                res->u_s[0] = 1;
-                res->u_s[q-1] = 1;
             }
         }
     }
