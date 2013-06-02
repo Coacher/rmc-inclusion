@@ -10,7 +10,7 @@
 #include "constants.h"
 
 const char* package = "u_s calculator";
-const char* version = "1.1.0";
+const char* version = "1.1.1";
 const char* progname = NULL;
 
 /* indexes of two elements to multiply */
@@ -47,8 +47,10 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-    /* pick max of i, j so later (i - delta) is posisitve */
-    i = (i > j) ? i: j;
+    /* ensure i is max of {i, j} */
+    if (j > i) {
+        delta = i; i = j; j = delta;
+    }
 
     /* calculate index of u_i*u_j */
     /* same as i + j == 2*(q - 1), but no overflow happens */
@@ -103,6 +105,7 @@ int main(int argc, char **argv) {
     mpz_init(coeff);
 
     bin_coeff(coeff, i, delta);
+    /* (i - delta) is posisitve */
     sign = ((i - delta) & 1) ? 1 : -1;
 
     if (sign < 0)
