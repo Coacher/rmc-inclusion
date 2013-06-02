@@ -19,7 +19,7 @@
  *
  */
 
-unsigned long p, l, lambda, m;
+unsigned int p, l, lambda, m;
 unsigned long long q, pi;
 unsigned long long numofMs, nilindex;
 
