@@ -10,7 +10,7 @@
 #include "constants.h"
 
 const char* package = "Rads structure visualizer";
-const char* version = "1.1.0";
+const char* version = "1.1.1";
 const char* progname = NULL;
 
 /* global debug level */
@@ -53,11 +53,11 @@ int main(int argc, char **argv) {
         if (i)
             fprintf(stdout, "\n");
 
-        fprintf(stdout, "M_%lu(%lu,%llu) = Rad^%llu\t=\n", p, l, i, l*(p - 1) - i);
+        fprintf(stdout, "M_%u(%u,%llu) = Rad^%llu\t=\n", p, l, i, l*(p - 1) - i);
         ideal_print(Rads[i]);
         if (debug && i) {
             ideal_diff(Rads[i - 1], Rads[i], Rads[i - 1]);
-            fprintf(stdout, "M_%lu(%lu,%llu) \\ M_%lu(%lu,%llu)\t\t=", p, l, i, p, l, i - 1);
+            fprintf(stdout, "M_%u(%u,%llu) \\ M_%u(%u,%llu)\t\t=", p, l, i, p, l, i - 1);
             ideal_print_verbose(Rads[i - 1]);
         }
     }
@@ -106,13 +106,13 @@ static int handle_cmdline(int *argc, char ***argv) {
         }
         switch (i) {
         case 'p':
-            sscanf(optarg, "%lu", &p);
+            sscanf(optarg, "%u", &p);
             break;
         case 'l':
-            sscanf(optarg, "%lu", &l);
+            sscanf(optarg, "%u", &l);
             break;
         case 'L':
-            sscanf(optarg, "%lu", &lambda);
+            sscanf(optarg, "%u", &lambda);
             break;
         case 'D':
             debug++;
