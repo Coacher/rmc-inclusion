@@ -15,7 +15,7 @@
 #define MAX_FILENAME_LEN 128
 
 const char* package = "Basic Reed-Muller codes shortened graph generator";
-const char* version = "1.2.2";
+const char* version = "1.2.3";
 const char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned int m_weight = 1000;
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 
     /* prepare output files */
     if (!use_stdout) {
-        sprintf(graph_outname, "inclusion_tree_short_%lu-%lu-%lu.gv", p, l, lambda);
+        sprintf(graph_outname, "inclusion_tree_short_%u-%u-%u.gv", p, l, lambda);
         graph_out = fopen(graph_outname, "w");
 
         if (!graph_out) {
@@ -108,13 +108,13 @@ static int handle_cmdline(int *argc, char ***argv) {
         }
         switch (i) {
         case 'p':
-            sscanf(optarg, "%lu", &p);
+            sscanf(optarg, "%u", &p);
             break;
         case 'l':
-            sscanf(optarg, "%lu", &l);
+            sscanf(optarg, "%u", &l);
             break;
         case 'L':
-            sscanf(optarg, "%lu", &lambda);
+            sscanf(optarg, "%u", &lambda);
             break;
         case 'c':
             use_stdout = 1;
