@@ -21,7 +21,7 @@
 #define MAX_LABEL_LENGTH    512
 
 const char* package = "Utility to visualize diff between M_pi(m,k) and Rad^j";
-const char* version = "1.0.0";
+const char* version = "1.0.1";
 const char* progname = NULL;
 unsigned char output_control = 0;
 unsigned char use_colors = 0;
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
         ideal_init(pp, p, l, l*(p - 1) - j);
         Rads[0] = pp;
 
-        sprintf(M_name, "M_%llu(%lu,%llu)", pi, m, i);
+        sprintf(M_name, "M_%llu(%u,%llu)", pi, m, i);
         sprintf(N_name, "Rad^%llu", j);
 
         if (ideal_issubset(Rads[0], Ms[0])) {
@@ -140,9 +140,9 @@ int main(int argc, char **argv) {
 
             ideal_intersect(Ms[1], Ms[0], Rads[0]);
 
-            sprintf(N_name, "(M_%llu(%lu,%llu) /\\ Rad^%llu)", pi, m, i, j);
+            sprintf(N_name, "(M_%llu(%u,%llu) /\\ Rad^%llu)", pi, m, i, j);
 
-            sprintf(M_name, "M_%llu(%lu,%llu)", pi, m, i);
+            sprintf(M_name, "M_%llu(%u,%llu)", pi, m, i);
             print_diff(Ms[0], Ms[0], Ms[1], M_name, N_name, use_colors);
 
             sprintf(M_name, "Rad^%llu", j);
@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
         Mpi_to_Rad = minimum_Pi_for_P(l*(p - 1) - j, p, m, lambda);
 
         if (Mpi_to_Rad == Rad_to_Mpi) {
-            fprintf(stdout, "Rad^%llu == M_%llu(%lu,%llu)\n\n",
+            fprintf(stdout, "Rad^%llu == M_%llu(%u,%llu)\n\n",
                     j, pi, m, Rad_to_Mpi);
             goto end;
         }
@@ -173,15 +173,15 @@ int main(int argc, char **argv) {
         ideal_init(pp, p, l, l*(p - 1) - j);
         Rads[0] = pp;
 
-        fprintf(stdout, "M_%llu(%lu,%llu) --> Rad^%llu --> M_%llu(%lu,%llu)\n\n",
+        fprintf(stdout, "M_%llu(%u,%llu) --> Rad^%llu --> M_%llu(%u,%llu)\n\n",
                 pi, m, Mpi_to_Rad, j, pi, m, Rad_to_Mpi);
 
         sprintf(N_name, "Rad^%llu", j);
 
-        sprintf(M_name, "M_%llu(%lu,%llu)", pi, m, Mpi_to_Rad);
+        sprintf(M_name, "M_%llu(%u,%llu)", pi, m, Mpi_to_Rad);
         print_diff(Ms[1], Ms[1], Rads[0], M_name, N_name, use_colors);
 
-        sprintf(M_name, "M_%llu(%lu,%llu)", pi, m, Rad_to_Mpi);
+        sprintf(M_name, "M_%llu(%u,%llu)", pi, m, Rad_to_Mpi);
         print_diff(Ms[0], Rads[0], Ms[0], N_name, M_name, use_colors);
 
         if (debug >= 2) {
@@ -201,7 +201,7 @@ int main(int argc, char **argv) {
         Mpi_to_Rad = maximum_P_for_Pi(i, p, m, l, lambda, numofMs - 1);
 
         if (Mpi_to_Rad == Rad_to_Mpi) {
-            fprintf(stdout, "M_%llu(%lu,%llu) == Rad^%llu\n\n",
+            fprintf(stdout, "M_%llu(%u,%llu) == Rad^%llu\n\n",
                     pi, m, i, l*(p - 1) - Rad_to_Mpi);
             goto end;
         }
@@ -218,10 +218,10 @@ int main(int argc, char **argv) {
         ideal_init(pp, pi, m, i);
         Ms[0] = pp;
 
-        fprintf(stdout, "Rad^%llu --> M_%llu(%lu,%llu) --> Rad^%llu\n\n",
+        fprintf(stdout, "Rad^%llu --> M_%llu(%u,%llu) --> Rad^%llu\n\n",
                 l*(p - 1) - Rad_to_Mpi, pi, m, i, l*(p - 1) - Mpi_to_Rad);
 
-        sprintf(M_name, "M_%llu(%lu,%llu)", pi, m, i);
+        sprintf(M_name, "M_%llu(%u,%llu)", pi, m, i);
 
         sprintf(N_name, "Rad^%llu", l*(p - 1) - Rad_to_Mpi);
         print_diff(Rads[1], Rads[1], Ms[0], N_name, M_name, use_colors);
@@ -299,13 +299,13 @@ static int handle_cmdline(int *argc, char ***argv) {
         }
         switch (k) {
         case 'p':
-            sscanf(optarg, "%lu", &p);
+            sscanf(optarg, "%u", &p);
             break;
         case 'l':
-            sscanf(optarg, "%lu", &l);
+            sscanf(optarg, "%u", &l);
             break;
         case 'L':
-            sscanf(optarg, "%lu", &lambda);
+            sscanf(optarg, "%u", &lambda);
             break;
         case 'i':
             sscanf(optarg, "%llu", &i);
