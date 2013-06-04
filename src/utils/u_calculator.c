@@ -10,22 +10,22 @@
 #include "constants.h"
 
 const char* package = "u_s calculator";
-const char* version = "1.1.2";
+const char* version = "1.1.3";
 const char* progname = NULL;
 
 /* indexes of two elements to multiply */
 unsigned long long i, j;
 
 /* global debug level */
-int debug = 0;
+unsigned int debug = 0;
 
 static int handle_cmdline(int *argc, char ***argv);
 
 int main(int argc, char **argv) {
     /* index of result */
-    unsigned long long delta = 0;
+    unsigned long long delta;
 
-    /* coefficient before u_delta */
+    /* u_delta coefficient */
     mpz_t coeff;
 
     unsigned long long div1, div2;
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
         delta = i; i = j; j = delta;
     }
 
-    /* calculate index of u_i*u_j */
+    /* calculate index of u_i * u_j */
     /* same as i + j == 2*(q - 1), but no overflow happens */
     if ( (j == (q - 1)) && (i == (q - 1)) ) {
         fprintf(stdout, "result: - u_0 - u_%llu\n", q - 1);
@@ -66,17 +66,12 @@ int main(int argc, char **argv) {
      * and since i is max of {i,j}, i >= (q - 1) / 2 */
     } else {
         /* same as delta = i + j - (q - 1), but no overflow happens */
-        if (p == 2) {
-        /* p == 2 therefore q is even and i >= q/2 - 1 */
-            delta = i - ((q >> 1) - 1);
-            delta += j;
-            delta -= (q >> 1);
-        } else {
-        /* p > 2 and odd therefore q is odd */
-            delta = i - ((q - 1) >> 1);
-            delta += j;
-            delta -= ((q - 1) >> 1);
-        }
+        delta = i - ((q - 1) >> 1);
+        delta += j;
+        delta -= ((q - 1) >> 1);
+        /* p == 2 therefore q is odd so (q - 1) / 2 == (q - 2) / 2
+         * and we need to substract additional 1 */
+        if (p == 2) --delta;
     }
 
     /* u_i * u_j is non-zero first when i + j > q - 2
@@ -105,7 +100,7 @@ int main(int argc, char **argv) {
     mpz_init(coeff);
 
     bin_coeff(coeff, i, delta);
-    /* (i - delta) is posisitve */
+    /* (i - delta) is positive since i is max of {i,j} */
     sign = ((i - delta) & 1) ? 1 : -1;
 
     if (sign < 0)
