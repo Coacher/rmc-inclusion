@@ -6,9 +6,10 @@
 
 #define MAX_LABEL_LENGTH 512
 
-void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, \
-        unsigned int m_weight, unsigned int r_weight, unsigned int o_weight, \
+void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads,
+        unsigned int m_weight, unsigned int r_weight, unsigned int o_weight,
         unsigned int use_groups) {
+
     unsigned long long i, j;
 
 
@@ -24,8 +25,7 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads, \
     /* label Ms chain; it is proven that only these equalities hold:
      *  M_pi(m, 0) == Rad^(nilindex - 1)
      *  M_pi(m, numofMs - 2) == Rad^1 == Rad
-     *  M_pi(m, numofMs - 1) == Rad^0 == QH
-     */
+     *  M_pi(m, numofMs - 1) == Rad^0 == QH */
     if (use_groups) {
         fprintf(out, "\tM_%llu_%u_%u [label = \"M_%llu(%u,%u) = Rad^%llu\", group = \"Ms\"];\n", \
                 pi, m, 0, pi, m, 0, nilindex - 1);
@@ -123,7 +123,9 @@ static int append_to_label(char** label, char* s) {
     return 0;
 }
 
-void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
+void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs,
+        unsigned int m_weight) {
+
     unsigned long long i, j;
     unsigned char was_collision = 0;
     unsigned long long previous;
@@ -293,9 +295,10 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs, unsigned int m_weight) {
     free(labels);
 }
 
-void print_graph_beautiful(FILE* out, \
+void print_graph_beautiful(FILE* out,
         unsigned int m_weight, unsigned int r_weight, unsigned int o_weight,
         unsigned int use_groups) {
+
     unsigned long long i, j, previous;
 
     /* arrays to store all needed values of k */
@@ -323,8 +326,7 @@ void print_graph_beautiful(FILE* out, \
     /* label Ms/RMs equalities; it is proven that only these equalities hold:
      *  M_pi(m, 0) == Rad^(nilindex - 1)
      *  M_pi(m, numofMs - 2) == Rad^1 == Rad
-     *  M_pi(m, numofMs - 1) == Rad^0 == QH
-     */
+     *  M_pi(m, numofMs - 1) == Rad^0 == QH */
     if (use_groups) {
         fprintf(out, "\tM_%llu_%u_%u [label = \"M_%llu(%u,%u) = Rad^%llu\", group = \"Ms\"];\n", \
                 pi, m, 0, pi, m, 0, nilindex - 1);
