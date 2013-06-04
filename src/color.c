@@ -4,7 +4,11 @@
 
 #include "color.h"
 
-int color_printf(unsigned int color, const char *fmt, ...) {
+int
+#ifdef __GNUC__
+__attribute__((format(printf, 2, 3)))
+#endif
+color_printf(unsigned int color, const char *fmt, ...) {
     int ret;
     va_list args;
 
@@ -25,7 +29,7 @@ int color_printf(unsigned int color, const char *fmt, ...) {
     return ret;
 }
 
-void color_ideal_print(unsigned int color, IDEAL* M, \
+void color_ideal_print(unsigned int color, IDEAL* M,
         int (*condition)(unsigned long long)) {
 
     if (condition == NULL) {
@@ -57,7 +61,7 @@ void color_ideal_print(unsigned int color, IDEAL* M, \
     }
 }
 
-void color_ideal_print_verbose(unsigned int color, IDEAL* M, \
+void color_ideal_print_verbose(unsigned int color, IDEAL* M,
         int (*condition)(unsigned long long)) {
 
     if (condition == NULL) {
