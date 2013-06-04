@@ -13,15 +13,15 @@
 #include "constants.h"
 #include "color.h"
 
-#define WAS_SPECIFIED_M             1
-#define WAS_SPECIFIED_Rad           (1 << 1)
+#define WAS_SPECIFIED_M         1
+#define WAS_SPECIFIED_Rad       (1 << 1)
 
 #define SPECIAL_COLOR   35 /* magenta */
 
 #define MAX_LABEL_LENGTH    512
 
 const char* package = "Utility to visualize diff between M_pi(m,k) and Rad^j";
-const char* version = "1.0.1";
+const char* version = "1.0.2";
 const char* progname = NULL;
 unsigned char output_control = 0;
 unsigned char use_colors = 0;
@@ -30,7 +30,7 @@ unsigned char use_colors = 0;
 unsigned long long i, j;
 
 /* global debug level */
-int debug = 0;
+unsigned int debug = 0;
 
 static int handle_cmdline(int *argc, char ***argv);
 
@@ -39,7 +39,7 @@ static int isspecial_number(unsigned long long s);
 
 /* a function that does printing job for two given ideals M, N
  * N must be a subset of M, res is the same as in ideal_diff */
-static void print_diff(IDEAL*res, IDEAL* M, IDEAL* N, \
+static void print_diff(IDEAL*res, IDEAL* M, IDEAL* N,
         char* M_name, char* N_name, int with_colors);
 
 int main(int argc, char **argv) {
@@ -371,7 +371,7 @@ static int handle_cmdline(int *argc, char ***argv) {
 }
 
 static int isspecial_number(unsigned long long s) {
-    int isspecial = 1;
+    unsigned int isspecial = 1;
     unsigned long long res = 0;
 
     if (!s) return 0;
@@ -385,8 +385,9 @@ static int isspecial_number(unsigned long long s) {
     return isspecial;
 }
 
-static void print_diff(IDEAL* res, IDEAL* M, IDEAL* N, \
+static void print_diff(IDEAL* res, IDEAL* M, IDEAL* N,
         char* M_name, char* N_name, int with_colors) {
+
     ideal_diff(res, M, N);
     fprintf(stdout, "%s \\ %s\t\t=", M_name, N_name);
 
