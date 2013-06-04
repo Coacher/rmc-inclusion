@@ -29,7 +29,7 @@ It supports all basic operations, like creation, multiplication, substraction,
 intersection and a number of functions to obtain necessary parameters of these
 ideals, like dimension.
 
-rmc-diff: a tool to print diff between any M_pi(m, i) ideal and any Rad^j.
+rmc-diff: a tool to print diff between any M_pi(m,i) ideal and any Rad^j.
 Both i and j can be specified and in this case diff only beetwen them is printed.
 When given only one index this tool will construct the shortest inclusion chain
 with the specified ideal in the middle and the closest ideals of another type
@@ -62,10 +62,14 @@ by the size of `unsigned long long` type of your machine.
 However, this bound is far beyond limits of practical uses of these programs
 as with the big number of processed ideals one will get too big and complex
 graphs to comprehend.
+If you want to prevent possible overflows by performing needed checks you should
+enable GMP and debug support.
 
 COMPILATION
 -----------
-External dependencies are minimal: GMP, CMake and a C compiler.
+External dependencies are minimal: CMake and C compiler.
+Optional dependency is GMP which unlocks m_k function that calculates M_pi(m,k)
+dimension and also unlocks u_calculator utility.
 For building one can use standard cmake building procedure or run script
 tools/build.sh from the project's top dir.
 
