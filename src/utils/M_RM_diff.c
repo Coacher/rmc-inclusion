@@ -10,11 +10,11 @@
 #include "constants.h"
 
 const char* package = "Utility to visualize diff between M_pi(k) and RM_pi(k+1)";
-const char* version = "1.1.1";
+const char* version = "1.1.2";
 const char* progname = NULL;
 
 /* global debug level */
-int debug = 0;
+unsigned int debug = 0;
 
 static int handle_cmdline(int *argc, char ***argv);
 
