@@ -20,7 +20,7 @@
 #define WITH_RM_GRAPH   (1 << 2)
 
 const char* package = "Basic Reed-Muller codes plotter";
-const char* version = "3.1.2";
+const char* version = "3.1.3";
 const char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned char output_control = 0;
@@ -30,13 +30,15 @@ unsigned int o_weight = 10;
 unsigned char use_groups = 0;
 
 /* global debug level */
-int debug = 0;
+unsigned int debug = 0;
 
 static int handle_cmdline(int *argc, char ***argv);
 
 int main(int argc, char **argv) {
     unsigned long long i;
-    FILE *info_out, *graph_out, *rm_graph_out;
+    FILE* info_out      = NULL;
+    FILE* graph_out     = NULL;
+    FILE* rm_graph_out  = NULL;
 
     IDEAL* pp;
     IDEAL** Ms;
