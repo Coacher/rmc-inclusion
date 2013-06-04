@@ -13,12 +13,12 @@
 #define WITH_RMs      (1 << 1)
 
 const char* package = "Ms and RMs structure visualizer";
-const char* version = "1.1.1";
+const char* version = "1.1.2";
 const char* progname = NULL;
 unsigned char output_control = 0;
 
 /* global debug level */
-int debug = 0;
+unsigned int debug = 0;
 
 static int handle_cmdline(int *argc, char ***argv);
 
