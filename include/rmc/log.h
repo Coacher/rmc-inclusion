@@ -3,7 +3,7 @@
 #define _LOG_H
 
 /* global debug level */
-extern int debug;
+extern unsigned int debug;
 
 /* timing stuff */
 #ifdef ENABLE_DEBUG
@@ -48,11 +48,11 @@ do {            \
 /* prints to stderr if debug is set to non-zero */
 void dbg_msg(const char *fmt, ...);
 /* prints to stderr if debug is gt level */
-void dbg_msg_l(int level, const char *fmt, ...);
+void dbg_msg_l(unsigned int level, const char *fmt, ...);
 
 /* gmp analogs */
 /* prints to stderr if debug is set to non-zero */
 void gmp_dbg_msg(const char *fmt, ...);
 /* prints to stderr if debug is gt level */
-void gmp_dbg_msg_l(int level, const char *fmt, ...);
+void gmp_dbg_msg_l(unsigned int level, const char *fmt, ...);
 #endif
