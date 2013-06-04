@@ -25,7 +25,9 @@ IDEAL* ideal_create(unsigned long long q) {
     return M;
 }
 
-int ideal_init(IDEAL* M, unsigned long long pi, unsigned int m, unsigned long long k) {
+int ideal_init(IDEAL* M,
+        unsigned long long pi, unsigned int m, unsigned long long k) {
+
     unsigned long long i;
 
     if (M == NULL)
@@ -54,7 +56,9 @@ void ideal_free(IDEAL* M) {
 }
 
 #ifdef ENABLE_GMP
-void m_k(mpz_t rop, unsigned long long pi, unsigned int m, unsigned long long k) {
+void m_k(mpz_t rop,
+        unsigned long long pi, unsigned int m, unsigned long long k) {
+
     unsigned int j;
     mpz_t tmp1, tmp2;
 
@@ -65,7 +69,7 @@ void m_k(mpz_t rop, unsigned long long pi, unsigned int m, unsigned long long k)
 
     for (j = 0; j <= m; ++j) {
         bin_coeff(tmp1, m, j);
-        /* the next call requires special attention as parameters can overflow */
+        /* the next call needs special attention as parameters can overflow */
         bin_coeff(tmp2, m + k - pi*j, k - pi*j);
         mpz_mul(tmp1, tmp1, tmp2);
         if (j & 1)
@@ -153,13 +157,15 @@ int ideal_intersect(IDEAL* res, IDEAL* M, IDEAL* N) {
     }
 
     for (i = 0; i < res->q; ++i) {
-        res->u_s[i] = (M->u_s[i] == 1 && N->u_s[i] == 1);
+        res->u_s[i] = ((M->u_s[i] == 1) && (N->u_s[i] == 1));
     }
 
     return 0;
 }
 
-int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned int p) {
+int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j,
+        unsigned int p) {
+
     unsigned long long i, q;
     unsigned long long delta;
     unsigned long long div1, div2;
@@ -178,11 +184,6 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned int 
     q = M->q;
     for (i = 0; i < q; ++i) {
         if (M->u_s[i]) {
-            /* ensure i is max of {i, j} */
-            if (j > i) {
-                delta = i; i = j; j = delta;
-            }
-
             /* same as i + j == 2*(q - 1), but no overflow happens */
             if ( (i == (q - 1)) && (j == (q - 1)) ) {
                 res->u_s[0] = 1;
@@ -191,21 +192,22 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned int 
             } else if ( i <= (q - 2 - j) ) {
                 continue;
             /* the only possible option left for i, j is (i + j > q - 2) && (i + j < 2*(q - 1))
-            * i + j >= q - 1, therefore either i or j >= (q - 1) / 2
-            * and since i is max of {i,j}, i >= (q - 1) / 2 */
+             * i + j >= q - 1, therefore max{i,j} >= (q - 1) / 2 */
             } else {
                 /* same as delta = i + j - (q - 1), but no overflow happens */
-                if (p == 2) {
-                /* p == 2 therefore q is even and i >= q/2 - 1 */
-                    delta = i - ((q >> 1) - 1);
-                    delta += j;
-                    delta -= (q >> 1);
-                } else {
-                /* p > 2 and odd therefore q is odd */
+                if (i > j) {
+                    /* i >= (q - 1) / 2 */
                     delta = i - ((q - 1) >> 1);
                     delta += j;
-                    delta -= ((q - 1) >> 1);
+                } else {
+                    /* j >= (q - 1) / 2 */
+                    delta = j - ((q - 1) >> 1);
+                    delta += i;
                 }
+                delta -= ((q - 1) >> 1);
+                /* p == 2 therefore q is odd so (q - 1) / 2 == (q - 2) / 2
+                 * and we need to substract additional 1 */
+                if (p == 2) --delta;
 
                 if (res->u_s[delta]) {
                     /* Qu_delta already in res so don't bother */
@@ -237,7 +239,9 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j, unsigned int 
     return 0;
 }
 
-int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N, unsigned int p) {
+int ideal_product(IDEAL* res, IDEAL* M, IDEAL* N,
+        unsigned int p) {
+
     unsigned long long j;
     int ret;
 
@@ -290,14 +294,14 @@ void ideal_print_verbose(IDEAL* M) {
 
     /* i = M->q - 1 */
     if (!M->u_s[i]) {
-        /* only the whole group algebra contains u_(q-1) */
+        /* only the whole group algebra QH contains u_(q-1) */
         fprintf(stdout, "\n");
     } else {
         fprintf(stdout, " u_%llu\n", i);
     }
 }
 
-unsigned long long minimum_Pi_for_P(unsigned long long j, \
+unsigned long long minimum_Pi_for_P(unsigned long long j,
         unsigned int p, unsigned int m, unsigned int lambda) {
 
     unsigned long long i;
@@ -321,7 +325,7 @@ static unsigned long long lift(unsigned long long t,
     return p*(t + 1) + m*(p - 1) - 1;
 }
 
-unsigned long long maximum_Pi_for_P(unsigned long long j, \
+unsigned long long maximum_Pi_for_P(unsigned long long j,
         unsigned int p, unsigned int m) {
 
     unsigned long long i;
@@ -344,8 +348,9 @@ unsigned long long maximum_Pi_for_P(unsigned long long j, \
     return ret;
 }
 
-unsigned long long minimum_P_for_Pi(unsigned long long k, \
+unsigned long long minimum_P_for_Pi(unsigned long long k,
         unsigned int p, unsigned int m) {
+
     unsigned long long j, k_j;
 
     j = k_j = 0;
@@ -358,13 +363,14 @@ unsigned long long minimum_P_for_Pi(unsigned long long k, \
     return j;
 }
 
-unsigned long long maximum_P_for_Pi(unsigned long long k, \
-        unsigned int p, unsigned int m, \
+unsigned long long maximum_P_for_Pi(unsigned long long k,
+        unsigned int p, unsigned int m,
         unsigned int l, unsigned int lambda,
-        unsigned long long top_index) {
+        unsigned long long upper_bound) {
+
     unsigned long long j, k_j;
 
-    if ((k_j = (top_index - k)) <= 1)
+    if ((k_j = (upper_bound - k)) <= 1)
         return l*(p - 1) - k_j;
 
     j = l*(p - 1) - 1;
