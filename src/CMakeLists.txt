@@ -57,8 +57,11 @@ set(UTILITIES
     M_RM_print
     Rads_print
     RM_collision
-    u_calculator
 )
+
+if (WITH_GMP)
+    set(UTILITIES ${UTILITIES} u_calculator)
+endif (WITH_GMP)
 
 foreach (UTILITY ${UTILITIES})
     add_executable(${UTILITY} utils/${UTILITY}.c $<TARGET_OBJECTS:constants>)
