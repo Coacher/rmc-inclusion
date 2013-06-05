@@ -10,7 +10,7 @@
 
 #include "rmc/log.h"
 #include "rmc/ideals.h"
-#include "constants.h"
+#include "rmc/constants.h"
 #include "color.h"
 
 #define WAS_SPECIFIED_M         1
@@ -21,7 +21,7 @@
 #define MAX_LABEL_LENGTH    512
 
 const char* package = "Utility to visualize diff between M_pi(m,k) and Rad^j";
-const char* version = "1.0.2";
+const char* version = "1.0.3";
 const char* progname = NULL;
 unsigned char output_control = 0;
 unsigned char use_colors = 0;

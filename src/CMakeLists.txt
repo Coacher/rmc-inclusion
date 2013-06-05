@@ -1,5 +1,4 @@
 set(RMC_LINK_LIBRARIES rmc gmp)
-add_library(constants OBJECT constants.c)
 
 
 project(rmc-ig)
@@ -10,7 +9,7 @@ set(rmc-ig_SOURCES
     rmc-ig.c
 )
 
-add_executable(rmc-ig ${rmc-ig_SOURCES} $<TARGET_OBJECTS:constants>)
+add_executable(rmc-ig ${rmc-ig_SOURCES})
 target_link_libraries(rmc-ig ${RMC_LINK_LIBRARIES})
 
 install(TARGETS rmc-ig
@@ -26,7 +25,7 @@ set(rmc-short_SOURCES
     rmc-short.c
 )
 
-add_executable(rmc-short ${rmc-short_SOURCES} $<TARGET_OBJECTS:constants>)
+add_executable(rmc-short ${rmc-short_SOURCES})
 target_link_libraries(rmc-short ${RMC_LINK_LIBRARIES})
 
 install(TARGETS rmc-short
@@ -41,7 +40,7 @@ set(rmc-diff_SOURCES
     rmc-diff.c
 )
 
-add_executable(rmc-diff ${rmc-diff_SOURCES} $<TARGET_OBJECTS:constants>)
+add_executable(rmc-diff ${rmc-diff_SOURCES})
 target_link_libraries(rmc-diff ${RMC_LINK_LIBRARIES})
 
 install(TARGETS rmc-diff
@@ -64,7 +63,7 @@ if (WITH_GMP)
 endif (WITH_GMP)
 
 foreach (UTILITY ${UTILITIES})
-    add_executable(${UTILITY} utils/${UTILITY}.c $<TARGET_OBJECTS:constants>)
+    add_executable(${UTILITY} utils/${UTILITY}.c)
     target_link_libraries(${UTILITY} ${RMC_LINK_LIBRARIES})
 
     install(TARGETS ${UTILITY}

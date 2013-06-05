@@ -7,10 +7,10 @@
 
 #include "rmc/log.h"
 #include "rmc/ideals.h"
-#include "constants.h"
+#include "rmc/constants.h"
 
 const char* package = "RMs collision detector";
-const char* version = "1.1.2";
+const char* version = "1.1.3";
 const char* progname = NULL;
 
 /* global debug level */

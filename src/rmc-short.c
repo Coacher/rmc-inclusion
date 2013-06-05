@@ -9,13 +9,13 @@
 
 #include "rmc/log.h"
 #include "rmc/ideals.h"
-#include "constants.h"
+#include "rmc/constants.h"
 #include "graph.h"
 
 #define MAX_FILENAME_LEN 128
 
 const char* package = "Basic Reed-Muller codes shortened graph generator";
-const char* version = "1.2.4";
+const char* version = "1.2.5";
 const char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned int m_weight = 1000;

@@ -7,10 +7,10 @@
 
 #include "rmc/common.h"
 #include "rmc/ideals.h"
-#include "constants.h"
+#include "rmc/constants.h"
 
 const char* package = "u_s calculator";
-const char* version = "1.1.3";
+const char* version = "1.1.4";
 const char* progname = NULL;
 
 /* indexes of two elements to multiply */

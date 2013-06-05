@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #include "rmc/ideals.h"
-#include "constants.h"
+#include "rmc/constants.h"
 
 /* prints out Ms and Rads inclusion graph */
 void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads,

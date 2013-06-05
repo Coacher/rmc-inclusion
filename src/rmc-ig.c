@@ -9,7 +9,7 @@
 #include "rmc/log.h"
 #include "rmc/common.h"
 #include "rmc/ideals.h"
-#include "constants.h"
+#include "rmc/constants.h"
 #include "info.h"
 #include "graph.h"
 
@@ -20,7 +20,7 @@
 #define WITH_RM_GRAPH   (1 << 2)
 
 const char* package = "Basic Reed-Muller codes plotter";
-const char* version = "3.1.3";
+const char* version = "3.1.4";
 const char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned char output_control = 0;
