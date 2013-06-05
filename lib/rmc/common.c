@@ -38,7 +38,6 @@ void bin_coeff(mpz_t rop, long long n, long long m) {
 
     if (n < 0) {
         /* \binom{n}{m} = (-1)^m*\binom{m-n-1}{m}, when n < 0 <= m */
-        /* won't overflow in our use cases */
         n = m - n - 1;
         sign = (m & 1) ? -1 : 1;
     }

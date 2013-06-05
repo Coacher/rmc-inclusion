@@ -62,7 +62,7 @@ void dbg_msg_l(unsigned int level, const char *fmt, ...)
 /* write message to stderr if debug >= 0 */
 void gmp_dbg_msg(const char *fmt, ...)
 {
-#if defined ENABLE_DEBUG && defined ENABLE_GMP
+#if defined(ENABLE_DEBUG) && defined(ENABLE_GMP)
     if (debug) {
         va_list args;
 
@@ -82,7 +82,7 @@ void gmp_dbg_msg(const char *fmt, ...)
 /* write message to stderr if debug >= level */
 void gmp_dbg_msg_l(unsigned int level, const char *fmt, ...)
 {
-#if defined ENABLE_DEBUG && defined ENABLE_GMP
+#if defined(ENABLE_DEBUG) && defined(ENABLE_GMP)
     if (debug >= level) {
         va_list args;
 

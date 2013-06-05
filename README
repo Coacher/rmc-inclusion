@@ -62,8 +62,8 @@ by the size of `unsigned long long` type of your machine.
 However, this bound is far beyond limits of practical uses of these programs
 as with the big number of processed ideals one will get too big and complex
 graphs to comprehend.
-If you want to prevent possible overflows by performing needed checks you should
-enable GMP and debug support.
+If you want to prevent possible overflows and wraps by performing needed checks
+you should enable debug support.
 
 COMPILATION
 -----------

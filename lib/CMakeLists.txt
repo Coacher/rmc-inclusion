@@ -1,12 +1,13 @@
 project(librmc)
 
-set(LIBRARY_VERSION "1.3.1")
+set(LIBRARY_VERSION "1.4.0")
 set(LIBRARY_SOVERSION "1")
 
 set(LIBRMC_LINK_LIBRARIES gmp)
 
 file(GLOB librmc_SOURCES rmc/*.c)
 
+# enable debug support
 if (WITH_DEBUG)
     add_definitions(-DENABLE_DEBUG)
 endif (WITH_DEBUG)
