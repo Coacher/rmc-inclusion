@@ -2,10 +2,10 @@ rmc-inclusion README -- Important introductory notes.
 Copyright (C) 2012, 2013 Tumaykin Ilya <itumaykin[at]gmail[dot]com>
 See the end of this document for copying conditions.
 
-rmc-inclusion: the project dedicated to construction and plotting inclusion
-graphs of certain ideals M_pi(m,k) called basic Reed-Muller codes (see [0]) and
-radical powers in a certain group algebra QH, where Q is a finite field
-with characteristic p and size q = p^l and H is a group isomorphic
+rmc-inclusion: this project is dedicated to construction and plotting inclusion
+graphs of certain ideals M_pi(m,k), called basic Reed-Muller codes (see [0]),
+and radical powers in a certain group algebra QH, where Q is a finite field
+with characteristic p and order q = p^l and H is a group isomorphic
 to (Q, +) - additive group of field Q.
 
 [0]: E. Couselo, S. Gonzalez, V. Markov, C. Martinez, A. Nechaev,
@@ -15,11 +15,11 @@ to (Q, +) - additive group of field Q.
 
 README
 ------
-It is a known fact (see [0]) that in the case of prime field
+It is a known fact (see [0]) that in the case of a prime subfield of Q
 all basic Reed-Muller codes are simply equal to radical powers.
-However, there are no such equalities in the case of non-prime field,
-except trivial ones. This program helps to study the layout of these ideals
-in a non-prime cases.
+However, there are no such equalities in the case of a non-prime subfield of Q,
+except for trivial ones. This program helps to study the layout of these ideals
+in non-prime cases.
 
 This project consists of 3 main parts: librmc, rmc-{diff,ig,short} tools and
 a number of small useful utilities.
@@ -46,8 +46,8 @@ theoretical results to obtain almost* transitively reduced inclusion graph.
 It is much faster than rmc-ig and plots only needed M_pi(m,k), omitting trivial
 inclusion chains.
 Note: 'almost' means that the graph would be transitively reduced with
-possible exceptions to links between consecutive radical powers
-which sometimes are redundant. However, this applies only to a very small cases,
+the possible exceptions to links between consecutive radical powers,
+which sometimes are redundant. However, this only applies to a very small cases,
 namely p = lambda = 2 and even l.
 
 utils: a number of small utilities which are designed to print out some special
@@ -68,7 +68,7 @@ you should enable debug support.
 COMPILATION
 -----------
 External dependencies are minimal: CMake and C compiler.
-Optional dependency is GMP which unlocks m_k function that calculates M_pi(m,k)
+Optional dependency is GMP, which unlocks m_k function that calculates M_pi(m,k)
 dimension and also unlocks u_calculator utility.
 For building one can use standard cmake building procedure or run script
 tools/build.sh from the project's top dir.
