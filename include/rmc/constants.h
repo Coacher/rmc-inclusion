@@ -8,7 +8,7 @@
  * constants that define our behaviour:
  *  p - prime integer
  *  l - any positive integer
- *  lambda - any divisor of l, except 1
+ *  lambda - any divisor of l, but generally lambda != 1
  *
  * other constants:
  *  q  = p^l

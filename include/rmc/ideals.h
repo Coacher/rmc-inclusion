@@ -10,9 +10,9 @@
 #include "log.h"
 
 /*
- * Structure representing M_pi(m, k) ideal in a group algebra QH,
- * where Q is a finite field of characteristic p and size q = p^l
- * and H is a group isomorphic to (Q, +) - additive group of field Q.
+ * Structure representing a M_pi(m, k) ideal in a group algebra QH,
+ * where Q is a finite field of characteristic p and order q = p^l
+ * and H is a group isomorphic to (Q, +) - additive group of the field Q.
  *
  * In this representation we rely on the fact that these ideals
  * are composed from basis elements of a special form -

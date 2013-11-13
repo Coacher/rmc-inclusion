@@ -399,18 +399,18 @@ void print_graph_beautiful(FILE* out,
         if (Rad_to_Mpi[i] < Mpi_to_Rad[j]) {
             /*
              * we don't need to check whether previous == Rad_to_Mpi[i] here
-             * assume Rad_to_Mpi[i] == previous and we have (i,j) values of indexes
-             * we can get into (i,j) state in 3 ways:
+             * indeed, assume Rad_to_Mpi[i] == previous and indices are (i,j)
+             * we can get to (i,j) state in 3 ways:
              * 1. (i+1, j+1) --> (i,j)
              *  then Rad_to_Mpi[i + 1] == Mpi_to_Rad[j + 1] == previous,
-             *  therefore Rad_to_Mpi[i] == Rad_to_Mpi[i + 1] which cannot be since
-             *  all elements in Rad_to_Mpi array are different
+             *  therefore Rad_to_Mpi[i] == Rad_to_Mpi[i + 1] and we obtain contradiction
+             *  since all elements in Rad_to_Mpi array are different
              * 2. (i, j+1) --> (i,j)
              *  then previous == Mpi_to_Rad[j + 1] == Rad_to_Mpi[i] < Rad_to_Mpi[i]
              *  therefore we get contradiction
              * 3. (i+1, j) --> (i,j)
              *  then previous == Rad_to_Mpi[i+1] == Rad_to_Mpi[i] which again
-             *  cannot be as all elements in Rad_to_Mpi array are different
+             *  leads to contradiction as all elements in Rad_to_Mpi array are different
              */
             if (previous + 1 == Rad_to_Mpi[i]) {
                 fprintf(out, "\tM_%llu_%u_%llu -> M_%llu_%u_%llu [weight = %llu];\n", \
@@ -458,7 +458,7 @@ void print_graph_beautiful(FILE* out,
         }
     }
 
-    /* this block handles situation when i == j == 2 in the end of previous while
+    /* this block handles situation when i == j == 2 in the end of the previous while
      * when this happens we don't want to create
      * Mpi_to_Rad[j] -> Rad_to_Mpi[j] link as it will duplicate
      * already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
@@ -480,8 +480,8 @@ void print_graph_beautiful(FILE* out,
         previous = Mpi_to_Rad[j];
     }
 
-    /* Mpi_to_Rad[2] is never equal to M_pi(m, numofMs - 2) == Rad because
-     * for any j < l(p - 1) and k such that k is minimum such that P_j \susbet \Pi_k
+    /* Mpi_to_Rad[2] never equals to M_pi(m, numofMs - 2) == Rad because
+     * for any j < l(p - 1) and k such that k is a minimum such that P_j \susbet \Pi_k
      * there exists t such that weight(t, p) == j, weight(t, pi) == k and
      * weight(t + 1, p) == j + 1, weight(t + 1, pi) == k + 1.
      * Therefore if Mpi_to_Rad[2] == M_pi(m, numofMs - 2) then there exists

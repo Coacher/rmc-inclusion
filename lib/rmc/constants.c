@@ -16,7 +16,7 @@ void init_constants(void) {
     unsigned int i;
 
     /* p, l, lambda must be all initialized with some non-zero values at this point
-     * it is up to applications to enforce this */
+     * applications must enforce this themselves */
 
     /* res = p^l */
     res = p;
