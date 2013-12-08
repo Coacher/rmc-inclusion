@@ -5,17 +5,17 @@
 #include "rmc/common.h"
 
 /*
- * constants that define our behaviour:
- *  p - prime integer
- *  l - any positive integer
- *  lambda - any divisor of l, but generally lambda != 1
+ * primary constants:
+ *   p - any prime integer
+ *   l - any integer such that l >= 2
+ *   lambda - any positive divisor of l, but generally lambda != 1
  *
- * other constants:
- *  q  = p^l
- *  pi = p^lambda
- *  m = l / lambda
- *  numofMs - number of M_pi ideals
- *  nilindex - number of M_p ideals (radical powers)
+ * secondary constants:
+ *   q  = p^l
+ *   pi = p^lambda
+ *   m  = l / lambda
+ *   numofMs - the number of M_pi ideals
+ *   nilindex - the number of M_p ideals (radical powers)
  *
  */
 
@@ -23,6 +23,7 @@ unsigned int p, l, lambda, m;
 unsigned long long q, pi;
 unsigned long long numofMs, nilindex;
 
-/* init the rest of constants according to already set values of p, l, lambda */
+/* init secondary constants according to the values of primary ones
+ * primary constants must be already set prior to this function call */
 void init_constants(void);
 #endif

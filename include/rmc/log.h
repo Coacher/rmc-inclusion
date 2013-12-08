@@ -45,10 +45,14 @@ do {            \
 #define DEBUG_CALL_L(LEVEL, EXP)
 #endif
 
+/* these functions are no-op if ENABLE_DEBUG is not set */
+
 /* prints to stderr if debug is set to non-zero */
 void dbg_msg(const char *fmt, ...);
 /* prints to stderr if debug is gt level */
 void dbg_msg_l(unsigned int level, const char *fmt, ...);
+
+/* these functions are no-op if ENABLE_DEBUG and ENABLE_GMP are not set */
 
 /* gmp analogs */
 /* prints to stderr if debug is set to non-zero */
