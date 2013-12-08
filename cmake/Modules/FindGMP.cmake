@@ -1,15 +1,16 @@
-# Try to find GMP library
-# If found the following variables are defined:
+# - Try to find GMP library
+# Once done this will define the following variables:
 #
 #   GMP_FOUND - system has GMP
 #   GMP_INCLUDE_DIRS - GMP include directory
 #   GMP_LIBRARIES - link these to use GMP
-#   GMP_DEFINITIONS - compiler switches required for GMP
+#   GMP_DEFINITIONS - compiler switches required for using GMP
 #
-# Based on CMake module (part of libssh) by Andreas Schneider <asn@cynapses.org>
+# Based on FindArgp.cmake module by Andreas Schneider <asn@cynapses.org>
+# FindArgp.cmake is a part of libssh project.
 #
-# Redistribution and use is allowed according to the terms of
-# the New BSD license.
+# Redistribution and use is allowed according to
+# the terms of the New BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
 
