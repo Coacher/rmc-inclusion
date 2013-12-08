@@ -1,7 +1,7 @@
 /* needed GLOBAL variables */
 
 #ifdef ENABLE_DEBUG
-/* enable overflow/wrap checking */
+/* used for overflow/wrap checks */
 #include <stdlib.h>
 #include <limits.h>
 
@@ -15,7 +15,7 @@ void init_constants(void) {
     unsigned long long res;
     unsigned int i;
 
-    /* p, l, lambda must be all initialized with some non-zero values at this point
+    /* p, l, lambda must be initialized with non-zero values at this point
      * applications must enforce this themselves */
 
     /* res = p^l */
@@ -42,7 +42,7 @@ void init_constants(void) {
     /* res = numofMs */
     m = l / lambda;
     if ((m == 0) || (res - 1 >= ULLONG_MAX / m)) {
-        dbg_msg_l(0, "Warning! Value of numofMs = m*(pi - 1) is greater than ULLONG_MAX.\n");
+        dbg_msg_l(0, "Warning! Value of numofMs - 1 = m*(pi - 1) is greater than ULLONG_MAX.\n");
         exit(EXIT_FAILURE);
     }
     res = m*(res - 1);
@@ -54,7 +54,7 @@ void init_constants(void) {
     /* res = nilindex - 1 */
     /* paranoid check because if numofMs fits in ull then nilindex would too */
     if (p - 1 >= ULLONG_MAX / l) {
-        dbg_msg_l(0, "Warning! Value of nilindex = l*(p - 1) is greater than ULLONG_MAX.\n");
+        dbg_msg_l(0, "Warning! Value of nilindex - 1 = l*(p - 1) is greater than ULLONG_MAX.\n");
         exit(EXIT_FAILURE);
     }
     res = l*(p - 1);
@@ -66,7 +66,7 @@ void init_constants(void) {
 #ifdef ENABLE_GMP
     /* bin_coeff and m_k functions are vulnerable to overflows/wraps if not used with care */
 
-    /* bin_coeff must work correctly with all possible u_s indexes
+    /* bin_coeff must work correctly with all possible u_s indices
      * therefore the greatest index must fit in long long
      * moreover bin_coeff uses mpz_bin_uiui internally so the greatest index must fit in ul as well */
 
@@ -74,22 +74,24 @@ void init_constants(void) {
     res = pow_ull(p, lambda);
     res = m*(res - 1);
     if (res >= ULONG_MAX || res >= LLONG_MAX) {
-        dbg_msg_l(0, "Warning! bin_coeff will not work correctly with the given p, l, lambda values. You should lower some of them.\n");
+        dbg_msg_l(0, "Warning! bin_coeff will not work correctly with the given p, l, lambda values. You should decrease some of them.\n");
         exit(EXIT_FAILURE);
     }
 
-    /* m_k must work correctly with all possible u_s indexes
-     * limits for input indexes are already handled, but m_k uses bin_coeff internally
-     * so some addtional precautions should be made:
+    /* m_k must work correctly with all possible u_s indices
+     * input parameters' limits are already handled, but m_k uses bin_coeff internally
+     * so some additional checks should be made:
      * 1. m + k - pi*j >= 0 && k - pi*j >= 0
-     *  m + k - pi*j must fit in long long and ul therefore pi*m must fit the same
-     *  in this case k - pi*j will fit in long long and ul automatically
+     *   m + k - pi*j must fit in long long and ul
+     *   therefore pi*m must satisfy the same conditions
+     *   in this case k - pi*j will fit in long long and ul automatically
      * 2. m + k - pi*j < 0 && k - pi*j >= 0
-     *  impossible since m >= 0
+     *   impossible since m >= 0
      * 3. k - pi*j < 0
-     *  k - pi*j must fit in long long therefore -pi*m must fit the same */
+     *   k - pi*j must fit in long long
+     *   therefore -pi*m must satisfy the same conditions */
     if (res >= ULONG_MAX - m || res >= LLONG_MAX - m || res >= -(LLONG_MIN + m)) {
-        dbg_msg_l(0, "Warning! m_k will not work correctly with the given p, l, lambda values. You should lower some of them.\n");
+        dbg_msg_l(0, "Warning! m_k will not work correctly with the given p, l, lambda values. You should decrease some of them.\n");
         exit(EXIT_FAILURE);
     }
 #endif

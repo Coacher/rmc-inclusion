@@ -1,4 +1,4 @@
-/* code for M_pi(m,k) ideals and related functions */
+/* M_pi(m,k) ideals and related functions */
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -192,7 +192,7 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j,
             } else if ( i <= (q - 2 - j) ) {
                 continue;
             /* the only possible option left for i, j is (i + j > q - 2) && (i + j < 2*(q - 1))
-             * i + j >= q - 1, therefore max{i,j} >= (q - 1) / 2 */
+             * since i + j >= q - 1, we have max{i,j} >= (q - 1) / 2 */
             } else {
                 /* same as delta = i + j - (q - 1), but no overflow happens */
                 if (i > j) {
@@ -213,10 +213,10 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j,
                     /* Qu_delta already in res so don't bother */
                     continue;
                 } else {
-                    /* u_i * u_j is non-zero first when i + j > q - 2
-                     * and second when \binom{i}{delta} != 0 mod p
+                    /* u_i * u_j is non-zero first, when i + j > q - 2;
+                     * second, when \binom{i}{delta} != 0 mod p;
                      * we use Lucas theorem to avoid computing of \binom here
-                     * and comparing only p-digits of i and delta */
+                     * and comparing only p-coordinates of i and delta */
                     digit1 = i % p;
                     digit2 = delta % p;
                     div1 = i;
