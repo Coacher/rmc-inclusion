@@ -1,11 +1,11 @@
-/* functions related to printing Ms, Rads and RMs structure info */
+/* functions for printing Ms, Rads and RadMs structure info */
 #ifdef ENABLE_GMP
 #include <gmp.h>
 #endif
 
 #include "info.h"
 
-void print_info(FILE* out, IDEAL** Ms, IDEAL** Rads, IDEAL** RMs) {
+void print_info(FILE* out, IDEAL** Ms, IDEAL** Rads, IDEAL** RadMs) {
     unsigned long long i, j;
 
 #ifdef ENABLE_GMP
@@ -23,14 +23,14 @@ void print_info(FILE* out, IDEAL** Ms, IDEAL** Rads, IDEAL** RMs) {
     fprintf(out, "Total number of M_p's:  %-llu\n\n", nilindex);
 
 #ifdef ENABLE_GMP
-    fprintf(out, "M_pi's dimensions:\n");
+    fprintf(out, "(M_pi)s dimensions:\n");
     for (i = 0; i < numofMs; ++i) {
         m_k(dim, pi, m, i);
         gmp_fprintf(out, "M_%llu(%u,%lu):\t\tdim = %Zd\n", pi, m, i, dim);
     }
     fprintf(out, "\n");
 
-    fprintf(out, "M_p's dimensions:\n");
+    fprintf(out, "(M_p)s dimensions:\n");
     for (i = 0; i < nilindex; ++i) {
         m_k(dim, p, l, i);
         gmp_fprintf(out, "Rad^%lu == M_%lu(%u,%lu):\tdim = %Zd\n", l*(p - 1) - i, p, l, i, dim);
@@ -48,10 +48,10 @@ void print_info(FILE* out, IDEAL** Ms, IDEAL** Rads, IDEAL** RMs) {
     }
 
     fprintf(out, "\n");
-    fprintf(out, "Detected Ms <-> RMs equalities:\n");
+    fprintf(out, "Detected Ms <-> RadMs equalities:\n");
     for (i = 0; i < numofMs; ++i) {
         for (j = 0; j < numofMs; ++j) {
-            if (ideal_isequal(Ms[i], RMs[j])) {
+            if (ideal_isequal(Ms[i], RadMs[j])) {
                 fprintf(out, "Rad*M_%llu(%u,%llu) == M_%llu(%u,%llu)\n", pi, m, j, pi, m, i);
             }
         }

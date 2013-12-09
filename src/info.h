@@ -1,4 +1,4 @@
-/* functions related to printing Ms, Rads and RMs structure info */
+/* functions for printing Ms, Rads and RadMs structure info */
 #ifndef _INFO_H
 #define _INFO_H
 
@@ -8,5 +8,5 @@
 #include "rmc/constants.h"
 
 /* print out all needed info */
-void print_info(FILE* out, IDEAL** Ms, IDEAL** Rads, IDEAL** RMs);
+void print_info(FILE* out, IDEAL** Ms, IDEAL** Rads, IDEAL** RadMs);
 #endif
