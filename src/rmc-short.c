@@ -15,7 +15,7 @@
 #define MAX_FILENAME_LEN 128
 
 const char* package = "Basic Reed-Muller codes shortened graph generator";
-const char* version = "1.2.5";
+const char* version = "1.2.6";
 const char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned int m_weight = 1000;
@@ -84,12 +84,12 @@ static int handle_cmdline(int *argc, char ***argv) {
     };
     const char *opts_help[] = {
         "Specifies characteristic of field, must be a prime.",
-        "Specifies size of field as an exponent of characteristic.",
+        "Specifies order of field as an exponent of characteristic.",
         "Specifies series of ideals, can be any factor of exponent, except for 1.",
         "Write output to stdout.",
-        "Specifies weight to use for Ms links in graph construction. Default 1000.",
-        "Specifies weight to use for Rads links in graph construction. Default 1000.",
-        "Specifies weight to use for Rads<->Ms links in graph construction. Default 10.",
+        "Specifies weight to use for Ms arcs in graph construction. Default 1000.",
+        "Specifies weight to use for Rads arcs in graph construction. Default 1000.",
+        "Specifies weight to use for Rads<->Ms arcs in graph construction. Default 10.",
         "Disable grouping of Rads and Ms when plotting Ms/Rads inclusion graph.",
         "Increase debugging level.",
         "Print version information.",
