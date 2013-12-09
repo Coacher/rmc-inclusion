@@ -12,9 +12,9 @@ if [ -d "$1-$2-$3" ]; then
         dot -Tsvg "inclusion_tree_$1-$2-$3_reduced.gv" > "inclusion_tree_$1-$2-$3.svg"
     fi
 
-    if [ -f "rm_inclusion_tree_$1-$2-$3.gv" ]; then
-        tred "rm_inclusion_tree_$1-$2-$3.gv" > "rm_inclusion_tree_$1-$2-$3_reduced.gv"
-        dot -Tsvg "rm_inclusion_tree_$1-$2-$3_reduced.gv" > "rm_inclusion_tree_$1-$2-$3.svg"
+    if [ -f "radm_inclusion_tree_$1-$2-$3.gv" ]; then
+        tred "radm_inclusion_tree_$1-$2-$3.gv" > "radm_inclusion_tree_$1-$2-$3_reduced.gv"
+        dot -Tsvg "radm_inclusion_tree_$1-$2-$3_reduced.gv" > "radm_inclusion_tree_$1-$2-$3.svg"
     fi
 else
     echo "Directory $1-$2-$3 does not exist."
