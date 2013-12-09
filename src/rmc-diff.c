@@ -1,7 +1,7 @@
-/* This program will visualize diff between two given ideals: M_pi(m, i) and Rad^j.
- * Given two indexes i and j it will print the diff between M_pi(m, i) and Rad^j.
+/* This program will visualize the diff between two given ideals: M_pi(m, i) and Rad^j.
+ * Given two indices i and j it will print the diff between M_pi(m, i) and Rad^j.
  * If only one index is specified it will construct the shortest chain consisting of
- * the specified ideal and two closest ideals from the other family of ideals. */
+ * the specified ideal and two nearest ideals from the other family of ideals. */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -20,13 +20,13 @@
 
 #define MAX_LABEL_LENGTH    512
 
-const char* package = "Utility to visualize diff between M_pi(m,k) and Rad^j";
-const char* version = "1.0.3";
+const char* package = "Utility to visualize the diff between M_pi(m,k) and Rad^j";
+const char* version = "1.0.5";
 const char* progname = NULL;
 unsigned char output_control = 0;
 unsigned char use_colors = 0;
 
-/* indexes of two ideals to compare */
+/* indices of two ideals to compare */
 unsigned long long i, j;
 
 /* global debug level */
@@ -34,8 +34,8 @@ unsigned int debug = 0;
 
 static int handle_cmdline(int *argc, char ***argv);
 
-/* returns non-zero when s is a special number */
-static int isspecial_number(unsigned long long s);
+/* returns a non-zero value iff s is a special integer */
+static int isspecial_integer(unsigned long long s);
 
 /* a function that does printing job for two given ideals M, N
  * N must be a subset of M, res is the same as in ideal_diff */
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
             if (debug >= 2) {
                 fprintf(stdout, "%s\t\t=\n", N_name);
                 if (use_colors) {
-                    color_ideal_print(SPECIAL_COLOR, Rads[0], isspecial_number);
+                    color_ideal_print(SPECIAL_COLOR, Rads[0], isspecial_integer);
                 } else {
                     ideal_print(Rads[0]);
                 }
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
             if (debug >= 2) {
                 fprintf(stdout, "%s\t\t=\n", M_name);
                 if (use_colors) {
-                    color_ideal_print(SPECIAL_COLOR, Ms[0], isspecial_number);
+                    color_ideal_print(SPECIAL_COLOR, Ms[0], isspecial_integer);
                 } else {
                     ideal_print(Ms[0]);
                 }
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
             if (debug >= 2) {
                 fprintf(stdout, "%s\t\t=\n", M_name);
                 if (use_colors) {
-                    color_ideal_print(SPECIAL_COLOR, Ms[0], isspecial_number);
+                    color_ideal_print(SPECIAL_COLOR, Ms[0], isspecial_integer);
                 } else {
                     ideal_print(Ms[0]);
                 }
@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
             if (debug >= 2) {
                 fprintf(stdout, "%s\t\t=\n", N_name);
                 if (use_colors) {
-                    color_ideal_print(SPECIAL_COLOR, Rads[0], isspecial_number);
+                    color_ideal_print(SPECIAL_COLOR, Rads[0], isspecial_integer);
                 } else {
                     ideal_print(Rads[0]);
                 }
@@ -187,7 +187,7 @@ int main(int argc, char **argv) {
         if (debug >= 2) {
             fprintf(stdout, "%s\t\t=\n", N_name);
             if (use_colors) {
-                color_ideal_print(SPECIAL_COLOR, Rads[0], isspecial_number);
+                color_ideal_print(SPECIAL_COLOR, Rads[0], isspecial_integer);
             } else {
                 ideal_print(Rads[0]);
             }
@@ -232,7 +232,7 @@ int main(int argc, char **argv) {
         if (debug >= 2) {
             fprintf(stdout, "%s\t\t=\n", M_name);
             if (use_colors) {
-                color_ideal_print(SPECIAL_COLOR, Ms[0], isspecial_number);
+                color_ideal_print(SPECIAL_COLOR, Ms[0], isspecial_integer);
             } else {
                 ideal_print(Ms[0]);
             }
@@ -277,10 +277,10 @@ static int handle_cmdline(int *argc, char ***argv) {
     };
     const char *opts_help[] = {
         "Specifies characteristic of field, must be a prime.",
-        "Specifies size of field as an exponent of characteristic.",
+        "Specifies order of field as an exponent of characteristic.",
         "Specifies series of ideals, can be any factor of exponent.",
-        "Specifies index of the M_pi(m, k) ideal. If none will compare against closest.",
-        "Specifies power of the Rad. If none will compare against closest.",
+        "Specifies k for the M_pi(m, k) ideal. If none given will compare against the nearest ones.",
+        "Specifies power of the Rad. If none given will compare against the nearest ones.",
         "Use colors in output. Currently only special elements are colored.",
         "Increase debugging level.",
         "Print version information.",
@@ -363,14 +363,14 @@ static int handle_cmdline(int *argc, char ***argv) {
     }
 
     if (!output_control) {
-        fprintf(stderr, "You must specify at least one of i or j options. See --help.\n");
+        fprintf(stderr, "You must specify at least one of i, j options. See --help.\n");
         exit(EXIT_FAILURE);
     }
 
     return 0;
 }
 
-static int isspecial_number(unsigned long long s) {
+static int isspecial_integer(unsigned long long s) {
     unsigned int isspecial = 1;
     unsigned long long res = 0;
 
@@ -396,7 +396,7 @@ static void print_diff(IDEAL* res, IDEAL* M, IDEAL* N,
         fprintf(stdout, "\n");
 
         if (with_colors) {
-            color_ideal_print(SPECIAL_COLOR, res, isspecial_number);
+            color_ideal_print(SPECIAL_COLOR, res, isspecial_integer);
         } else {
             ideal_print(res);
         }
@@ -405,7 +405,7 @@ static void print_diff(IDEAL* res, IDEAL* M, IDEAL* N,
     }
 
     if (with_colors) {
-        color_ideal_print_verbose(SPECIAL_COLOR, res, isspecial_number);
+        color_ideal_print_verbose(SPECIAL_COLOR, res, isspecial_integer);
     } else {
         ideal_print_verbose(res);
     }
