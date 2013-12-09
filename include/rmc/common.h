@@ -9,7 +9,7 @@
 /* simple double-and-add integer pow */
 unsigned long long pow_ull(unsigned int base, unsigned int power);
 
-/* calculates (pi)-adic weight of x */
+/* returns the (pi)-adic weight of x */
 unsigned long long weight(unsigned long long x, unsigned long long pi);
 
 #ifdef ENABLE_GMP

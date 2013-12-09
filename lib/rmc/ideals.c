@@ -205,18 +205,18 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j,
                     delta += i;
                 }
                 delta -= ((q - 1) >> 1);
-                /* p == 2 therefore q is odd so (q - 1) / 2 == (q - 2) / 2
-                 * and we need to substract additional 1 */
+                /* p == 2 therefore q is odd and (q - 1) / 2 == (q - 2) / 2
+                 * thus we need to substract additional 1 */
                 if (p == 2) --delta;
 
                 if (res->u_s[delta]) {
                     /* Qu_delta already in res so don't bother */
                     continue;
                 } else {
-                    /* u_i * u_j is non-zero first, when i + j > q - 2;
+                    /* u_i * u_j is non-zero first, when i + j > q - 2,
                      * second, when \binom{i}{delta} != 0 mod p;
                      * we use Lucas theorem to avoid computing of \binom here
-                     * and comparing only p-coordinates of i and delta */
+                     * and compare only p-coordinates of i and delta */
                     digit1 = i % p;
                     digit2 = delta % p;
                     div1 = i;
