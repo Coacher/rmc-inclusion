@@ -21,7 +21,7 @@
 #define MAX_LABEL_LENGTH    512
 
 const char* package = "Utility to visualize the diff between M_pi(m,k) and Rad^j";
-const char* version = "1.0.6";
+const char* version = "1.0.7";
 const char* progname = NULL;
 unsigned char output_control = 0;
 unsigned char use_colors = 0;
@@ -173,7 +173,7 @@ int main(int argc, char **argv) {
         ideal_init(pp, p, l, l*(p - 1) - j);
         Rads[0] = pp;
 
-        fprintf(stdout, "M_%llu(%u,%llu) --> Rad^%llu --> M_%llu(%u,%llu)\n\n",
+        fprintf(stdout, "M_%llu(%u,%llu) -> Rad^%llu -> M_%llu(%u,%llu)\n\n",
                 pi, m, Mpi_to_Rad, j, pi, m, Rad_to_Mpi);
 
         sprintf(N_name, "Rad^%llu", j);
@@ -218,7 +218,7 @@ int main(int argc, char **argv) {
         ideal_init(pp, pi, m, i);
         Ms[0] = pp;
 
-        fprintf(stdout, "Rad^%llu --> M_%llu(%u,%llu) --> Rad^%llu\n\n",
+        fprintf(stdout, "Rad^%llu -> M_%llu(%u,%llu) -> Rad^%llu\n\n",
                 l*(p - 1) - Rad_to_Mpi, pi, m, i, l*(p - 1) - Mpi_to_Rad);
 
         sprintf(M_name, "M_%llu(%u,%llu)", pi, m, i);
