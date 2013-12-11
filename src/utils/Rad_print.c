@@ -10,7 +10,7 @@
 #include "rmc/constants.h"
 
 const char* package = "Rads structure visualizer";
-const char* version = "1.2.0";
+const char* version = "1.2.1";
 const char* progname = NULL;
 
 /* global debug level */
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
         ideal_print(Rads[i]);
         if (debug && i) {
             ideal_diff(Rads[i - 1], Rads[i], Rads[i - 1]);
-            fprintf(stdout, "M_%u(%u,%llu) \\ M_%u(%u,%llu)\t\t=", p, l, i, p, l, i - 1);
+            fprintf(stdout, "M_%u(%u,%llu) \\ M_%u(%u,%llu)\t\t= ", p, l, i, p, l, i - 1);
             ideal_print_verbose(Rads[i - 1]);
         }
     }
