@@ -288,16 +288,16 @@ void ideal_print_verbose(IDEAL* M) {
 
     for (i = 0; i < (M->q - 1); ++i) {
         if (M->u_s[i]) {
-            fprintf(stdout, " u_%llu", i);
+            fprintf(stdout, "u_%llu ", i);
         }
     }
 
     /* i = M->q - 1 */
     if (!M->u_s[i]) {
         /* only the whole group algebra QH contains u_(q-1) */
-        fprintf(stdout, "\n");
+        fprintf(stdout, "\b\n");
     } else {
-        fprintf(stdout, " u_%llu\n", i);
+        fprintf(stdout, "u_%llu\n", i);
     }
 }
 

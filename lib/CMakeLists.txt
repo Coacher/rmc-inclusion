@@ -1,6 +1,6 @@
 project(librmc)
 
-set(LIBRARY_VERSION "1.4.0")
+set(LIBRARY_VERSION "1.4.1")
 set(LIBRARY_SOVERSION "1")
 
 set(LIBRMC_LINK_LIBRARIES gmp)
