@@ -13,7 +13,7 @@
 #define WITH_RADMs    (1 << 1)
 
 const char* package = "Ms and RadMs structure visualizer";
-const char* version = "1.2.0";
+const char* version = "1.2.1";
 const char* progname = NULL;
 unsigned char output_control = 0;
 
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
             ideal_print(Ms[i]);
             if (debug && i) {
                 ideal_diff(Ms[i - 1], Ms[i], Ms[i - 1]);
-                fprintf(stdout, "M_%llu(%u,%llu) \\ M_%llu(%u,%llu)\t\t=", pi, m, i, pi, m, i - 1);
+                fprintf(stdout, "M_%llu(%u,%llu) \\ M_%llu(%u,%llu)\t\t= ", pi, m, i, pi, m, i - 1);
                 ideal_print_verbose(Ms[i - 1]);
             }
         }
@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
             ideal_print(RadMs[i]);
             if (debug && i) {
                 ideal_diff(RadMs[i - 1], RadMs[i], RadMs[i - 1]);
-                fprintf(stdout, "Rad*M_%llu(%u,%llu) \\ Rad*M_%llu(%u,%llu)\t\t=", pi, m, i, pi, m, i - 1);
+                fprintf(stdout, "Rad*M_%llu(%u,%llu) \\ Rad*M_%llu(%u,%llu)\t\t= ", pi, m, i, pi, m, i - 1);
                 ideal_print_verbose(RadMs[i - 1]);
             }
         }
