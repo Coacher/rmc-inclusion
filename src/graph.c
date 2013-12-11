@@ -1,4 +1,4 @@
-/* functions related to printing Ms/Rads and Ms/RMs inclusion graphs */
+/* functions for printing Ms/Rads and Ms/RadMs inclusion graphs */
 #include <stdlib.h>
 #include <string.h>
 
@@ -22,10 +22,11 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads,
     fprintf(out, "\t];\n");
 
 
-    /* label Ms chain; it is proven that only these equalities hold:
-     *  M_pi(m, 0) == Rad^(nilindex - 1)
-     *  M_pi(m, numofMs - 2) == Rad^1 == Rad
-     *  M_pi(m, numofMs - 1) == Rad^0 == QH */
+    /* label Ms chain
+     * it is proven that only these equalities hold:
+     *   M_pi(m, 0) == Rad^(nilindex - 1)
+     *   M_pi(m, numofMs - 2) == Rad^1 == Rad
+     *   M_pi(m, numofMs - 1) == Rad^0 == QH */
     if (use_groups) {
         fprintf(out, "\tM_%llu_%u_%u [label = \"M_%llu(%u,%u) = Rad^%llu\", group = \"Ms\"];\n", \
                 pi, m, 0, pi, m, 0, nilindex - 1);
@@ -57,7 +58,7 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads,
     }
 
 
-    /* label Rads chain (except for those in equalities mentioned above) */
+    /* label Rads chain (except for those in the equalities mentioned above) */
     for (i = 2; i < nilindex - 1; ++i) {
         if (use_groups) {
             fprintf(out, "\tRad_%llu [label = \"Rad^%llu\", group = \"Rads\"];\n", i, i);
@@ -66,16 +67,16 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads,
         }
     }
 
-    /* construct Rads chain (except for those in equalities mentioned above) */
+    /* construct Rads chain (except for those in the equalities mentioned above) */
     for (i = 2; i < nilindex - 2; ++i) {
         fprintf(out, "\tRad_%llu -> Rad_%llu [weight = %llu];\n", i, i + 1, r_weight*nilindex);
     }
 
 
-    /* carcass is ready, fill it with inclusion links */
+    /* carcass is ready, fill it with inclusion arcs */
     fprintf(out, "# The rest of the file is generated in an automated manner and not meant to be read by human\n");
 
-    /* for each Rad create all needed links between Rad and Ms */
+    /* for each Rad create all needed arcs between Rad and Ms */
     for (j = 2; j < nilindex - 1; ++j) {
 
         for (i = 1; i < numofMs - 2; ++i) {
@@ -123,7 +124,7 @@ static int append_to_label(char** label, char* s) {
     return 0;
 }
 
-void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs,
+void print_radm_graph(FILE* out, IDEAL** Ms, IDEAL** RadMs,
         unsigned int m_weight) {
 
     unsigned long long i, j;
@@ -143,7 +144,7 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs,
         labels[i] = NULL;
 
 
-    fprintf(out, "digraph M_RM_inclusion {\n");
+    fprintf(out, "digraph M_RadM_inclusion {\n");
 
     /* global graph attributes */
     fprintf(out, "\tgraph [nodesep=\"3.0\",\n");
@@ -152,14 +153,17 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs,
     fprintf(out, "\t];\n");
 
 
-    /* label RMs taking collisions into account */
+    /* label RadMs taking collisions into account */
+    /* it is proven that all RadMs are different in the case lambda != l, i.e. m != 1
+     * it is proven that only the equalities Rad*M_pi(m,k + 1) == Rad*M_pi(m,k),
+     * where k = (p - 1) mod p, hold in the case lambda == l, i.e. m == 1 */
     for (i = 0; i < numofMs; ++i) {
-        if (RMs[i] == NULL)
+        if (RadMs[i] == NULL)
             continue;
 
         was_collision = 0;
         for (j = i + 1; j < numofMs; ++j) {
-            if (RMs[j] != NULL && ideal_isequal(RMs[i], RMs[j])) {
+            if (RadMs[j] != NULL && ideal_isequal(RadMs[i], RadMs[j])) {
                 if (!was_collision) {
                     was_collision = 1;
 
@@ -167,14 +171,14 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs,
                             pi, m, i, pi, m, j);
                     append_to_label(labels + i, buf);
 
-                    ideal_free(RMs[j]);
-                    RMs[j] = NULL;
+                    ideal_free(RadMs[j]);
+                    RadMs[j] = NULL;
                 } else {
                     sprintf(buf, " = Rad*M_%llu(%u,%llu)", pi, m, j);
                     append_to_label(labels + i, buf);
 
-                    ideal_free(RMs[j]);
-                    RMs[j] = NULL;
+                    ideal_free(RadMs[j]);
+                    RadMs[j] = NULL;
                 }
             }
         }
@@ -185,18 +189,18 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs,
         }
     }
 
-    /* label Ms chain taking collisions with RMs into account */
+    /* label Ms chain taking collisions with RadMs into account */
     for (i = 0; i < numofMs; ++i) {
         was_collision = 0;
 
         for (j = 1; j < numofMs; ++j) {
-            if (RMs[j] != NULL && ideal_isequal(Ms[i], RMs[j])) {
+            if (RadMs[j] != NULL && ideal_isequal(Ms[i], RadMs[j])) {
                 was_collision = 1;
                 fprintf(out, "\tM_%llu_%u_%llu [label = \"M_%llu(%u,%llu) = %s\"];\n", \
                         pi, m, i, pi, m, i, labels[j]);
 
-                ideal_free(RMs[j]);
-                RMs[j] = NULL;
+                ideal_free(RadMs[j]);
+                RadMs[j] = NULL;
                 break;
             }
         }
@@ -213,32 +217,32 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs,
     }
 
 
-    /* label RMs chain */
+    /* label RadMs chain */
     for (i = 0; i < numofMs; ++i) {
-        if (RMs[i] == NULL)
+        if (RadMs[i] == NULL)
             continue;
 
-        fprintf(out, "\tRM_%llu_%u_%llu [label = \"%s\"];\n", \
+        fprintf(out, "\tRadM_%llu_%u_%llu [label = \"%s\"];\n", \
                 pi, m, i, labels[i]);
     }
 
     /* it is proven that M_pi(m,0) == Rad*M_pi(m,1)
      * and Rad*M_pi(m,0) is smaller than M_pi(m,0)
-     * so it will not collide with either any of Ms or RMs
-     * that's why it is safe to create this link here */
-    fprintf(out, "\tM_%llu_%u_%u -> RM_%llu_%u_%u;\n", pi, m, 0, pi, m, 0);
+     * thus, Rad*M_pi(m,0) will not collide with either any of Ms or RadMs
+     * that's why it is safe to create this arc here */
+    fprintf(out, "\tM_%llu_%u_%u -> RadM_%llu_%u_%u;\n", pi, m, 0, pi, m, 0);
 
-    /* construct RMs chain */
+    /* construct RadMs chain */
     for (i = 1; i < numofMs; ++i) {
-        if (RMs[i] == NULL)
+        if (RadMs[i] == NULL)
             continue;
 
         for (j = i + 1; j < numofMs; ++j) {
-            if (RMs[j] != NULL) {
-                fprintf(out, "\tRM_%llu_%u_%llu -> RM_%llu_%u_%llu;\n", pi, m, j, pi, m, i);
-                /* if j > i, then ... >= RM_pi[j+1] >= RM_pi[j] > RM_pi[i],
-                 * because always RM_pi[j] >= RM_pi[i]
-                 * and we've already handled all collisions */
+            if (RadMs[j] != NULL) {
+                fprintf(out, "\tRadM_%llu_%u_%llu -> RadM_%llu_%u_%llu;\n", pi, m, j, pi, m, i);
+                /* if j > i, then ... >= RadM_pi[j+1] >= RadM_pi[j] > RadM_pi[i]
+                 * indeed, we always have RadM_pi[j] >= RadM_pi[i]
+                 * and we have already handled all collisions */
                 break;
             }
         }
@@ -247,23 +251,23 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs,
 
     fprintf(out, "# The rest of the file is generated in an automated manner and not meant to be read by human\n");
 
-    /* for each RM create all needed links between RM and Ms
-     * things that were already handled:
-     *  Rad*M_pi(m,0)
-     *  M_pi(m,0) == Rad*M_pi(m,1)
-     *  M_pi(m, numofMs - 2) == Rad*M_pi(m, numofMs - 1) == Rad*QH == Rad */
+    /* for each RadM create all needed arcs between RadM and Ms
+     * the following cases have already been handled:
+     *   Rad*M_pi(m,0)
+     *   Rad*M_pi(m,1) == M_pi(m,0)
+     *   Rad*M_pi(m, numofMs - 1) == M_pi(m, numofMs - 2) == Rad*QH == Rad */
     previous = 0;
     for (j = 2; j < numofMs - 1; ++j) {
-        if (RMs[j] == NULL)
+        if (RadMs[j] == NULL)
             continue;
 
         for (i = numofMs - 3; i >= 1; --i) {
-            if (ideal_issubset(Ms[i], RMs[j])) {
+            if (ideal_issubset(Ms[i], RadMs[j])) {
                 if (previous < i) {
-                    fprintf(out, "\tRM_%llu_%u_%llu -> M_%llu_%u_%llu;\n", pi, m, j, pi, m, i);
+                    fprintf(out, "\tRadM_%llu_%u_%llu -> M_%llu_%u_%llu;\n", pi, m, j, pi, m, i);
                     previous = i;
                 }
-                /* if RM_pi[j] > M_pi[i], then RM_pi[j] > M_pi[i] > M_pi[i-1] > ... */
+                /* if RadM_pi[j] > M_pi[i], then RadM_pi[j] > M_pi[i] > M_pi[i-1] > ... */
                 break;
             }
         }
@@ -271,16 +275,16 @@ void print_rm_graph(FILE* out, IDEAL** Ms, IDEAL** RMs,
 
     previous = numofMs - 2;
     for (j = numofMs - 2; j >= 2; --j) {
-        if (RMs[j] == NULL)
+        if (RadMs[j] == NULL)
             continue;
 
         for (i = 1; i < numofMs - 2; ++i) {
-            if (ideal_issubset(RMs[j], Ms[i])) {
+            if (ideal_issubset(RadMs[j], Ms[i])) {
                 if (previous > i) {
-                    fprintf(out, "\tM_%llu_%u_%llu -> RM_%llu_%u_%llu;\n", pi, m, i, pi, m, j);
+                    fprintf(out, "\tM_%llu_%u_%llu -> RadM_%llu_%u_%llu;\n", pi, m, i, pi, m, j);
                     previous = i;
                 }
-                /* if M_pi[i] > RM_pi[j], then ... > M_pi[i+1] > M_pi[i] > RM_pi[j] */
+                /* if M_pi[i] > RadM_pi[j], then ... > M_pi[i+1] > M_pi[i] > RadM_pi[j] */
                 break;
             }
         }
@@ -323,10 +327,11 @@ void print_graph_beautiful(FILE* out,
     fprintf(out, "\t];\n");
 
 
-    /* label Ms/RMs equalities; it is proven that only these equalities hold:
-     *  M_pi(m, 0) == Rad^(nilindex - 1)
-     *  M_pi(m, numofMs - 2) == Rad^1 == Rad
-     *  M_pi(m, numofMs - 1) == Rad^0 == QH */
+    /* label Ms chain
+     * it is proven that only these equalities hold:
+     *   M_pi(m, 0) == Rad^(nilindex - 1)
+     *   M_pi(m, numofMs - 2) == Rad^1 == Rad
+     *   M_pi(m, numofMs - 1) == Rad^0 == QH */
     if (use_groups) {
         fprintf(out, "\tM_%llu_%u_%u [label = \"M_%llu(%u,%u) = Rad^%llu\", group = \"Ms\"];\n", \
                 pi, m, 0, pi, m, 0, nilindex - 1);
@@ -345,7 +350,7 @@ void print_graph_beautiful(FILE* out,
     fprintf(out, "\tM_%llu_%u_%llu -> M_%llu_%u_%llu [weight = %llu];\n", pi, m, numofMs - 1, pi, m, numofMs - 2, m_weight*numofMs);
 
 
-    /* label Rads chain (except for those in equalities mentioned above) */
+    /* label Rads chain (except for those in the equalities mentioned above) */
     for (i = 2; i < nilindex - 1; ++i) {
         if (use_groups) {
             fprintf(out, "\tRad_%llu [label = \"Rad^%llu\", group = \"Rads\"];\n", i, i);
@@ -354,13 +359,13 @@ void print_graph_beautiful(FILE* out,
         }
     }
 
-    /* construct Rads chain (except for those in equalities mentioned above) */
+    /* construct Rads chain (except for those in the equalities mentioned above) */
     for (i = 2; i < nilindex - 2; ++i) {
         fprintf(out, "\tRad_%llu -> Rad_%llu [weight = %llu];\n", i, i + 1, r_weight*nilindex);
     }
 
 
-    /* fill, label and link Mpi_to_Rad array */
+    /* fill, label and create arcs for Mpi_to_Rad array */
     for (i = 2; i < nilindex - 1; ++i) {
         Mpi_to_Rad[i] = minimum_Pi_for_P(l*(p - 1) - i, p, m, lambda);
         if (use_groups) {
@@ -373,7 +378,7 @@ void print_graph_beautiful(FILE* out,
         fprintf(out, "\tM_%llu_%u_%llu -> Rad_%llu [weight = %llu];\n", pi, m, Mpi_to_Rad[i], i, o_weight*nilindex);
     }
 
-    /* fill, label and link Rad_to_Mpi array */
+    /* fill, label and create arcs for Rad_to_Mpi array */
     for (i = 2; i < nilindex - 1; ++i) {
         Rad_to_Mpi[i] = maximum_Pi_for_P(l*(p - 1) - i, p, m);
         if (use_groups) {
@@ -387,30 +392,36 @@ void print_graph_beautiful(FILE* out,
     }
 
 
-    /* carcass is ready, fill it with inclusion links */
+    /* carcass is ready, fill it with inclusion arcs */
     fprintf(out, "# The rest of the file is generated in an automated manner and not meant to be read by human\n");
 
     /* contrsuct Ms chain */
     i = j = nilindex - 2;
     previous = 0;
     while(i >= 2 && j >= 2) {
-    /* obviously Mpi_to_Rad[t] > Rad_to_Mpi[t] for any t
-     * so, we won't get situation where i > 2 && j == 2, but keep both checks for sanity */
+    /* obviously, Mpi_to_Rad[t] > Rad_to_Mpi[t] for any t
+     * thus we won't have the situation when i > 2 && j == 2,
+     * but we keep both ">=" checks for sanity anyway */
         if (Rad_to_Mpi[i] < Mpi_to_Rad[j]) {
             /*
              * we don't need to check whether previous == Rad_to_Mpi[i] here
-             * indeed, assume Rad_to_Mpi[i] == previous and indices are (i,j)
-             * we can get to (i,j) state in 3 ways:
-             * 1. (i+1, j+1) --> (i,j)
-             *  then Rad_to_Mpi[i + 1] == Mpi_to_Rad[j + 1] == previous,
-             *  therefore Rad_to_Mpi[i] == Rad_to_Mpi[i + 1] and we obtain contradiction
-             *  since all elements in Rad_to_Mpi array are different
-             * 2. (i, j+1) --> (i,j)
-             *  then previous == Mpi_to_Rad[j + 1] == Rad_to_Mpi[i] < Rad_to_Mpi[i]
-             *  therefore we get contradiction
-             * 3. (i+1, j) --> (i,j)
-             *  then previous == Rad_to_Mpi[i+1] == Rad_to_Mpi[i] which again
-             *  leads to contradiction as all elements in Rad_to_Mpi array are different
+             * indeed, assume Rad_to_Mpi[i] == previous
+             * and indices' values are (i,j)
+             *
+             * we can obtain indices' values (i,j) in 3 ways:
+             * 1. (i+1,j+1) -> (i,j)
+             *   in this case Rad_to_Mpi[i + 1] == Mpi_to_Rad[j + 1] == previous
+             *   therefore, Rad_to_Mpi[i] == Rad_to_Mpi[i + 1]
+             *   since all elements in Rad_to_Mpi array are different,
+             *   we obtain contradiction
+             * 2. (i,j+1) -> (i,j)
+             *   in this case previous == Mpi_to_Rad[j + 1] == Rad_to_Mpi[i]
+             *   therefore, Rad_to_Mpi[i] < Rad_to_Mpi[i], which again
+             *   leads to contradiction
+             * 3. (i+1,j) -> (i,j)
+             *   in this case previous == Rad_to_Mpi[i + 1] == Rad_to_Mpi[i]
+             *   since all elements in Rad_to_Mpi array are different,
+             *   we obtain contradiction
              */
             if (previous + 1 == Rad_to_Mpi[i]) {
                 fprintf(out, "\tM_%llu_%u_%llu -> M_%llu_%u_%llu [weight = %llu];\n", \
@@ -422,9 +433,9 @@ void print_graph_beautiful(FILE* out,
             previous = Rad_to_Mpi[i];
             --i;
         } else if (Rad_to_Mpi[i] > Mpi_to_Rad[j]) {
-            /* if previous == Rad_to_Mpi[j] then we don't want to create
-             * Mpi_to_Rad[j] -> Rad_to_Mpi[j] link as it will duplicate
-             * already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
+            /* if previous == Rad_to_Mpi[j], then we don't need to create
+             * Mpi_to_Rad[j] -> Rad_to_Mpi[j] arc as it will duplicate
+             * an already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
             if (previous != Rad_to_Mpi[j]) {
                 if (previous + 1 == Mpi_to_Rad[j]) {
                     fprintf(out, "\tM_%llu_%u_%llu -> M_%llu_%u_%llu [weight = %llu];\n", \
@@ -439,10 +450,10 @@ void print_graph_beautiful(FILE* out,
         } else {
             /* it is possible to have Rad_to_Mpi[i] == Mpi_to_Rad[j] for some i and j
              * however, all elements in Rad_to_Mpi array are different as well as in Mpi_to_Rad array
-             * so, it is impossible to have Rad_to_Mpi[i] == Mpi_to_Rad[j] == previous */
-            /* if previous == Rad_to_Mpi[j] then we don't want to create
-             * Mpi_to_Rad[j] -> Rad_to_Mpi[j] link as it will duplicate
-             * already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
+             * thus it is impossible to have Rad_to_Mpi[i] == Mpi_to_Rad[j] == previous */
+            /* if previous == Rad_to_Mpi[j], then we don't need to create
+             * Mpi_to_Rad[j] -> Rad_to_Mpi[j] arc as it will duplicate
+             * an already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
             if (previous != Rad_to_Mpi[j]) {
                 if (previous + 1 == Mpi_to_Rad[j]) {
                     fprintf(out, "\tM_%llu_%u_%llu -> M_%llu_%u_%llu [weight = %llu];\n", \
@@ -458,17 +469,17 @@ void print_graph_beautiful(FILE* out,
         }
     }
 
-    /* this block handles situation when i == j == 2 in the end of the previous while
-     * when this happens we don't want to create
-     * Mpi_to_Rad[j] -> Rad_to_Mpi[j] link as it will duplicate
-     * already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
+    /* this block handles situation when i == j == 2 after the previous while
+     * when this happens we don't need to create
+     * Mpi_to_Rad[j] -> Rad_to_Mpi[j] arc as it will duplicate
+     * an already created chain Mpi_to_Rad[j] -> Rad_j -> Rad_to_Mpi[j] */
     if (j == 2) {
         previous = Mpi_to_Rad[j];
         --j;
     }
 
-    /* obviously Mpi_to_Rad[t] > Rad_to_Mpi[t] for any t
-     * so, in previous while we won't get situation where i > 2 and j == 2 */
+    /* obviously, Mpi_to_Rad[t] > Rad_to_Mpi[t] for any t
+     * thus we won't have the situation when i > 2 && j == 2 in the previous while */
     for (; j >= 2; --j) {
         if (previous + 1 == Mpi_to_Rad[j]) {
             fprintf(out, "\tM_%llu_%u_%llu -> M_%llu_%u_%llu [weight = %llu];\n", \
@@ -480,16 +491,19 @@ void print_graph_beautiful(FILE* out,
         previous = Mpi_to_Rad[j];
     }
 
-    /* Mpi_to_Rad[2] never equals to M_pi(m, numofMs - 2) == Rad because
-     * for any j < l(p - 1) and k such that k is a minimum such that P_j \susbet \Pi_k
-     * there exists t such that weight(t, p) == j, weight(t, pi) == k and
-     * weight(t + 1, p) == j + 1, weight(t + 1, pi) == k + 1.
-     * Therefore if Mpi_to_Rad[2] == M_pi(m, numofMs - 2) then there exists
-     * t such that weight(t, p) == l(p - 1) - 2, weight(t, pi) == numofMs - 2
+    /*
+     * Mpi_to_Rad[2] never equals to M_pi(m, numofMs - 2) == Rad
+     * Indeed, for any j < l(p - 1) there exists k such that
+     * k is a minimal integer for which P_j \susbet \Pi_k.
+     * There exists an integer t such that weight(t, p) == j, weight(t, pi) == k
+     * and weight(t + 1, p) == j + 1, weight(t + 1, pi) == k + 1.
+     * Therefore, if Mpi_to_Rad[2] == M_pi(m, numofMs - 2), then there exists
+     * an integer t such that weight(t, p) == l(p - 1) - 2, weight(t, pi) == numofMs - 2
      * and weight(t + 1, p) = l(p - 1) - 1, weight(t + 1, pi) == numofMs - 1.
-     * As Rad == M_pi(m, numofMs - 2) and weight(t + 1, p) == l(p - 1) - 1
-     * it follows that weight(t + 1, pi) <= numofMs - 2,
-     * which contradicts weight(t + 1, pi) == numofMs - 1 */
+     * Since Rad == M_pi(m, numofMs - 2) and weight(t + 1, p) == l(p - 1) - 1,
+     * we have weight(t + 1, pi) <= numofMs - 2, which contradicts
+     * the equality weight(t + 1, pi) == numofMs - 1
+     */
     if (previous + 1 == numofMs - 2) {
         fprintf(out, "\tM_%llu_%u_%llu -> M_%llu_%u_%llu [weight = %llu];\n", \
                 pi, m, numofMs - 2, pi, m, previous, m_weight*numofMs);
