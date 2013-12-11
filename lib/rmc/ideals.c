@@ -69,7 +69,7 @@ void m_k(mpz_t rop,
 
     for (j = 0; j <= m; ++j) {
         bin_coeff(tmp1, m, j);
-        /* the next call needs special attention as parameters can overflow */
+        /* next call needs special attention as parameters can overflow */
         bin_coeff(tmp2, m + k - pi*j, k - pi*j);
         mpz_mul(tmp1, tmp1, tmp2);
         if (j & 1)
@@ -205,7 +205,7 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j,
                     delta += i;
                 }
                 delta -= ((q - 1) >> 1);
-                /* p == 2 therefore q is odd and (q - 1) / 2 == (q - 2) / 2
+                /* p == 2 implies that q is odd and (q - 1) / 2 == (q - 2) / 2
                  * thus we need to substract additional 1 */
                 if (p == 2) --delta;
 
@@ -215,7 +215,7 @@ int ideal_multiplyby_u(IDEAL* res, IDEAL* M, unsigned long long j,
                 } else {
                     /* u_i * u_j is non-zero first, when i + j > q - 2,
                      * second, when \binom{i}{delta} != 0 mod p;
-                     * we use Lucas theorem to avoid computing of \binom here
+                     * we use Lucas theorem to avoid computation of \binom here
                      * and compare only p-coordinates of i and delta */
                     digit1 = i % p;
                     digit2 = delta % p;
