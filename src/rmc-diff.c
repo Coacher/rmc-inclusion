@@ -1,5 +1,5 @@
-/* This program will visualize the diff between two given ideals: M_pi(m, i) and Rad^j.
- * Given two indices i and j it will print the diff between M_pi(m, i) and Rad^j.
+/* This program will visualize the diff between two given ideals: M_pi(m,i) and Rad^j.
+ * Given two indices i and j it will print the diff between M_pi(m,i) and Rad^j.
  * If only one index is specified it will construct the shortest chain consisting of
  * the specified ideal and two nearest ideals from the other family of ideals. */
 #include <stdlib.h>
@@ -14,14 +14,14 @@
 #include "color.h"
 
 #define WAS_SPECIFIED_M         1
-#define WAS_SPECIFIED_Rad       (1 << 1)
+#define WAS_SPECIFIED_RAD       (1 << 1)
 
-#define SPECIAL_COLOR   35 /* magenta */
+#define SPECIAL_COLOR   35  /* magenta */
 
 #define MAX_LABEL_LENGTH    512
 
 const char* package = "Utility to visualize the diff between M_pi(m,k) and Rad^j";
-const char* version = "1.0.5";
+const char* version = "1.0.6";
 const char* progname = NULL;
 unsigned char output_control = 0;
 unsigned char use_colors = 0;
@@ -76,8 +76,8 @@ int main(int argc, char **argv) {
     }
 
     /* do the job */
-    if ((output_control & WAS_SPECIFIED_M) && (output_control & WAS_SPECIFIED_Rad)) {
-        /* both M_pi(m, i) and Rad^j were specified, process only them*/
+    if ((output_control & WAS_SPECIFIED_M) && (output_control & WAS_SPECIFIED_RAD)) {
+        /* both M_pi(m,i) and Rad^j were specified, process only them*/
         pp = ideal_create(q);
         ideal_init(pp, pi, m, i);
         Ms[0] = pp;
@@ -148,8 +148,8 @@ int main(int argc, char **argv) {
             sprintf(M_name, "Rad^%llu", j);
             print_diff(Rads[0], Rads[0], Ms[1], M_name, N_name, use_colors);
         }
-    } else if (output_control & WAS_SPECIFIED_Rad) {
-        /* only Rad^j was specified, find sup and inf M_pi(m, k) and process all three of them */
+    } else if (output_control & WAS_SPECIFIED_RAD) {
+        /* only Rad^j was specified, find sup and inf M_pi(m,k) and process all three of them */
         unsigned long long Mpi_to_Rad, Rad_to_Mpi;
 
         Rad_to_Mpi = maximum_Pi_for_P(l*(p - 1) - j, p, m);
@@ -194,7 +194,7 @@ int main(int argc, char **argv) {
             fprintf(stdout, "\n");
         }
     } else if (output_control & WAS_SPECIFIED_M) {
-        /* only M_pi(m, i) was specified, find sup and inf Rad^j and process all three of them */
+        /* only M_pi(m,i) was specified, find sup and inf Rad^j and process all three of them */
         unsigned long long Mpi_to_Rad, Rad_to_Mpi;
 
         Rad_to_Mpi = minimum_P_for_Pi(i, p, m);
@@ -279,8 +279,8 @@ static int handle_cmdline(int *argc, char ***argv) {
         "Specifies characteristic of field, must be a prime.",
         "Specifies order of field as an exponent of characteristic.",
         "Specifies series of ideals, can be any factor of exponent.",
-        "Specifies k for the M_pi(m, k) ideal. If none given will compare against the nearest ones.",
-        "Specifies power of the Rad. If none given will compare against the nearest ones.",
+        "Specifies k for M_pi(m,k) ideal. If none is given will compare against the nearest ones.",
+        "Specifies power of the Rad. If none is given will compare against the nearest ones.",
         "Use colors in output. Currently only special elements are colored.",
         "Increase debugging level.",
         "Print version information.",
@@ -313,7 +313,7 @@ static int handle_cmdline(int *argc, char ***argv) {
             break;
         case 'j':
             sscanf(optarg, "%llu", &j);
-            output_control |= WAS_SPECIFIED_Rad;
+            output_control |= WAS_SPECIFIED_RAD;
             break;
         case 'C':
             use_colors = 1;
@@ -363,7 +363,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     }
 
     if (!output_control) {
-        fprintf(stderr, "You must specify at least one of i, j options. See --help.\n");
+        fprintf(stderr, "You must specify at least one of i or j options. See --help.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -389,9 +389,9 @@ static void print_diff(IDEAL* res, IDEAL* M, IDEAL* N,
         char* M_name, char* N_name, int with_colors) {
 
     ideal_diff(res, M, N);
-    fprintf(stdout, "%s \\ %s\t\t=", M_name, N_name);
+    fprintf(stdout, "%s \\ %s\t\t= ", M_name, N_name);
 
-    /* if debug is non-zero print also u_s array of diff */
+    /* if debug is non-zero, then also print u_s array of diff */
     if (debug) {
         fprintf(stdout, "\n");
 
@@ -401,7 +401,7 @@ static void print_diff(IDEAL* res, IDEAL* M, IDEAL* N,
             ideal_print(res);
         }
 
-        fprintf(stdout, "Indexes in diff:");
+        fprintf(stdout, "Indices of elements in diff:\n");
     }
 
     if (with_colors) {
