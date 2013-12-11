@@ -1,5 +1,5 @@
 /* This program will construct and print Ms/Rads inclusion graph in dot format
- * It uses advanced techniques provided by theoretical background
+ * It uses advanced techniques provided by the theoretical background
  * i.e. no operations with ideals are performed so everything is much faster */
 #include <stdlib.h>
 #include <stdio.h>
