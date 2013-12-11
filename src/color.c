@@ -78,9 +78,9 @@ void color_ideal_print_verbose(unsigned int color, IDEAL* M,
     for (i = 0; i < (M->q - 1); ++i) {
         if (M->u_s[i]) {
             if (condition(i)) {
-                color_printf(color, " u_%llu", i);
+                color_printf(color, "u_%llu ", i);
             } else {
-                fprintf(stdout, " u_%llu", i);
+                fprintf(stdout, "u_%llu ", i);
             }
         }
     }
@@ -88,12 +88,12 @@ void color_ideal_print_verbose(unsigned int color, IDEAL* M,
     /* i = M->q - 1 */
     if (!M->u_s[i]) {
         /* only the whole group algebra contains u_(q-1) */
-        fprintf(stdout, "\n");
+        fprintf(stdout, "\b\n");
     } else {
         if (condition(i)) {
-            color_printf(color, " u_%llu\n", i);
+            color_printf(color, "u_%llu\n", i);
         } else {
-            fprintf(stdout, " u_%llu\n", i);
+            fprintf(stdout, "u_%llu\n", i);
         }
     }
 }
