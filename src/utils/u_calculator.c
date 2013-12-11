@@ -10,10 +10,10 @@
 #include "rmc/constants.h"
 
 const char* package = "u_s calculator";
-const char* version = "1.1.4";
+const char* version = "1.2.0";
 const char* progname = NULL;
 
-/* indexes of two elements to multiply */
+/* indices of two elements to multiply */
 unsigned long long i, j;
 
 /* global debug level */
@@ -43,11 +43,11 @@ int main(int argc, char **argv) {
     init_constants();
 
     if ( !(i < q) || !(j < q) ) {
-        fprintf(stderr, "Indexes must be lesser than q = p^l.\n");
+        fprintf(stderr, "Indices must be lesser than q = p^l.\n");
         exit(EXIT_FAILURE);
     }
 
-    /* ensure i is max of {i, j} */
+    /* ensure i is a maximum of {i, j} */
     if (j > i) {
         delta = i; i = j; j = delta;
     }
@@ -62,22 +62,22 @@ int main(int argc, char **argv) {
         fprintf(stdout, "result: 0\n");
         return 0;
     /* the only possible option left for i, j is (i + j > q - 2) && (i + j < 2*(q - 1))
-     * i + j >= q - 1, therefore either i or j >= (q - 1) / 2
-     * and since i is max of {i,j}, i >= (q - 1) / 2 */
+     * since i + j >= q - 1, we have max{i,j} >= (q - 1) / 2
+     * since i is a maximum of {i,j}, we get i >= (q - 1) / 2 */
     } else {
         /* same as delta = i + j - (q - 1), but no overflow happens */
         delta = i - ((q - 1) >> 1);
         delta += j;
         delta -= ((q - 1) >> 1);
-        /* p == 2 therefore q is odd so (q - 1) / 2 == (q - 2) / 2
-         * and we need to substract additional 1 */
+        /* p == 2 implies that q is odd and (q - 1) / 2 == (q - 2) / 2
+         * thus we need to substract additional 1 */
         if (p == 2) --delta;
     }
 
-    /* u_i * u_j is non-zero first when i + j > q - 2
-     * and second when \binom{i}{delta} != 0 mod p
-     * we use Lucas theorem to avoid computing of \binom here
-     * and comparing only p-digits of i and delta */
+    /* u_i * u_j is non-zero first, when i + j > q - 2,
+     * second, when \binom{i}{delta} != 0 mod p;
+     * we use Lucas theorem to avoid computation of \binom here
+     * and compare only p-coordinates of i and delta */
     digit1 = i % p;
     digit2 = delta % p;
     div1 = i;
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
     mpz_init(coeff);
 
     bin_coeff(coeff, i, delta);
-    /* (i - delta) is positive since i is max of {i,j} */
+    /* since i is a maximum of {i,j} we have that (i - delta) is positive */
     sign = ((i - delta) & 1) ? 1 : -1;
 
     if (sign < 0)
@@ -130,7 +130,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     };
     const char *opts_help[] = {
         "Specifies characteristic of field, must be a prime.",
-        "Specifies size of field as an exponent of characteristic.",
+        "Specifies order of field as an exponent of characteristic.",
         "Specifies series of ideals, can be any factor of exponent, except for 1.",
         "Specifies index of the first element to multiply. Default 0.",
         "Specifies index of the second element to multiply. Default 0.",

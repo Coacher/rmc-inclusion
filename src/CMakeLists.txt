@@ -52,10 +52,10 @@ install(TARGETS rmc-diff
 project(utilities)
 
 set(UTILITIES
-    M_RM_diff
-    M_RM_print
-    Rads_print
-    RM_collision
+    M_RadM_diff
+    M_RadM_print
+    Rad_print
+    RadM_collision
 )
 
 if (WITH_GMP)

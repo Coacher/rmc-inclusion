@@ -1,4 +1,4 @@
-/* A small utility to visualize Ms and RMs structure */
+/* A small utility to visualize Rads structure */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -9,13 +9,9 @@
 #include "rmc/ideals.h"
 #include "rmc/constants.h"
 
-#define WITH_Ms       1
-#define WITH_RMs      (1 << 1)
-
-const char* package = "Ms and RMs structure visualizer";
-const char* version = "1.1.3";
+const char* package = "Rads structure visualizer";
+const char* version = "1.2.0";
 const char* progname = NULL;
-unsigned char output_control = 0;
 
 /* global debug level */
 unsigned int debug = 0;
@@ -25,10 +21,8 @@ static int handle_cmdline(int *argc, char ***argv);
 int main(int argc, char **argv) {
     unsigned long long i;
 
-    IDEAL* Rad;
     IDEAL* pp;
-    IDEAL** Ms;
-    IDEAL** RMs;
+    IDEAL** Rads;
 
     /* learn who we really are */
     progname = (const char *)strrchr(argv[0], '/');
@@ -40,74 +34,40 @@ int main(int argc, char **argv) {
     /* initializing needed things */
     init_constants();
 
-    Ms   = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
-    RMs  = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
+    Rads = (IDEAL**) malloc(nilindex*sizeof(IDEAL*));
 
-    if (Ms == NULL || RMs == NULL) {
+    if (Rads == NULL) {
         fprintf(stderr, "Unable to allocate memory for ideals' arrays.\n");
         exit(EXIT_FAILURE);
     }
 
     /* do the job */
-    dbg_msg("Computing Ms...\n");
-    for (i = 0; i < numofMs; ++i) {
+    dbg_msg("Computing Rads...\n");
+    for (i = 0; i < nilindex; ++i) {
         pp = ideal_create(q);
-        ideal_init(pp, pi, m, i);
-        Ms[i] = pp;
+        ideal_init(pp, p, l, i);
+        Rads[i] = pp;
     }
 
-    dbg_msg("Computing Rad...\n");
-    pp = ideal_create(q);
-    ideal_init(pp, p, l, l*(p - 1) - 1);
-    Rad = pp;
-
-    dbg_msg("Computing RMs...\n");
-    for (i = 0; i < numofMs; ++i) {
-        pp = ideal_create(q);
-        ideal_product(pp, Rad, Ms[i], p);
-        RMs[i] = pp;
-    }
-
-    for (i = 0; i < numofMs; ++i) {
+    for (i = 0; i < nilindex; ++i) {
         if (i)
             fprintf(stdout, "\n");
 
-        if (output_control & WITH_Ms) {
-            fprintf(stdout, "M_%llu(%u,%llu)\t\t=\n", pi, m, i);
-            ideal_print(Ms[i]);
-            if (debug && i) {
-                ideal_diff(Ms[i - 1], Ms[i], Ms[i - 1]);
-                fprintf(stdout, "M_%llu(%u,%llu) \\ M_%llu(%u,%llu)\t\t=", pi, m, i, pi, m, i - 1);
-                ideal_print_verbose(Ms[i - 1]);
-            }
-        }
-
-        if (output_control & WITH_RMs) {
-            fprintf(stdout, "Rad*M_%llu(%u,%llu)\t\t=\n", pi, m, i);
-            ideal_print(RMs[i]);
-            if (debug && i) {
-                ideal_diff(RMs[i - 1], RMs[i], RMs[i - 1]);
-                fprintf(stdout, "Rad*M_%llu(%u,%llu) \\ Rad*M_%llu(%u,%llu)\t\t=", pi, m, i, pi, m, i - 1);
-                ideal_print_verbose(RMs[i - 1]);
-            }
+        fprintf(stdout, "M_%u(%u,%llu) = Rad^%llu\t=\n", p, l, i, l*(p - 1) - i);
+        ideal_print(Rads[i]);
+        if (debug && i) {
+            ideal_diff(Rads[i - 1], Rads[i], Rads[i - 1]);
+            fprintf(stdout, "M_%u(%u,%llu) \\ M_%u(%u,%llu)\t\t=", p, l, i, p, l, i - 1);
+            ideal_print_verbose(Rads[i - 1]);
         }
     }
 
     /* do cleanup */
-    dbg_msg_l(5, "Freeing Ms...\n");
-    for (i = 0; i < numofMs; ++i) {
-        ideal_free(Ms[i]);
+    dbg_msg_l(5, "Freeing Rads...\n");
+    for (i = 0; i < nilindex; ++i) {
+        ideal_free(Rads[i]);
     }
-    free(Ms);
-
-    dbg_msg_l(5, "Freeing Rad...\n");
-    ideal_free(Rad);
-
-    dbg_msg_l(5, "Freeing RMs...\n");
-    for (i = 0; i < numofMs; ++i) {
-        ideal_free(RMs[i]);
-    }
-    free(RMs);
+    free(Rads);
 
     return 0;
 }
@@ -120,8 +80,6 @@ static int handle_cmdline(int *argc, char ***argv) {
         {"char", 1, 0, 'p'},
         {"exp", 1, 0, 'l'},
         {"lambda", 1, 0, 'L'},
-        {"with_Ms", 0, 0, 'M'},
-        {"with_RMs", 0, 0, 'R'},
         {"debug", 0, 0, 'D'},
         {"version", 0, 0, 'v'},
         {"help", 0, 0, 'h'},
@@ -129,10 +87,8 @@ static int handle_cmdline(int *argc, char ***argv) {
     };
     const char *opts_help[] = {
         "Specifies characteristic of field, must be a prime.",
-        "Specifies size of field as an exponent of characteristic.",
+        "Specifies order of field as an exponent of characteristic.",
         "Specifies series of ideals, can be any factor of exponent.",
-        "Enable Ms output.",
-        "Enable RMs output.",
         "Increase debugging level.",
         "Print version information.",
         "Print this message.",
@@ -144,7 +100,7 @@ static int handle_cmdline(int *argc, char ***argv) {
     for (;;) {
         int i;
         i = getopt_long(*argc, *argv,
-            "p:l:L:MRDvh", opts, NULL);
+            "p:l:L:Dvh", opts, NULL);
         if (i == -1) {
             break;
         }
@@ -157,12 +113,6 @@ static int handle_cmdline(int *argc, char ***argv) {
             break;
         case 'L':
             sscanf(optarg, "%u", &lambda);
-            break;
-        case 'M':
-            output_control |= WITH_Ms;
-            break;
-        case 'R':
-            output_control |= WITH_RMs;
             break;
         case 'D':
             debug++;
@@ -205,11 +155,6 @@ static int handle_cmdline(int *argc, char ***argv) {
 
     if (l % lambda) {
         fprintf(stderr, "(L)ambda must be a factor of l. See --help.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (!output_control) {
-        fprintf(stderr, "You must specify at least one of M or R options. See --help.\n");
         exit(EXIT_FAILURE);
     }
 

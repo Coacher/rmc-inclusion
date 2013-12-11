@@ -1,4 +1,4 @@
-/* A small utility to visualize Rads structure */
+/* A small utility to detect RadMs collisions and print them out */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -9,8 +9,8 @@
 #include "rmc/ideals.h"
 #include "rmc/constants.h"
 
-const char* package = "Rads structure visualizer";
-const char* version = "1.1.3";
+const char* package = "RadMs collision detector";
+const char* version = "1.2.0";
 const char* progname = NULL;
 
 /* global debug level */
@@ -19,10 +19,13 @@ unsigned int debug = 0;
 static int handle_cmdline(int *argc, char ***argv);
 
 int main(int argc, char **argv) {
-    unsigned long long i;
+    unsigned long long i, j;
+    unsigned char was_collision = 0;
 
+    IDEAL* Rad;
     IDEAL* pp;
-    IDEAL** Rads;
+    IDEAL** Ms;
+    IDEAL** RadMs;
 
     /* learn who we really are */
     progname = (const char *)strrchr(argv[0], '/');
@@ -34,40 +37,79 @@ int main(int argc, char **argv) {
     /* initializing needed things */
     init_constants();
 
-    Rads = (IDEAL**) malloc(nilindex*sizeof(IDEAL*));
+    Ms    = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
+    RadMs = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
 
-    if (Rads == NULL) {
+    if (Ms == NULL || RadMs == NULL) {
         fprintf(stderr, "Unable to allocate memory for ideals' arrays.\n");
         exit(EXIT_FAILURE);
     }
 
     /* do the job */
-    dbg_msg("Computing Rads...\n");
-    for (i = 0; i < nilindex; ++i) {
+    dbg_msg("Computing Ms...\n");
+    for (i = 0; i < numofMs; ++i) {
         pp = ideal_create(q);
-        ideal_init(pp, p, l, i);
-        Rads[i] = pp;
+        ideal_init(pp, pi, m, i);
+        Ms[i] = pp;
     }
 
-    for (i = 0; i < nilindex; ++i) {
-        if (i)
-            fprintf(stdout, "\n");
+    dbg_msg("Computing Rad...\n");
+    pp = ideal_create(q);
+    ideal_init(pp, p, l, l*(p - 1) - 1);
+    Rad = pp;
 
-        fprintf(stdout, "M_%u(%u,%llu) = Rad^%llu\t=\n", p, l, i, l*(p - 1) - i);
-        ideal_print(Rads[i]);
-        if (debug && i) {
-            ideal_diff(Rads[i - 1], Rads[i], Rads[i - 1]);
-            fprintf(stdout, "M_%u(%u,%llu) \\ M_%u(%u,%llu)\t\t=", p, l, i, p, l, i - 1);
-            ideal_print_verbose(Rads[i - 1]);
+    dbg_msg("Computing RadMs...\n");
+    for (i = 0; i < numofMs; ++i) {
+        pp = ideal_create(q);
+        ideal_product(pp, Rad, Ms[i], p);
+        RadMs[i] = pp;
+    }
+
+    /* do collision test */
+    for (i = 0; i < numofMs; ++i) {
+        was_collision = 0;
+        if (RadMs[i] == NULL)
+            continue;
+
+        for (j = i + 1; j < numofMs; ++j) {
+            if (RadMs[j] == NULL) {
+                continue;
+            } else if (ideal_isequal(RadMs[i], RadMs[j])) {
+                if (!was_collision) {
+                    was_collision = 1;
+
+                    fprintf(stdout, "Rad*M_%llu(%u,%llu)", pi, m, i);
+                    fprintf(stdout, " == Rad*M_%llu(%u,%llu)", pi, m, j);
+
+                    ideal_free(RadMs[j]);
+                    RadMs[j] = NULL;
+                } else {
+                    fprintf(stdout, " == Rad*M_%llu(%u,%llu)", pi, m, j);
+
+                    ideal_free(RadMs[j]);
+                    RadMs[j] = NULL;
+                }
+            }
         }
+        if (was_collision)
+            fprintf(stdout, "\n");
     }
 
     /* do cleanup */
-    dbg_msg_l(5, "Freeing Rads...\n");
-    for (i = 0; i < nilindex; ++i) {
-        ideal_free(Rads[i]);
+    dbg_msg_l(5, "Freeing Ms...\n");
+    for (i = 0; i < numofMs; ++i) {
+        ideal_free(Ms[i]);
     }
-    free(Rads);
+    free(Ms);
+
+    dbg_msg_l(5, "Freeing Rad...\n");
+    ideal_free(Rad);
+
+    dbg_msg_l(5, "Freeing RadMs...\n");
+    for (i = 0; i < numofMs; ++i) {
+        ideal_free(RadMs[i]);
+    }
+    free(RadMs);
 
     return 0;
 }
@@ -87,8 +129,8 @@ static int handle_cmdline(int *argc, char ***argv) {
     };
     const char *opts_help[] = {
         "Specifies characteristic of field, must be a prime.",
-        "Specifies size of field as an exponent of characteristic.",
-        "Specifies series of ideals, can be any factor of exponent.",
+        "Specifies order of field as an exponent of characteristic.",
+        "Specifies series of ideals, can be any factor of exponent, except for 1.",
         "Increase debugging level.",
         "Print version information.",
         "Print this message.",
@@ -153,8 +195,8 @@ static int handle_cmdline(int *argc, char ***argv) {
         exit(EXIT_FAILURE);
     }
 
-    if (l % lambda) {
-        fprintf(stderr, "(L)ambda must be a factor of l. See --help.\n");
+    if (l % lambda || lambda == 1) {
+        fprintf(stderr, "(L)ambda must be a factor of l, except for 1. See --help.\n");
         exit(EXIT_FAILURE);
     }
 
