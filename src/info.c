@@ -19,8 +19,8 @@ void print_info(FILE* out, IDEAL** Ms, IDEAL** Rads, IDEAL** RadMs) {
     fprintf(out, "Extra info:  m*(pi - 1) = %-10llu m*(pi - 1) - 1 = %-llu\n",    numofMs - 1,  numofMs - 2);
     fprintf(out, "             l*(p - 1)  = %-10llu l*(p - 1) - 1  = %-llu\n\n", nilindex - 1, nilindex - 2);
 
-    fprintf(out, "Total number of M_pi's: %-llu\n",    numofMs);
-    fprintf(out, "Total number of M_p's:  %-llu\n\n", nilindex);
+    fprintf(out, "Total number of (M_pi)s: %-llu\n",    numofMs);
+    fprintf(out, "Total number of (M_p)s:  %-llu\n\n", nilindex);
 
 #ifdef ENABLE_GMP
     fprintf(out, "(M_pi)s dimensions:\n");
