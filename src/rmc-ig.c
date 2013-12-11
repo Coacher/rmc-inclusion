@@ -1,5 +1,5 @@
-/* This program will gather and print all needed info about Ms, Rads and RMs structure
- * It is also able to print Ms/Rads and Ms/RMs inclusion graphs in dot format */
+/* This program will gather and print all needed info about Ms, Rads and RadMs structure
+ * It is also able to print Ms/Rads and Ms/RadMs inclusion graphs in dot format */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -15,12 +15,12 @@
 
 #define MAX_FILENAME_LEN 128
 
-#define WITH_INFO       1
-#define WITH_GRAPH      (1 << 1)
-#define WITH_RM_GRAPH   (1 << 2)
+#define WITH_INFO           1
+#define WITH_GRAPH          (1 << 1)
+#define WITH_RADM_GRAPH     (1 << 2)
 
 const char* package = "Basic Reed-Muller codes plotter";
-const char* version = "3.1.4";
+const char* version = "3.1.5";
 const char* progname = NULL;
 unsigned char use_stdout = 0;
 unsigned char output_control = 0;
@@ -36,18 +36,18 @@ static int handle_cmdline(int *argc, char ***argv);
 
 int main(int argc, char **argv) {
     unsigned long long i;
-    FILE* info_out      = NULL;
-    FILE* graph_out     = NULL;
-    FILE* rm_graph_out  = NULL;
+    FILE* info_out       = NULL;
+    FILE* graph_out      = NULL;
+    FILE* radm_graph_out = NULL;
 
     IDEAL* pp;
     IDEAL** Ms;
     IDEAL** Rads;
-    IDEAL** RMs;
+    IDEAL** RadMs;
 
-    char     info_outname[MAX_FILENAME_LEN];
-    char    graph_outname[MAX_FILENAME_LEN];
-    char rm_graph_outname[MAX_FILENAME_LEN];
+    char       info_outname[MAX_FILENAME_LEN];
+    char      graph_outname[MAX_FILENAME_LEN];
+    char radm_graph_outname[MAX_FILENAME_LEN];
 
     /* learn who we really are */
     progname = (const char *)strrchr(argv[0], '/');
@@ -78,12 +78,12 @@ int main(int argc, char **argv) {
             }
         }
 
-        if (output_control & WITH_RM_GRAPH) {
-            sprintf(rm_graph_outname, "rm_inclusion_tree_%u-%u-%u.gv", p, l, lambda);
-            rm_graph_out = fopen(rm_graph_outname, "w");
+        if (output_control & WITH_RADM_GRAPH) {
+            sprintf(radm_graph_outname, "radm_inclusion_tree_%u-%u-%u.gv", p, l, lambda);
+            radm_graph_out = fopen(radm_graph_outname, "w");
 
-            if (!rm_graph_out) {
-                fprintf(stderr, "Error opening \"%s\" file\n", rm_graph_outname);
+            if (!radm_graph_out) {
+                fprintf(stderr, "Error opening \"%s\" file\n", radm_graph_outname);
                 exit(EXIT_FAILURE);
             }
         }
@@ -95,17 +95,17 @@ int main(int argc, char **argv) {
 
         info_out = stdout;
         graph_out = stdout;
-        rm_graph_out = stdout;
+        radm_graph_out = stdout;
     }
 
     /* initializing needed things */
     init_constants();
 
-    Ms   = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
-    Rads = (IDEAL**) malloc(nilindex*sizeof(IDEAL*));
-    RMs  = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
+    Ms    = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
+    Rads  = (IDEAL**) malloc(nilindex*sizeof(IDEAL*));
+    RadMs = (IDEAL**) malloc(numofMs*sizeof(IDEAL*));
 
-    if (Ms == NULL || Rads == NULL || RMs == NULL) {
+    if (Ms == NULL || Rads == NULL || RadMs == NULL) {
         fprintf(stderr, "Unable to allocate memory for ideals' arrays.\n");
         exit(EXIT_FAILURE);
     }
@@ -125,17 +125,17 @@ int main(int argc, char **argv) {
         Rads[i] = pp;
     }
 
-    dbg_msg("Computing RMs...\n");
+    dbg_msg("Computing RadMs...\n");
     for (i = 0; i < numofMs; ++i) {
         pp = ideal_create(q);
         ideal_product(pp, Rads[1], Ms[i], p);
-        RMs[i] = pp;
+        RadMs[i] = pp;
     }
 
     /* print out info */
     if (output_control & WITH_INFO) {
         dbg_msg("Printing out info...\n");
-        print_info(info_out, Ms, Rads, RMs);
+        print_info(info_out, Ms, Rads, RadMs);
         fclose(info_out);
     }
 
@@ -146,11 +146,11 @@ int main(int argc, char **argv) {
         fclose(graph_out);
     }
 
-    /* print out rm_graph */
-    if (output_control & WITH_RM_GRAPH) {
-        dbg_msg("Printing out rm_graph...\n");
-        print_rm_graph(rm_graph_out, Ms, RMs, m_weight);
-        fclose(rm_graph_out);
+    /* print out radm_graph */
+    if (output_control & WITH_RADM_GRAPH) {
+        dbg_msg("Printing out radm_graph...\n");
+        print_radm_graph(radm_graph_out, Ms, RadMs, m_weight);
+        fclose(radm_graph_out);
     }
 
     /* do cleanup */
@@ -166,11 +166,11 @@ int main(int argc, char **argv) {
     }
     free(Rads);
 
-    dbg_msg_l(5, "Freeing RMs...\n");
+    dbg_msg_l(5, "Freeing RadMs...\n");
     for (i = 0; i < numofMs; ++i) {
-        ideal_free(RMs[i]);
+        ideal_free(RadMs[i]);
     }
-    free(RMs);
+    free(RadMs);
 
     return 0;
 }
@@ -186,7 +186,7 @@ static int handle_cmdline(int *argc, char ***argv) {
         {"stdout", 0, 0, 'c'},
         {"with_info", 0, 0, 'I'},
         {"with_graph", 0, 0, 'G'},
-        {"with_rm_graph", 0, 0, 'R'},
+        {"with_radm_graph", 0, 0, 'R'},
         {"m_weight", 1, 0, 'm'},
         {"r_weight", 1, 0, 'r'},
         {"o_weight", 1, 0, 'o'},
@@ -198,15 +198,15 @@ static int handle_cmdline(int *argc, char ***argv) {
     };
     const char *opts_help[] = {
         "Specifies characteristic of field, must be a prime.",
-        "Specifies size of field as an exponent of characteristic.",
+        "Specifies order of field as an exponent of characteristic.",
         "Specifies series of ideals, can be any factor of exponent, except for 1.",
         "Write output to stdout.",
         "Enable info output.",
         "Enable graph output.",
-        "Enable rm_graph output.",
-        "Specifies weight to use for Ms links in graph construction. Default 1000.",
-        "Specifies weight to use for Rads links in graph construction. Default 1000.",
-        "Specifies weight to use for Rads<->Ms links in graph construction. Default 10.",
+        "Enable radm_graph output.",
+        "Specifies weight to use for Ms arcs in graph construction. Default 1000.",
+        "Specifies weight to use for Rads arcs in graph construction. Default 1000.",
+        "Specifies weight to use for Rads<->Ms arcs in graph construction. Default 10.",
         "Enable grouping of Rads and Ms when plotting Ms/Rads inclusion graph.",
         "Increase debugging level.",
         "Print version information.",
@@ -243,7 +243,7 @@ static int handle_cmdline(int *argc, char ***argv) {
             output_control |= WITH_GRAPH;
             break;
         case 'R':
-            output_control |= WITH_RM_GRAPH;
+            output_control |= WITH_RADM_GRAPH;
             break;
         case 'm':
             sscanf(optarg, "%u", &m_weight);
