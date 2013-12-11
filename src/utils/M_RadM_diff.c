@@ -67,12 +67,12 @@ int main(int argc, char **argv) {
     for (i = 0; i < (numofMs - 1); ++i) {
         if (!ideal_isequal(Ms[i], RadMs[i + 1])) {
             ideal_diff(Ms[i], Ms[i], RadMs[i + 1]);
-            fprintf(stdout, "M_%llu(%u,%llu) \\ Rad*M_%llu(%u,%llu)\t\t=", pi, m, i, pi, m, i + 1);
+            fprintf(stdout, "M_%llu(%u,%llu) \\ Rad*M_%llu(%u,%llu)\t\t= ", pi, m, i, pi, m, i + 1);
 
             if (debug) {
                 fprintf(stdout, "\n");
                 ideal_print(Ms[i]);
-                fprintf(stdout, "Indices in diff:");
+                fprintf(stdout, "Indices of elements in diff:\n");
             }
 
             ideal_print_verbose(Ms[i]);
