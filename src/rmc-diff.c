@@ -1,7 +1,8 @@
-/* This program will visualize the diff between two given ideals: M_pi(m,i) and Rad^j.
+/* This program visualizes diff between two given ideals: M_pi(m,i) and Rad^j.
  * Given two indices i and j it will print the diff between M_pi(m,i) and Rad^j.
- * If only one index is specified it will construct the shortest chain consisting of
- * the specified ideal and two nearest ideals from the other family of ideals. */
+ * If only one index is specified it will construct and print the shortest chain,
+ * which consists of the specified ideal and the two nearest ideals
+ * from the other family of ideals. */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -20,8 +21,8 @@
 
 #define MAX_LABEL_LENGTH    512
 
-const char* package = "Utility to visualize the diff between M_pi(m,k) and Rad^j";
-const char* version = "1.0.7";
+const char* package = "Utility to visualize diff between M_pi(m,k) and Rad^j";
+const char* version = "1.0.8";
 const char* progname = NULL;
 unsigned char output_control = 0;
 unsigned char use_colors = 0;
