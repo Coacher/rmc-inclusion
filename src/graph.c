@@ -4,8 +4,6 @@
 
 #include "graph.h"
 
-#define MAX_LABEL_LENGTH 512
-
 void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads,
         unsigned int m_weight, unsigned int r_weight, unsigned int o_weight,
         unsigned int use_groups) {
@@ -51,7 +49,7 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads,
                 pi, m, numofMs - 1, pi, m, numofMs - 1, 0);
     }
 
-    /* contrsuct Ms chain */
+    /* construct Ms chain */
     for (i = 1; i < numofMs; ++i) {
         fprintf(out, "\tM_%llu_%u_%llu -> M_%llu_%u_%llu [weight = %llu];\n", \
                 pi, m, i, pi, m, i - 1, m_weight*numofMs);
@@ -101,47 +99,12 @@ void print_graph(FILE* out, IDEAL** Ms, IDEAL** Rads,
     fprintf(out, "}\n");
 }
 
-static int append_to_label(char** label, char* s) {
-    char* pp;
-
-    if (s == NULL)
-        return 1;
-
-    if ((*label) == NULL) {
-        pp = (char*) malloc((strlen(s) + 1)*sizeof(char));
-        strcpy(pp, s);
-        *label = pp;
-    } else {
-        /* pp must have place for a previous label,
-         * additional part of label and terminating `\0` */
-        pp = (char*) malloc((strlen(*label) + strlen(s) + 1)*sizeof(char));
-        sprintf(pp, "%s%s", (*label), s);
-
-        free(*label);
-        *label = pp;
-    }
-
-    return 0;
-}
-
 void print_radm_graph(FILE* out, IDEAL** Ms, IDEAL** RadMs,
         unsigned int m_weight) {
 
     unsigned long long i, j;
-    unsigned char was_collision = 0;
+    unsigned char equality = 0;
     unsigned long long previous;
-
-    char buf[MAX_LABEL_LENGTH];
-    char** labels;
-
-    labels = (char**) malloc(numofMs*sizeof(char*));
-    if (labels == NULL) {
-        fprintf(stderr, "Unable to allocate memory for labels.\n");
-        return;
-    }
-
-    for (i = 0; i < numofMs; ++i)
-        labels[i] = NULL;
 
 
     fprintf(out, "digraph M_RadM_inclusion {\n");
@@ -153,64 +116,75 @@ void print_radm_graph(FILE* out, IDEAL** Ms, IDEAL** RadMs,
     fprintf(out, "\t];\n");
 
 
-    /* label RadMs taking collisions into account */
-    /* it is proven that all RadMs are different in the case lambda != l, i.e. m != 1
-     * it is proven that only the equalities Rad*M_pi(m,k + 1) == Rad*M_pi(m,k),
-     * where k = (p - 1) mod p, hold in the case lambda == l, i.e. m == 1 */
-    for (i = 0; i < numofMs; ++i) {
-        if (RadMs[i] == NULL)
-            continue;
+    /* label Ms chain taking equalities with RadMs into account */
+    /* It is proven that all RadMs are different when lambda != l, i.e. m != 1.
+     * It is proven that only the equalities Rad*M_pi(m,k + 1) == Rad*M_pi(m,k),
+     * where k = (p - 1) mod p, hold when lambda == l, i.e. m == 1. */
+    /* We always have that Rad == Rad*M_pi(m,numofMs-1) is a subset of M_pi(m,numofMs-1),
+     * since the radical is not the whole group algebra. */
+    /* We also always have that Rad == Rad*M_pi(m,numofMs-1) == M_pi(m,numofMs-2). */
+    /* We also always have that Rad == Rad*M_pi(m,numofMs-1) != Rad*M_pi(m,numofMs-2) == Rad^2,
+     * since nilindex >= 3 */
+    fprintf(out, "\tM_%llu_%u_%llu [label = \"M_%llu(%u,%llu)\"];\n", \
+            pi, m, numofMs - 1, pi, m, numofMs - 1);
+    fprintf(out, "\tM_%llu_%u_%llu [label = \"M_%llu(%u,%llu) = Rad*M_%llu(%u,%llu)\"];\n", \
+            pi, m, numofMs - 2, pi, m, numofMs - 2, pi, m, numofMs - 1);
+    ideal_free(RadMs[numofMs - 1]);
+    RadMs[numofMs - 1] = NULL;
 
-        was_collision = 0;
-        for (j = i + 1; j < numofMs; ++j) {
-            if (RadMs[j] != NULL && ideal_isequal(RadMs[i], RadMs[j])) {
-                if (!was_collision) {
-                    was_collision = 1;
+    if (m != 1) {
+        for (i = 0; i < numofMs - 2; ++i) {
+            equality = 0;
 
-                    sprintf(buf, "Rad*M_%llu(%u,%llu) = Rad*M_%llu(%u,%llu)", \
-                            pi, m, i, pi, m, j);
-                    append_to_label(labels + i, buf);
+            for (j = 1; j < numofMs - 1; ++j) {
+                if (ideal_isequal(Ms[i], RadMs[j])) {
+                    equality = 1;
+                    fprintf(out, "\tM_%llu_%u_%llu [label = \"M_%llu(%u,%llu) = Rad*M_%llu(%u,%llu)\"];\n", \
+                            pi, m, i, pi, m, i, pi, m, j);
 
                     ideal_free(RadMs[j]);
                     RadMs[j] = NULL;
-                } else {
-                    sprintf(buf, " = Rad*M_%llu(%u,%llu)", pi, m, j);
-                    append_to_label(labels + i, buf);
-
-                    ideal_free(RadMs[j]);
-                    RadMs[j] = NULL;
+                    break;
                 }
             }
+
+            if (!equality)
+                fprintf(out, "\tM_%llu_%u_%llu [label = \"M_%llu(%u,%llu)\"];\n", \
+                        pi, m, i, pi, m, i);
+        }
+    } else {
+        for (j = p; j < numofMs; j += p) {
+            ideal_free(RadMs[j]);
+            RadMs[j] = NULL;
         }
 
-        if (!was_collision) {
-            sprintf(buf, "Rad*M_%llu(%u,%llu)", pi, m, i);
-            append_to_label(labels + i, buf);
-        }
-    }
+        for (i = 0; i < numofMs - 2; ++i) {
+            equality = 0;
 
-    /* label Ms chain taking collisions with RadMs into account */
-    for (i = 0; i < numofMs; ++i) {
-        was_collision = 0;
+            for (j = 1; j < numofMs - 1; ++j) {
+                if (RadMs[j] != NULL && ideal_isequal(Ms[i], RadMs[j])) {
+                    equality = 1;
+                    if ((j + 1) % p != 0) {
+                        fprintf(out, "\tM_%llu_%u_%llu [label = \"M_%llu(%u,%llu) = Rad*M_%llu(%u,%llu)\"];\n", \
+                                pi, m, i, pi, m, i, pi, m, j);
+                    } else {
+                        fprintf(out, "\tM_%llu_%u_%llu [label = \"M_%llu(%u,%llu) = Rad*M_%llu(%u,%llu) = Rad*M_%llu(%u,%llu)\"];\n", \
+                                pi, m, i, pi, m, i, pi, m, j, pi, m, j + 1);
+                    }
 
-        for (j = 1; j < numofMs; ++j) {
-            if (RadMs[j] != NULL && ideal_isequal(Ms[i], RadMs[j])) {
-                was_collision = 1;
-                fprintf(out, "\tM_%llu_%u_%llu [label = \"M_%llu(%u,%llu) = %s\"];\n", \
-                        pi, m, i, pi, m, i, labels[j]);
-
-                ideal_free(RadMs[j]);
-                RadMs[j] = NULL;
-                break;
+                    ideal_free(RadMs[j]);
+                    RadMs[j] = NULL;
+                    break;
+                }
             }
-        }
 
-        if (!was_collision)
-            fprintf(out, "\tM_%llu_%u_%llu [label = \"M_%llu(%u,%llu)\"];\n", \
-                    pi, m, i, pi, m, i);
+            if (!equality)
+                fprintf(out, "\tM_%llu_%u_%llu [label = \"M_%llu(%u,%llu)\"];\n", \
+                        pi, m, i, pi, m, i);
+        }
     }
 
-    /* contrsuct Ms chain */
+    /* construct Ms chain */
     for (i = 1; i < numofMs; ++i) {
         fprintf(out, "\tM_%llu_%u_%llu -> M_%llu_%u_%llu [weight = %llu];\n", \
                 pi, m, i, pi, m, i - 1, m_weight*numofMs);
@@ -218,12 +192,29 @@ void print_radm_graph(FILE* out, IDEAL** Ms, IDEAL** RadMs,
 
 
     /* label RadMs chain */
-    for (i = 0; i < numofMs; ++i) {
-        if (RadMs[i] == NULL)
-            continue;
-
-        fprintf(out, "\tRadM_%llu_%u_%llu [label = \"%s\"];\n", \
-                pi, m, i, labels[i]);
+    if (m != 1) {
+        for (i = 0; i < numofMs - 1; ++i) {
+            if (RadMs[i] != NULL) {
+                fprintf(out, "\tRadM_%llu_%u_%llu [label = \"Rad*M_%llu(%u,%llu)\"];\n", \
+                        pi, m, i, pi, m, i);
+            } else {
+                continue;
+            }
+        }
+    } else {
+        for (i = 0; i < numofMs - 1; ++i) {
+            if (RadMs[i] != NULL) {
+                if ((i + 1) % p != 0) {
+                    fprintf(out, "\tRadM_%llu_%u_%llu [label = \"Rad*M_%llu(%u,%llu)\"];\n", \
+                            pi, m, i, pi, m, i);
+                } else {
+                    fprintf(out, "\tRadM_%llu_%u_%llu [label = \"Rad*M_%llu(%u,%llu) = Rad*M_%llu(%u,%llu)\"];\n", \
+                            pi, m, i, pi, m, i, pi, m, i + 1);
+                }
+            } else {
+                continue;
+            }
+        }
     }
 
     /* it is proven that M_pi(m,0) == Rad*M_pi(m,1)
@@ -233,11 +224,11 @@ void print_radm_graph(FILE* out, IDEAL** Ms, IDEAL** RadMs,
     fprintf(out, "\tM_%llu_%u_%u -> RadM_%llu_%u_%u;\n", pi, m, 0, pi, m, 0);
 
     /* construct RadMs chain */
-    for (i = 1; i < numofMs; ++i) {
+    for (i = 1; i < numofMs - 1; ++i) {
         if (RadMs[i] == NULL)
             continue;
 
-        for (j = i + 1; j < numofMs; ++j) {
+        for (j = i + 1; j < numofMs - 1; ++j) {
             if (RadMs[j] != NULL) {
                 fprintf(out, "\tRadM_%llu_%u_%llu -> RadM_%llu_%u_%llu;\n", pi, m, j, pi, m, i);
                 /* if j > i, then ... >= RadM_pi[j+1] >= RadM_pi[j] > RadM_pi[i]
@@ -291,12 +282,6 @@ void print_radm_graph(FILE* out, IDEAL** Ms, IDEAL** RadMs,
     }
 
     fprintf(out, "}\n");
-
-    for (i = 0; i < numofMs; ++i) {
-        if (labels[i])
-            free(labels[i]);
-    }
-    free(labels);
 }
 
 void print_graph_beautiful(FILE* out,
@@ -395,7 +380,7 @@ void print_graph_beautiful(FILE* out,
     /* carcass is ready, fill it with inclusion arcs */
     fprintf(out, "# The rest of the file is generated in an automated manner and not meant to be read by human\n");
 
-    /* contrsuct Ms chain */
+    /* construct Ms chain */
     i = j = nilindex - 2;
     previous = 0;
     while(i >= 2 && j >= 2) {
