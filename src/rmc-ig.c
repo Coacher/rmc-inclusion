@@ -1,5 +1,5 @@
-/* This program will gather and print all needed info about Ms, Rads and RadMs structure
- * It is also able to print Ms/Rads and Ms/RadMs inclusion graphs in dot format */
+/* This program gathers and prints all needed info about Ms, Rads and RadMs structure.
+ * It is also able to print Ms/Rads and Ms/RadMs inclusion graphs in dot format. */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
