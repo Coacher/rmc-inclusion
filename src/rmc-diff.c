@@ -1,8 +1,8 @@
-/* This program visualizes diff between two given ideals: M_pi(m,i) and Rad^j.
- * Given two indices i and j it will print the diff between M_pi(m,i) and Rad^j.
- * If only one index is specified it will construct and print the shortest chain,
- * which consists of the specified ideal and the two nearest ideals
- * from the other family of ideals. */
+/* This program visualizes diff between M_pi(m,i) and Rad^j ideals.
+ * If both i and j are given, then diff between M_pi(m,i) and Rad^j is printed.
+ * If only one index is given, then the shortest inclusion path is constructed,
+ * where the specified ideal is between the nearest ideals of the other type,
+ * and then diff between the specified ideal and other two is printed. */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
