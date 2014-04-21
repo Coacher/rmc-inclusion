@@ -2,11 +2,11 @@ rmc-inclusion README -- Important introductory notes.
 Copyright (C) 2012-2014 Tumaykin Ilya <itumaykin[at]gmail[dot]com>
 See the end of this document for copying conditions.
 
-rmc-inclusion: this project is dedicated to construction and plotting
-the inclusion graphs of certain ideals M_pi(m,k), called basic Reed-Muller codes
-(see [0]), and radical powers of a certain group algebra QH,
-where Q is a finite field with characteristic p and order q = p^l
-and H is a group isomorphic to (Q, +) -- the additive group of field Q.
+rmc-inclusion: this project is dedicated to construction and plotting of
+the inclusion graphs of certain ideals M_pi(m,k), called the basic Reed-Muller
+codes (see [0]), and the radical powers of a group algebra QH, where Q
+is a finite field with characteristic p and order q = p^l and H is a group
+isomorphic to (Q,+), i.e. the additive group of the field Q.
 
 [0]: E. Couselo, S. Gonzalez, V. Markov, C. Martinez, A. Nechaev,
     “Ideal representation of Reed-Solomon and Reed-Muller codes”,
@@ -16,8 +16,8 @@ and H is a group isomorphic to (Q, +) -- the additive group of field Q.
 README
 ------
 It is a known fact (see [0]) that in the case of a prime subfield of Q
-all basic Reed-Muller codes are equal to radical powers.
-However, there are no such equalities in the case of a non-prime subfield of Q,
+all basic Reed-Muller codes are equal to radical powers. However,
+there are no such equalities in the case of a non-prime subfield of Q,
 except for trivial ones. This program helps to study the layout of these ideals
 in non-prime cases.
 
@@ -29,30 +29,30 @@ It supports all basic operations, like creation, multiplication, subtraction,
 intersection, and a number of functions to calculate various parameters
 of these ideals, like dimension.
 
-rmc-diff: a tool to print diff between a M_pi(m,i) ideal and Rad^j.
+rmc-diff: a tool to print diff between M_pi(m,i) and Rad^j ideals.
 If both i and j are given, then diff between M_pi(m,i) and Rad^j is printed.
 If only one index is given, then the shortest inclusion path is constructed,
-where the specified ideal is in the middle between the ideals of the other type,
+where the specified ideal is between the nearest ideals of the other type,
 and then diff between the specified ideal and other two is printed.
 
-rmc-ig: the most powerful tool: it is able to print all needed info
+rmc-ig: the most powerful tool: it is able to print all the needed info
 about M_pi(m,k) ideals and radical powers; it is also able to print
-inclusion graphs of Ms/Rads and Rad*Ms/Ms. Therefore, it allows to visualize
+inclusion graphs of Ms/Rads and Rad*Ms/Ms. That is, it allows to visualize
 the layout of Ms in QH completely.
 
-rmc-short: a special tool for plotting Ms/Rads inclusion graph only.
+rmc-short: a special tool for Ms/Rads inclusion graph plotting only.
 However, it doesn't compute ideals directly, but uses some theoretical results
-to construct almost* transitively reduced inclusion graph.
-It is much faster than rmc-ig and plots only needed M_pi(m,k), omitting trivial
-inclusion paths.
+to construct almost* transitively reduced inclusion graph. It is much faster
+than rmc-ig and plots only the needed M_pi(m,k), omitting trivial inclusion paths.
 *Note: 'almost' means that the graph is transitively reduced with
-the possible exception to the links between consecutive radical powers,
+the possible exception to arcs between consecutive radical powers,
 which sometimes are redundant. However, this only applies to a very small cases,
 namely p = lambda = 2 and even l.
 
-utils: several utilities for printing various special information related
-to the said ideals and radical powers. Refer to the source code or
-a short help message provided by each utility.
+utils: various utilities for printing special information related to the basic
+Reed-Muller codes and radical powers. Refer to the source code or a short help
+message provided by each utility.
+
 
 LIMITATIONS
 -----------
@@ -63,6 +63,7 @@ graphs become too big and complex to comprehend.
 If you want to prevent possible overflows and wraps by performing needed checks,
 you should enable debug support.
 
+
 COMPILATION
 -----------
 External dependencies are minimal: CMake and C compiler.
@@ -70,6 +71,7 @@ Optional dependency is GMP, which unlocks m_k function that calculates M_pi(m,k)
 dimension and also unlocks u_calculator utility.
 You can use preferred cmake building procedure or run script
 tools/build.sh from the project's top dir.
+
 
 LICENSING
 ---------
